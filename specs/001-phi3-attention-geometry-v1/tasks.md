@@ -57,58 +57,58 @@ implementation passes.
 
 ### Reproducibility seam
 
-- [ ] T009 Write `tests/unit/test_seeds.py` — assert `seed_for_event(event_id)`, `seed_for_match(bin_id)`, `seed_for_split("v1")`, `seed_for_analysis(step_name)` are deterministic, return `int`, and match the SHA1-derivation rule from `data-model.md` (Constitution Principle I)
-- [ ] T010 Implement `src/phi3geom/reproducibility/seeds.py` to pass T009
+- [X] T009 Write `tests/unit/test_seeds.py` — assert `seed_for_event(event_id)`, `seed_for_match(bin_id)`, `seed_for_split("v1")`, `seed_for_analysis(step_name)` are deterministic, return `int`, and match the SHA1-derivation rule from `data-model.md` (Constitution Principle I)
+- [X] T010 Implement `src/phi3geom/reproducibility/seeds.py` to pass T009
 
 ### Spectral primitives (parity vs DCSBM)
 
-- [ ] T011 [P] Write `tests/unit/test_spectral_parity.py` — 100 Hypothesis-driven random `(96, 96)` float64 matrices; assert `max_abs_diff ≤ 1e-7` between local `stable_rank`/`top_k_grassmannian`/`spectral_entropy` and DCSBM reference (Constitution Principle IV)
-- [ ] T012 [P] Write `tests/unit/test_spectral_individual.py` — per-primitive correctness tests (rank-1 entropy = 0, identity stable rank = N, k_grass dim sanity)
-- [ ] T013 Implement `src/phi3geom/geometry/spectral.py` (`stable_rank`, `top_k_grassmannian`, `spectral_entropy`) to pass T011 and T012; reject float32 inputs with `TypeError` per `contracts/atomic_unit.md`
+- [X] T011 [P] Write `tests/unit/test_spectral_parity.py` — 100 Hypothesis-driven random `(96, 96)` float64 matrices; assert `max_abs_diff ≤ 1e-7` between local `stable_rank`/`top_k_grassmannian`/`spectral_entropy` and DCSBM reference (Constitution Principle IV)
+- [X] T012 [P] Write `tests/unit/test_spectral_individual.py` — per-primitive correctness tests (rank-1 entropy = 0, identity stable rank = N, k_grass dim sanity)
+- [X] T013 Implement `src/phi3geom/geometry/spectral.py` (`stable_rank`, `top_k_grassmannian`, `spectral_entropy`) to pass T011 and T012; reject float32 inputs with `TypeError` per `contracts/atomic_unit.md`
 
 ### Forman-Ricci primitive (parity vs GraphRicciCurvature)
 
-- [ ] T014 [P] Write `tests/unit/test_ricci_parity.py` — 3 explicit reference graphs (K₃, C₄, K₁,₄) + 100 random 16-node graphs with edge density `[0.1, 0.8]`; assert `max_abs_diff ≤ 1e-10` vs `GraphRicciCurvature`; isolated-node case returns `np.nan`
-- [ ] T015 Implement `src/phi3geom/geometry/ricci.py::forman_ricci_token(graph)` to pass T014; define canonical `FEATURE_NAMES` tuple in `src/phi3geom/geometry/__init__.py` per `research.md §12`
+- [X] T014 [P] Write `tests/unit/test_ricci_parity.py` — 3 explicit reference graphs (K₃, C₄, K₁,₄) + 100 random 16-node graphs with edge density `[0.1, 0.8]`; assert `max_abs_diff ≤ 1e-10` vs `GraphRicciCurvature`; isolated-node case returns `np.nan`
+- [X] T015 Implement `src/phi3geom/geometry/ricci.py::forman_ricci_token(graph)` to pass T014; define canonical `FEATURE_NAMES` tuple in `src/phi3geom/geometry/__init__.py` per `research.md §12`
 
 ### Failure-EM normalization
 
-- [ ] T016 [P] Write `tests/unit/test_normalization.py` — golden table covering each of the 6 normalization steps independently and the full pipeline; verify NFKC, lowercase, article-strip, whitespace-collapse on adversarial inputs (`"  The Eiffel Tower."` → `"eiffel tower"`)
-- [ ] T017 Implement `src/phi3geom/dataset/normalization.py::normalize_em(text)` to pass T016 per spec FR-002
+- [X] T016 [P] Write `tests/unit/test_normalization.py` — golden table covering each of the 6 normalization steps independently and the full pipeline; verify NFKC, lowercase, article-strip, whitespace-collapse on adversarial inputs (`"  The Eiffel Tower."` → `"eiffel tower"`)
+- [X] T017 Implement `src/phi3geom/dataset/normalization.py::normalize_em(text)` to pass T016 per spec FR-002
 
 ### Evidence-distance computation
 
-- [ ] T018 [P] Write `tests/unit/test_evidence_distance.py` — verify token-distance from end-of-evidence to first generated answer token under known tokenizer fixtures; assert bin assignment correctness for all 6 bins
-- [ ] T019 Implement `src/phi3geom/dataset/distance.py::compute_evidence_distance(prompt, evidence_span, answer_commit_idx)` and `assign_bin(distance)` to pass T018
+- [X] T018 [P] Write `tests/unit/test_evidence_distance.py` — verify token-distance from end-of-evidence to first generated answer token under known tokenizer fixtures; assert bin assignment correctness for all 6 bins
+- [X] T019 Implement `src/phi3geom/dataset/distance.py::compute_evidence_distance(prompt, evidence_span, answer_commit_idx)` and `assign_bin(distance)` to pass T018
 
 ### CEM matching
 
-- [ ] T020 [P] Write `tests/unit/test_matching.py` — verify CEM cell partitioning on (template_id, density_coarsening, length_coarsening); assert `min(n_fail, n_ctrl)` per cell; assert cells with `min=0` are dropped; assert balanced 400/400 output when input pool supports it
-- [ ] T021 Implement `src/phi3geom/dataset/matching.py::cem_match(events, target_per_class)` to pass T020 per spec FR-003
+- [X] T020 [P] Write `tests/unit/test_matching.py` — verify CEM cell partitioning on (template_id, density_coarsening, length_coarsening); assert `min(n_fail, n_ctrl)` per cell; assert cells with `min=0` are dropped; assert balanced 400/400 output when input pool supports it
+- [X] T021 Implement `src/phi3geom/dataset/matching.py::cem_match(events, target_per_class)` to pass T020 per spec FR-003
 
 ### Dataset manifest I/O
 
-- [ ] T022 [P] Write `tests/unit/test_manifest.py` per `contracts/manifest.md` test obligations — `test_event_id_reproducible`, `test_sha_integrity_failure`, `test_round_trip`, `test_header_required_fields`
-- [ ] T023 Implement `src/phi3geom/dataset/manifest.py` (`write_manifest`, `read_manifest`, `verify_event_id`) to pass T022; uses `seeds.py` from T010
+- [X] T022 [P] Write `tests/unit/test_manifest.py` per `contracts/manifest.md` test obligations — `test_event_id_reproducible`, `test_sha_integrity_failure`, `test_round_trip`, `test_header_required_fields`
+- [X] T023 Implement `src/phi3geom/dataset/manifest.py` (`write_manifest`, `read_manifest`, `verify_event_id`) to pass T022; uses `seeds.py` from T010
 
 ### Storage cache I/O
 
-- [ ] T024 [P] Write `tests/unit/test_cache.py` per `contracts/cache.md` test obligations — `test_write_read_F_round_trip`, `test_stale_sha_raises`, `test_shape_mismatch_raises`, `test_dtype_rejection`
-- [ ] T025 Implement `src/phi3geom/storage/cache.py` (`write_F`, `read_F`, `write_D`, `read_D`, `write_F_summary`, `read_F_summary` + sidecar `.header.json`) to pass T024
+- [X] T024 [P] Write `tests/unit/test_cache.py` per `contracts/cache.md` test obligations — `test_write_read_F_round_trip`, `test_stale_sha_raises`, `test_shape_mismatch_raises`, `test_dtype_rejection`
+- [X] T025 Implement `src/phi3geom/storage/cache.py` (`write_F`, `read_F`, `write_D`, `read_D`, `write_F_summary`, `read_F_summary` + sidecar `.header.json`) to pass T024
 
 ### Phi-3 attention hooks
 
-- [ ] T026 [P] Write `tests/unit/test_hooks.py` — build a tiny 2-layer 4-head synthetic `nn.Module` matching `Phi3Attention`'s shape contract; hand-compute expected Q/K/V/A/O; assert hook recovery to 1e-12 (mechanical correctness, no spectral computation)
-- [ ] T027 Implement `src/phi3geom/extraction/hooks.py` (`register_phi3_attention_hooks`, `recover_qkt_from_cached_qk`) to pass T026 per `research.md §1`
+- [X] T026 [P] Write `tests/unit/test_hooks.py` — build a tiny 2-layer 4-head synthetic `nn.Module` matching `Phi3Attention`'s shape contract; hand-compute expected Q/K/V/A/O; assert hook recovery to 1e-12 (mechanical correctness, no spectral computation)
+- [X] T027 Implement `src/phi3geom/extraction/hooks.py` (`register_phi3_attention_hooks`, `recover_qkt_from_cached_qk`) to pass T026 per `research.md §1`
 
 ### Constitution Principle III segregation
 
-- [ ] T028 [P] Write `tests/unit/test_principle_iii_segregation.py` — assert `pooled_negative_control.fit` is NOT importable from `phi3geom.analysis.composite`; assert `fit_per_regime_composite(bin_id=None)` raises `ValueError`; assert `bin_id="ALL"` raises
-- [ ] T029 Implement skeleton `src/phi3geom/analysis/composite.py` (raise-on-bad-bin shell) and `src/phi3geom/analysis/pooled_negative_control.py` (separate module shell) to pass T028; both files contain `raise NotImplementedError` bodies for the actual fit logic (filled in US1 and US4)
+- [X] T028 [P] Write `tests/unit/test_principle_iii_segregation.py` — assert `pooled_negative_control.fit` is NOT importable from `phi3geom.analysis.composite`; assert `fit_per_regime_composite(bin_id=None)` raises `ValueError`; assert `bin_id="ALL"` raises
+- [X] T029 Implement skeleton `src/phi3geom/analysis/composite.py` (raise-on-bad-bin shell) and `src/phi3geom/analysis/pooled_negative_control.py` (separate module shell) to pass T028; both files contain `raise NotImplementedError` bodies for the actual fit logic (filled in US1 and US4)
 
 ### Setup polish
 
-- [ ] T030 Add `[project.scripts]` entries to `pyproject.toml` for `pin-model-revision`, `run-pilot`, `run-full-study`, `regenerate-dataset`, `check-hf-auth`
+- [X] T030 Add `[project.scripts]` entries to `pyproject.toml` for `pin-model-revision`, `run-pilot`, `run-full-study`, `regenerate-dataset`, `check-hf-auth`
 
 **Checkpoint**: Foundation ready — all scientific primitives parity-verified, all data-layer
 contracts enforced by tests. User story work can now begin.
