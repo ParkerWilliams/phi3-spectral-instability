@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+*.egg
+.eggs/
+build/
+dist/
+.venv/
+venv/
+env/
+
+# Test / lint caches
+.pytest_cache/
+.hypothesis/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Cached tensors and reports (large; live outside git)
+cache/
+dataset/cache/
+reports/
+
+# HuggingFace model cache (multi-GB; never commit)
+.cache/huggingface/
+~/.cache/huggingface/
+
+# Editor / OS noise
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# Local secrets (none committed; this is a defense-in-depth pattern)
+.env
+.env.*
+*.pem
+*.key

@@ -35,14 +35,14 @@ Headline Report). Phase 1 (Setup) and Phase 2 (Foundational) precede all stories
 
 **Purpose**: Project initialization, dependency declaration, lint/test tooling, directory layout.
 
-- [ ] T001 Create `src/phi3geom/` package structure with submodules per `plan.md` (dataset, extraction, geometry, lattice, analysis, storage, reproducibility, reporting, scripts) — empty `__init__.py` files only
-- [ ] T002 Initialize `pyproject.toml` with project metadata, runtime deps (`torch>=2.3`, `transformers>=4.45`, `numpy`, `scipy`, `scikit-learn`, `skfda`, `GraphRicciCurvature`, `networkx`, `pandas`, `huggingface_hub`), and `[project.optional-dependencies]` dev block (`pytest`, `hypothesis`, `ruff`, `mypy`)
-- [ ] T003 [P] Add DCSBM reference repo as pinned git dev dependency in `pyproject.toml` (parity oracle for spectral primitives — Constitution Principle II)
-- [ ] T004 [P] Configure `pytest` with `hypothesis` profile (100 examples per `@given`, 5-minute deadline disabled for parity tests) in `pyproject.toml` `[tool.pytest.ini_options]`
-- [ ] T005 [P] Configure `ruff` (line length 100, no-trailing-whitespace) and `mypy` (strict) in `pyproject.toml`
-- [ ] T006 [P] Create `tests/unit/`, `tests/contract/`, `tests/integration/` with `__init__.py` and `conftest.py` containing shared fixtures (seeded RNG, tiny synthetic attention module factory)
-- [ ] T007 [P] Create root-level `exploratory/` (with `notebooks/` and `probes/` subdirs) and `scripts/` directories; add `exploratory/README.md` documenting the TDD carve-out per Constitution Principle II
-- [ ] T008 Add `src/phi3geom/scripts/check_hf_auth.py` that calls `huggingface_hub.whoami()` and prints actionable failure on missing token
+- [X] T001 Create `src/phi3geom/` package structure with submodules per `plan.md` (dataset, extraction, geometry, lattice, analysis, storage, reproducibility, reporting, scripts) — empty `__init__.py` files only
+- [X] T002 Initialize `pyproject.toml` with project metadata, runtime deps (`torch>=2.3`, `transformers>=4.45`, `numpy`, `scipy`, `scikit-learn`, `skfda`, `GraphRicciCurvature`, `networkx`, `pandas`, `huggingface_hub`), and `[project.optional-dependencies]` dev block (`pytest`, `hypothesis`, `ruff`, `mypy`)
+- [X] T003 [P] Add DCSBM reference repo as pinned git dev dependency in `pyproject.toml` (parity oracle for spectral primitives — Constitution Principle II)
+- [X] T004 [P] Configure `pytest` with `hypothesis` profile (100 examples per `@given`, 5-minute deadline disabled for parity tests) in `pyproject.toml` `[tool.pytest.ini_options]`
+- [X] T005 [P] Configure `ruff` (line length 100, no-trailing-whitespace) and `mypy` (strict) in `pyproject.toml`
+- [X] T006 [P] Create `tests/unit/`, `tests/contract/`, `tests/integration/` with `__init__.py` and `conftest.py` containing shared fixtures (seeded RNG, tiny synthetic attention module factory)
+- [X] T007 [P] Create root-level `exploratory/` (with `notebooks/` and `probes/` subdirs) and `scripts/` directories; add `exploratory/README.md` documenting the TDD carve-out per Constitution Principle II
+- [X] T008 Add `src/phi3geom/scripts/check_hf_auth.py` that calls `huggingface_hub.whoami()` and prints actionable failure on missing token
 
 ---
 
