@@ -4,28 +4,24 @@ Constitution Principle III is enforced at the function-signature level: the
 ``bin_id`` parameter is required, must be a single bin, and the function
 refuses to fit on cross-bin pooled data. The pooled negative control lives
 in ``phi3geom.analysis.pooled_negative_control`` and is NOT re-exported
-from this module — by design, ``from phi3geom.analysis.composite import
-fit`` of a pooled function MUST fail.
+from this module — by design, a future ``from phi3geom.analysis.composite
+import pooled_fit`` MUST fail.
 
-This module is a SKELETON at T029: ``fit_per_regime_composite`` validates
-inputs and raises ``NotImplementedError`` for the actual sklearn-backed
-fit. T044 (US1) replaces the NotImplementedError with the real fit logic.
+T044 (this version, US1) replaces the NotImplementedError skeleton from T029
+with the sklearn-backed fit logic.
 """
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+import numpy as np
 
 from phi3geom.dataset.types import BIN_IDS, BinId
 
-if TYPE_CHECKING:
-    import numpy as np
-
-    from phi3geom.analysis.types import PerRegimeCompositeFit
-
-# Minimum per-bin event count for a stable fit (≥10× the candidate-feature
-# parameter count of ~10–15 atomic-unit + aggregate features).
+# Minimum per-bin event count for a stable fit.
 MIN_EVENTS_FOR_FIT = 100
+
+# Default bootstrap parameters for AUROC CI.
+DEFAULT_N_BOOTSTRAP = 1000
 
 
 class InsufficientDataError(ValueError):
@@ -33,49 +29,95 @@ class InsufficientDataError(ValueError):
 
 
 def fit_per_regime_composite(
-    features: "np.ndarray",
-    labels: "np.ndarray",
+    features: np.ndarray,
+    labels: np.ndarray,
     bin_id: BinId,
     *,
+    feature_names: tuple[str, ...] | None = None,
     l2_penalty: float = 1.0,
     random_state: int,
-) -> "PerRegimeCompositeFit":
+    held_out_fraction: float = 0.2,
+    n_bootstrap: int = DEFAULT_N_BOOTSTRAP,
+) -> "PerRegimeCompositeFit":  # noqa: F821 - forward reference
     """Fit an L2-regularized logistic regression on events from ONE bin.
 
-    Args:
-        features: ``(n_events, n_features)`` float64 array. NaNs permitted
-            in the Forman-Ricci column only; median imputation is applied
-            internally (research.md §10).
-        labels: ``(n_events,)`` bool array. True = fail event.
-        bin_id: One of ``"B1".."B6"``. NOT ``None``, NOT ``"ALL"`` — the
-            single-bin invariant is enforced here. Cross-bin pooling is
-            forbidden by Constitution Principle III; use
-            ``phi3geom.analysis.pooled_negative_control.fit`` for SC-003.
-        l2_penalty: Strength of L2 regularization (sklearn ``C = 1 / l2_penalty``).
-        random_state: Derived from
-            ``seeds.seed_for_analysis("per_regime_composite:" + bin_id)``.
-
-    Returns:
-        ``PerRegimeCompositeFit`` with fitted coefficients, AUROC, and CI.
-
-    Raises:
-        ValueError: If ``bin_id`` is ``None`` or ``"ALL"`` or otherwise not
-            one of the 6 bin enums.
-        InsufficientDataError: If ``len(features) < MIN_EVENTS_FOR_FIT``.
-        TypeError: If ``features.dtype`` is not float64.
-
-    Note:
-        T029 (this skeleton) raises ``NotImplementedError`` for the actual
-        sklearn-backed fit. T044 fills in the body.
+    See ``contracts/composite.md`` for the full I/O contract.
     """
     _validate_bin_id(bin_id)
     _validate_inputs(features, labels)
 
-    raise NotImplementedError(
-        "fit_per_regime_composite body is filled by T044 (US1). "
-        "Skeleton at T029 validates inputs only."
+    # Lazy imports keep test_principle_iii_segregation.py's import-time check
+    # cheap and avoid pulling sklearn until the fit actually runs.
+    from sklearn.linear_model import LogisticRegression
+    from sklearn.metrics import roc_auc_score
+    from sklearn.model_selection import train_test_split
+
+    from phi3geom.analysis.types import PerRegimeCompositeFit
+
+    n_features = features.shape[1]
+    if feature_names is None:
+        feature_names = tuple(f"f_{i}" for i in range(n_features))
+    elif len(feature_names) != n_features:
+        raise ValueError(
+            f"feature_names length {len(feature_names)} != n_features {n_features}"
+        )
+
+    # NaN handling: median impute the Forman-Ricci column (index 6 in
+    # canonical FEATURE_NAMES order) per research.md §10. We impute generally
+    # by column to be robust if the caller passed a different feature layout.
+    features_imputed = _impute_nan_columns_inplace_copy(features)
+
+    # Stratified split. With small bin sizes the held-out set can be tiny
+    # (e.g., 100 events → 20 held out), so we keep the split at 80/20 by
+    # default.
+    rng = np.random.default_rng(random_state)
+    x_train, x_test, y_train, y_test = train_test_split(
+        features_imputed,
+        labels.astype(int),
+        test_size=held_out_fraction,
+        random_state=random_state,
+        stratify=labels,
     )
 
+    # ``LogisticRegression`` uses ``C = 1 / l2_penalty`` as the inverse-reg
+    # parameter.
+    model = LogisticRegression(
+        penalty="l2",
+        C=1.0 / l2_penalty,
+        solver="lbfgs",
+        max_iter=1000,
+        random_state=random_state,
+    )
+    model.fit(x_train, y_train)
+
+    # Compute AUROC on the held-out set.
+    y_scores = model.predict_proba(x_test)[:, 1]
+    auroc = float(roc_auc_score(y_test, y_scores))
+
+    # Percentile bootstrap CI on AUROC.
+    auroc_lo, auroc_hi = _bootstrap_auroc_ci(
+        y_test=y_test,
+        y_scores=y_scores,
+        n_bootstrap=n_bootstrap,
+        rng=rng,
+    )
+
+    return PerRegimeCompositeFit(
+        bin_id=bin_id,
+        feature_names=feature_names,
+        coefficients=model.coef_.ravel().astype(np.float64),
+        intercept=float(model.intercept_[0]),
+        auroc=auroc,
+        auroc_ci_lower=auroc_lo,
+        auroc_ci_upper=auroc_hi,
+        n_events_train=len(x_train),
+        n_events_held_out=len(x_test),
+    )
+
+
+# ---------------------------------------------------------------------------
+# Validation helpers (shared with T029 skeleton)
+# ---------------------------------------------------------------------------
 
 def _validate_bin_id(bin_id: object) -> None:
     """Enforce Constitution Principle III at the function boundary."""
@@ -96,10 +138,7 @@ def _validate_bin_id(bin_id: object) -> None:
         )
 
 
-def _validate_inputs(features: "np.ndarray", labels: "np.ndarray") -> None:
-    """Shape + dtype + NaN policy checks shared by skeleton and impl."""
-    import numpy as np  # local: numpy is a runtime dep
-
+def _validate_inputs(features: np.ndarray, labels: np.ndarray) -> None:
     if features.ndim != 2:
         raise ValueError(f"features must be 2D; got shape {features.shape}")
     if labels.ndim != 1:
@@ -118,3 +157,46 @@ def _validate_inputs(features: "np.ndarray", labels: "np.ndarray") -> None:
             f"Need ≥{MIN_EVENTS_FOR_FIT} events for a stable per-bin fit; "
             f"got {features.shape[0]}."
         )
+
+
+def _impute_nan_columns_inplace_copy(features: np.ndarray) -> np.ndarray:
+    """Median-impute NaN entries column-by-column. Returns a copy."""
+    arr = features.copy()
+    for col in range(arr.shape[1]):
+        column = arr[:, col]
+        nan_mask = np.isnan(column)
+        if not nan_mask.any():
+            continue
+        median = float(np.nanmedian(column))
+        if not np.isfinite(median):
+            median = 0.0
+        column[nan_mask] = median
+    return arr
+
+
+def _bootstrap_auroc_ci(
+    *,
+    y_test: np.ndarray,
+    y_scores: np.ndarray,
+    n_bootstrap: int,
+    rng: np.random.Generator,
+    ci_level: float = 0.95,
+) -> tuple[float, float]:
+    """Percentile bootstrap CI on AUROC."""
+    from sklearn.metrics import roc_auc_score
+
+    n = len(y_test)
+    aurocs: list[float] = []
+    for _ in range(n_bootstrap):
+        idx = rng.integers(0, n, size=n)
+        ys = y_test[idx]
+        if len(np.unique(ys)) < 2:
+            continue  # degenerate resample
+        aurocs.append(float(roc_auc_score(ys, y_scores[idx])))
+    if not aurocs:
+        return float("nan"), float("nan")
+    aurocs.sort()
+    alpha = (1 - ci_level) / 2
+    lo_idx = int(alpha * len(aurocs))
+    hi_idx = int((1 - alpha) * len(aurocs)) - 1
+    return aurocs[lo_idx], aurocs[hi_idx]

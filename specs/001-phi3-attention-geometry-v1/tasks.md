@@ -127,47 +127,47 @@ runtime ≤72 GPU-hours. Spec acceptance scenarios US1.1–US1.3.
 
 ### Model revision pinning
 
-- [ ] T031 [P] [US1] Write `tests/unit/test_pin_model_revision.py` — assert SHA is written to `manifest_header.json`; assert re-running without `--force-repin` refuses to overwrite an existing pin
-- [ ] T032 [US1] Implement `src/phi3geom/scripts/pin_model_revision.py` to pass T031 per `research.md §2`
+- [X] T031 [P] [US1] Write `tests/unit/test_pin_model_revision.py` — assert SHA is written to `manifest_header.json`; assert re-running without `--force-repin` refuses to overwrite an existing pin
+- [X] T032 [US1] Implement `src/phi3geom/scripts/pin_model_revision.py` to pass T031 per `research.md §2`
 
 ### Synthetic Wikidata DocQA generator
 
-- [ ] T033 [P] [US1] Write `tests/unit/test_generation.py` — enumerate ~10 template ids, verify document construction places evidence at requested token distance, verify gold-answer canonical form (no leading article/preposition), verify event_id derivation from text fields
-- [ ] T034 [US1] Implement `src/phi3geom/dataset/generation.py` with ~10 Wikidata-style templates (e.g., "Where was X born?", "What is the capital of X?", "When did X die?") to pass T033 per spec FR-001
+- [X] T033 [P] [US1] Write `tests/unit/test_generation.py` — enumerate ~10 template ids, verify document construction places evidence at requested token distance, verify gold-answer canonical form (no leading article/preposition), verify event_id derivation from text fields
+- [X] T034 [US1] Implement `src/phi3geom/dataset/generation.py` with ~10 Wikidata-style templates (e.g., "Where was X born?", "What is the capital of X?", "When did X die?") to pass T033 per spec FR-001
 
 ### End-to-end forward pipeline
 
-- [ ] T035 [P] [US1] Write `tests/contract/test_event_alignment.py` — port DCSBM lookback-indexing tests; verify log-spaced D positions `{0,1,2,4,8,16,32,64,128,256}` and dense F positions `[-255, …, 0]` align to `t_answer_commit`
-- [ ] T036 [US1] Implement `src/phi3geom/extraction/pipeline.py::run_event_forward_pass(event, model, tokenizer)` — orchestrates hook attach → forward → QKᵀ recovery → atomic-unit feature compute → crossbar → spine aggregate → cache write; depends on T013, T015, T025, T027
+- [X] T035 [P] [US1] Write `tests/contract/test_event_alignment.py` — port DCSBM lookback-indexing tests; verify log-spaced D positions `{0,1,2,4,8,16,32,64,128,256}` and dense F positions `[-255, …, 0]` align to `t_answer_commit`
+- [X] T036 [US1] Implement `src/phi3geom/extraction/pipeline.py::run_event_forward_pass(event, model, tokenizer)` — orchestrates hook attach → forward → QKᵀ recovery → atomic-unit feature compute → crossbar → spine aggregate → cache write; depends on T013, T015, T025, T027
 
 ### Atomic-unit feature assembly
 
-- [ ] T037 [P] [US1] Write `tests/unit/test_atomic_unit_assembly.py` — verify the assembled 7-vector matches `FEATURE_NAMES` axis order; for US1 baseline, allow Ricci slot = NaN (US2 will populate); verify float64 throughout the seam
-- [ ] T038 [US1] Implement `src/phi3geom/geometry/atomic_unit.py::compute_atomic_unit_features(qkt, avwo, attention_graph, k_grass, k_attn)` per `contracts/atomic_unit.md`; passes T037
+- [X] T037 [P] [US1] Write `tests/unit/test_atomic_unit_assembly.py` — verify the assembled 7-vector matches `FEATURE_NAMES` axis order; for US1 baseline, allow Ricci slot = NaN (US2 will populate); verify float64 throughout the seam
+- [X] T038 [US1] Implement `src/phi3geom/geometry/atomic_unit.py::compute_atomic_unit_features(qkt, avwo, attention_graph, k_grass, k_attn)` per `contracts/atomic_unit.md`; passes T037
 
 ### Crossbar (pairwise head-head Grassmannian)
 
-- [ ] T039 [P] [US1] Write `tests/unit/test_crossbar.py` — verify 32-choose-2 = 496 edge ordering in lex `(i<j)` order; verify QKᵀ-Grassmannian and AVWO-Grassmannian computed independently; verify symmetry property `D[i,j] = D[j,i]`
-- [ ] T040 [US1] Implement `src/phi3geom/lattice/crossbar.py::compute_pairwise_grassmannian(qkt_heads, avwo_heads, k_grass)` to pass T039 per spec FR-006
+- [X] T039 [P] [US1] Write `tests/unit/test_crossbar.py` — verify 32-choose-2 = 496 edge ordering in lex `(i<j)` order; verify QKᵀ-Grassmannian and AVWO-Grassmannian computed independently; verify symmetry property `D[i,j] = D[j,i]`
+- [X] T040 [US1] Implement `src/phi3geom/lattice/crossbar.py::compute_pairwise_grassmannian(qkt_heads, avwo_heads, k_grass)` to pass T039 per spec FR-006
 
 ### Spine curves
 
-- [ ] T041 [P] [US1] Write `tests/unit/test_spine.py` — verify 32-point curve over all 32 raw layers (no phase bucketing); verify aggregate order `[mean_grassmannian, spectral_gap, mean_forman_ricci, modularity]`; verify NaN-aware averaging when Ricci slot has NaN entries
-- [ ] T042 [US1] Implement `src/phi3geom/lattice/spine.py::compute_spine_curve(head_graphs_per_layer)` to pass T041 per spec FR-007; depends on T040 (uses crossbar output)
+- [X] T041 [P] [US1] Write `tests/unit/test_spine.py` — verify 32-point curve over all 32 raw layers (no phase bucketing); verify aggregate order `[mean_grassmannian, spectral_gap, mean_forman_ricci, modularity]`; verify NaN-aware averaging when Ricci slot has NaN entries
+- [X] T042 [US1] Implement `src/phi3geom/lattice/spine.py::compute_spine_curve(head_graphs_per_layer)` to pass T041 per spec FR-007; depends on T040 (uses crossbar output)
 
 ### Per-regime composite logistic (spectral-only baseline)
 
-- [ ] T043 [P] [US1] Write `tests/contract/test_sklearn_logistic.py` — input `(N, F)` float64 with NaN in Ricci column → output coefficients length F + scalar intercept; identical inputs + seed → bit-identical fit; below-100-event input raises `InsufficientDataError`
-- [ ] T044 [US1] Implement `src/phi3geom/analysis/composite.py::fit_per_regime_composite(features, labels, bin_id, *, l2_penalty, random_state)` per `contracts/composite.md`; passes T043 and T028 (single-bin invariant); uses median imputation for NaN per `research.md §10`
+- [X] T043 [P] [US1] Write `tests/contract/test_sklearn_logistic.py` — input `(N, F)` float64 with NaN in Ricci column → output coefficients length F + scalar intercept; identical inputs + seed → bit-identical fit; below-100-event input raises `InsufficientDataError`
+- [X] T044 [US1] Implement `src/phi3geom/analysis/composite.py::fit_per_regime_composite(features, labels, bin_id, *, l2_penalty, random_state)` per `contracts/composite.md`; passes T043 and T028 (single-bin invariant); uses median imputation for NaN per `research.md §10`
 
 ### Pilot reporting and driver
 
-- [ ] T045 [US1] Implement `src/phi3geom/reporting/pilot_reports.py` — writes `reports/pilot/per_bin_auroc.json`, `cem_yield.json`, `runtime.json`, `handcheck_sample.jsonl` (50-event sample for spec SC-007); reads from manifest and per-bin composite fits
-- [ ] T046 [US1] Implement `scripts/run_pilot.sh` and `src/phi3geom/scripts/pilot_main.py` — driver that generates 600 events, runs forward passes, fits per-bin composite, writes pilot reports
+- [X] T045 [US1] Implement `src/phi3geom/reporting/pilot_reports.py` — writes `reports/pilot/per_bin_auroc.json`, `cem_yield.json`, `runtime.json`, `handcheck_sample.jsonl` (50-event sample for spec SC-007); reads from manifest and per-bin composite fits
+- [X] T046 [US1] Implement `scripts/run_pilot.sh` and `src/phi3geom/scripts/pilot_main.py` — driver that generates 600 events, runs forward passes, fits per-bin composite, writes pilot reports
 
 ### Pilot integration test
 
-- [ ] T047 [P] [US1] Write `tests/integration/test_pilot_pipeline.py` — synthesize a 6-event toy dataset (1 per bin), run `pilot_main` end-to-end on a CPU stub of Phi-3 (or skip with `@pytest.mark.gpu` marker for full Phi-3 runs); assert reports written and shape contracts hold
+- [X] T047 [P] [US1] Write `tests/integration/test_pilot_pipeline.py` — synthesize a 6-event toy dataset (1 per bin), run `pilot_main` end-to-end on a CPU stub of Phi-3 (or skip with `@pytest.mark.gpu` marker for full Phi-3 runs); assert reports written and shape contracts hold
 
 **Checkpoint**: At this point, US1 (Pilot End-to-End Pipeline) should be fully functional. The
 researcher can run the pilot on real Phi-3 hardware; pilot acceptance criteria from spec SC-004

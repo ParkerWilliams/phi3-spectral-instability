@@ -18,6 +18,7 @@ import pytest
 
 from phi3geom.analysis import composite
 from phi3geom.analysis.composite import fit_per_regime_composite
+from phi3geom.analysis.types import PerRegimeCompositeFit
 
 
 # ---------------------------------------------------------------------------
@@ -27,7 +28,11 @@ from phi3geom.analysis.composite import fit_per_regime_composite
 def test_composite_module_does_not_re_export_pooled_fit() -> None:
     """``pooled_negative_control.fit`` is NOT accessible through ``composite``."""
     assert not hasattr(composite, "pooled_negative_control")
-    assert "fit" not in (n for n in dir(composite) if not n.startswith("_"))
+    # The module should not have a bare ``fit`` symbol either; the public
+    # entrypoint is ``fit_per_regime_composite``.
+    public_names = {n for n in dir(composite) if not n.startswith("_")}
+    assert "pooled_negative_control" not in public_names
+    assert "fit" not in public_names
 
 
 def test_composite_module_does_not_import_pooled_internally() -> None:
@@ -37,10 +42,14 @@ def test_composite_module_does_not_import_pooled_internally() -> None:
     assert source_file is not None
     with open(source_file) as f:
         content = f.read()
-    assert "pooled_negative_control" not in content, (
-        "phi3geom.analysis.composite must not reference pooled_negative_control "
-        "(Constitution Principle III)."
-    )
+    for line in content.splitlines():
+        stripped = line.strip()
+        if stripped.startswith("from phi3geom.analysis.pooled_negative_control") or (
+            stripped.startswith("import phi3geom.analysis.pooled_negative_control")
+        ):
+            raise AssertionError(
+                f"composite imports pooled_negative_control: {stripped!r}"
+            )
 
 
 def test_pooled_module_does_not_import_composite_internally() -> None:
@@ -50,12 +59,10 @@ def test_pooled_module_does_not_import_composite_internally() -> None:
     assert source_file is not None
     with open(source_file) as f:
         content = f.read()
-    # The string "composite" may appear in docstrings/comments referencing the
-    # other module; what's forbidden is an actual import statement.
     for line in content.splitlines():
         stripped = line.strip()
-        if stripped.startswith("from phi3geom.analysis.composite") or stripped.startswith(
-            "import phi3geom.analysis.composite"
+        if stripped.startswith("from phi3geom.analysis.composite") or (
+            stripped.startswith("import phi3geom.analysis.composite")
         ):
             raise AssertionError(
                 f"pooled_negative_control imports composite: {stripped!r}"
@@ -66,10 +73,12 @@ def test_pooled_module_does_not_import_composite_internally() -> None:
 # bin_id invariant at the function boundary
 # ---------------------------------------------------------------------------
 
-def _well_shaped_features() -> tuple[np.ndarray, np.ndarray]:
-    features = np.zeros((150, 7), dtype=np.float64)
-    labels = np.zeros((150,), dtype=bool)
-    labels[::2] = True
+def _well_shaped_features(
+    n: int = 200, n_features: int = 7, seed: int = 0
+) -> tuple[np.ndarray, np.ndarray]:
+    rng = np.random.default_rng(seed)
+    features = rng.standard_normal((n, n_features), dtype=np.float64)
+    labels = rng.integers(0, 2, size=n).astype(bool)
     return features, labels
 
 
@@ -99,20 +108,29 @@ def test_fit_rejects_unknown_bin_id() -> None:
 
 @pytest.mark.parametrize("bin_id", ["B1", "B2", "B3", "B4", "B5", "B6"])
 def test_fit_accepts_each_valid_bin_id(bin_id: str) -> None:
-    """The 6 valid bin_ids pass bin-id validation. (Body raises
-    NotImplementedError at skeleton stage — that's the expected failure mode
-    after validation succeeds.)"""
+    """All 6 valid bin_ids fit successfully (post-T044)."""
     features, labels = _well_shaped_features()
-    with pytest.raises(NotImplementedError, match="T044"):
-        fit_per_regime_composite(
-            features, labels, bin_id=bin_id, random_state=42  # type: ignore[arg-type]
-        )
+    result = fit_per_regime_composite(
+        features, labels, bin_id=bin_id, random_state=42, n_bootstrap=50  # type: ignore[arg-type]
+    )
+    assert isinstance(result, PerRegimeCompositeFit)
+    assert result.bin_id == bin_id
 
 
 # ---------------------------------------------------------------------------
-# Reverse direction: confirm pooled fit is importable from its own module
+# Pooled module is importable only from its own path
 # ---------------------------------------------------------------------------
 
 def test_pooled_fit_importable_from_own_module() -> None:
     from phi3geom.analysis.pooled_negative_control import fit as pooled_fit
     assert callable(pooled_fit)
+
+
+def test_pooled_fit_skeleton_raises_at_t029() -> None:
+    """At T029, pooled fit is a skeleton. T069 (US4) replaces with real impl."""
+    from phi3geom.analysis.pooled_negative_control import fit as pooled_fit
+    features = np.random.default_rng(0).standard_normal((200, 7))
+    labels = np.zeros(200, dtype=bool)
+    labels[::2] = True
+    with pytest.raises(NotImplementedError, match="T069"):
+        pooled_fit(features, labels, random_state=0)
