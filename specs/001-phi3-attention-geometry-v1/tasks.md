@@ -189,18 +189,18 @@ bin shows a marginal-AUROC point estimate and 95% CI. Cost wall-time is within 1
 
 ### Ricci integration
 
-- [ ] T048 [P] [US2] Write `tests/unit/test_ricci_integration.py` — verify Ricci slot in the F tensor is populated (not NaN) for non-degenerate attention graphs; verify NaN is preserved for isolated-node atomic units; verify `k_attn` parameter flows from caller to graph construction
-- [ ] T049 [US2] Wire `forman_ricci_token` into `geometry/atomic_unit.py` so the 7th feature is populated when `compute_ricci=True`; default the parameter to `False` so US1's baseline path remains a clean comparison; passes T048
+- [X] T048 [P] [US2] Write `tests/unit/test_ricci_integration.py` — verify Ricci slot in the F tensor is populated (not NaN) for non-degenerate attention graphs; verify NaN is preserved for isolated-node atomic units; verify `k_attn` parameter flows from caller to graph construction
+- [X] T049 [US2] Wire `forman_ricci_token` into `geometry/atomic_unit.py` so the 7th feature is populated when `compute_ricci=True`; default the parameter to `False` so US1's baseline path remains a clean comparison; passes T048
 
 ### k_attn sweep
 
-- [ ] T050 [P] [US2] Write `tests/unit/test_kattn_sweep.py` — verify sweep harness parameterizes over `k_attn ∈ {8, 16, 32}` on a 12-event toy (2 per bin); verify each sweep value writes its own `per_bin_auroc_k{k}.json`
-- [ ] T051 [US2] Implement `src/phi3geom/scripts/kattn_sweep.py` — runs the sweep on a 100-event subset of the pilot, writes `reports/pilot/k_attn_sweep.json` with per-bin marginal AUROC gain per `k_attn` value; passes T050 per `research.md §5`
+- [X] T050 [P] [US2] Write `tests/unit/test_kattn_sweep.py` — verify sweep harness parameterizes over `k_attn ∈ {8, 16, 32}` on a 12-event toy (2 per bin); verify each sweep value writes its own `per_bin_auroc_k{k}.json`
+- [X] T051 [US2] Implement `src/phi3geom/scripts/kattn_sweep.py` — runs the sweep on a 100-event subset of the pilot, writes `reports/pilot/k_attn_sweep.json` with per-bin marginal AUROC gain per `k_attn` value; passes T050 per `research.md §5`
 
 ### Ricci marginal-gain reporting
 
-- [ ] T052 [P] [US2] Implement `src/phi3geom/reporting/ricci_marginal_gain.py` — given `per_bin_auroc.json` (spectral-only) and `per_bin_auroc_with_ricci.json`, write `ricci_marginal_gain.json` with per-bin `delta_auroc`, 95% CI, and a flag for "marginal gain ≥0.02 in this bin"
-- [ ] T053 [US2] Update `src/phi3geom/dataset/manifest.py` to record the pinned `k_attn` value after sweep completes; add `--with-ricci` flag to `scripts/run_pilot.sh` so US2 runs are reproducible end-to-end
+- [X] T052 [P] [US2] Implement `src/phi3geom/reporting/ricci_marginal_gain.py` — given `per_bin_auroc.json` (spectral-only) and `per_bin_auroc_with_ricci.json`, write `ricci_marginal_gain.json` with per-bin `delta_auroc`, 95% CI, and a flag for "marginal gain ≥0.02 in this bin"
+- [X] T053 [US2] Update `src/phi3geom/dataset/manifest.py` to record the pinned `k_attn` value after sweep completes; add `--with-ricci` flag to `scripts/run_pilot.sh` so US2 runs are reproducible end-to-end
 
 **Checkpoint**: US2 ready. Ricci-augmented per-regime composite available; `k_attn` pinned for
 full-study collection.
