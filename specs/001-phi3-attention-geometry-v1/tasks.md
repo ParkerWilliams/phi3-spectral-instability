@@ -219,29 +219,29 @@ manifest SHA committed to git, event_ids reproduce from manifest+code on a secon
 
 ### Adversariality policies (FR-016)
 
-- [ ] T054 [P] [US3] Write `tests/unit/test_adversariality_policies.py` — for each of the 3 policies (`lexical`, `sibling_entity`, `self_contradiction`), verify distractor injection on a tiny synthetic document; verify the policy name is correctly threaded into the manifest record per event
-- [ ] T055 [US3] Implement `src/phi3geom/dataset/adversarial.py` with the 3 policies from `research.md §11`; integrate into `dataset/generation.py` so B1 (and possibly B2) can request adversarial injection at generation time
+- [X] T054 [P] [US3] Write `tests/unit/test_adversariality_policies.py` — for each of the 3 policies (`lexical`, `sibling_entity`, `self_contradiction`), verify distractor injection on a tiny synthetic document; verify the policy name is correctly threaded into the manifest record per event
+- [X] T055 [US3] Implement `src/phi3geom/dataset/adversarial.py` with the 3 policies from `research.md §11`; integrate into `dataset/generation.py` so B1 (and possibly B2) can request adversarial injection at generation time
 
 ### CEM oversample escalation (FR-015)
 
-- [ ] T056 [P] [US3] Write `tests/unit/test_cem_oversample_escalation.py` — verify that <50% yield at 1.5× escalates to 3× automatically; <30% at 3× sets the bin's `is_compromised` flag in `cem_yield.json`; <10% at 3× raises `CEMYieldEscalationError` requiring researcher intervention
-- [ ] T057 [US3] Extend `src/phi3geom/dataset/matching.py` with oversample escalation logic per FR-015; passes T056
+- [X] T056 [P] [US3] Write `tests/unit/test_cem_oversample_escalation.py` — verify that <50% yield at 1.5× escalates to 3× automatically; <30% at 3× sets the bin's `is_compromised` flag in `cem_yield.json`; <10% at 3× raises `CEMYieldEscalationError` requiring researcher intervention
+- [X] T057 [US3] Extend `src/phi3geom/dataset/matching.py` with oversample escalation logic per FR-015; passes T056
 
 ### S3 replication
 
-- [ ] T058 [P] [US3] Implement `scripts/replicate_to_s3.sh` — nightly `rsync` of `cache/` and `dataset/` to S3 hot tier; idempotent; logs to `reports/full/replication.log`
+- [X] T058 [P] [US3] Implement `scripts/replicate_to_s3.sh` — nightly `rsync` of `cache/` and `dataset/` to S3 hot tier; idempotent; logs to `reports/full/replication.log`
 
 ### Full-study driver
 
-- [ ] T059 [US3] Implement `scripts/run_full_study.sh` and `src/phi3geom/scripts/full_study_main.py` — generates 4800 events with CEM matching, runs all forward passes, populates the cache, fits per-bin composites with the US2 Ricci-augmented atomic unit, writes `reports/full/per_bin_auroc.json`
+- [X] T059 [US3] Implement `scripts/run_full_study.sh` and `src/phi3geom/scripts/full_study_main.py` — generates 4800 events with CEM matching, runs all forward passes, populates the cache, fits per-bin composites with the US2 Ricci-augmented atomic unit, writes `reports/full/per_bin_auroc.json`
 
 ### Reproducibility cross-machine check (SC-005)
 
-- [ ] T060 [P] [US3] Implement `scripts/regenerate_dataset.sh` — given a manifest+code SHA, regenerates the dataset on a second machine and reports the event_id and is_fail agreement rate; targets ≥99% per spec SC-005
+- [X] T060 [P] [US3] Implement `scripts/regenerate_dataset.sh` — given a manifest+code SHA, regenerates the dataset on a second machine and reports the event_id and is_fail agreement rate; targets ≥99% per spec SC-005
 
 ### Manifest integrity at scale
 
-- [ ] T061 [US3] Add a manifest-verification step at full-study completion (calls `dataset/manifest.py::verify_event_id` over all 4800 events and asserts the manifest_sha256 in `manifest_header.json` matches the recomputed SHA over `manifest.jsonl`); failure halts the full study with a clear error
+- [X] T061 [US3] Add a manifest-verification step at full-study completion (calls `dataset/manifest.py::verify_event_id` over all 4800 events and asserts the manifest_sha256 in `manifest_header.json` matches the recomputed SHA over `manifest.jsonl`); failure halts the full study with a clear error
 
 **Checkpoint**: US3 ready. 4800-event dataset generated, manifest committed to git, S3
 replication active, reproducibility verified.
