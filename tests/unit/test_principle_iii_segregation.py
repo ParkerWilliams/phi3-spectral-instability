@@ -126,11 +126,13 @@ def test_pooled_fit_importable_from_own_module() -> None:
     assert callable(pooled_fit)
 
 
-def test_pooled_fit_skeleton_raises_at_t029() -> None:
-    """At T029, pooled fit is a skeleton. T069 (US4) replaces with real impl."""
+def test_pooled_fit_runs_post_t069() -> None:
+    """At T069 (US4), pooled fit is implemented. Returns a PooledNegativeControl."""
     from phi3geom.analysis.pooled_negative_control import fit as pooled_fit
+    from phi3geom.analysis.types import PooledNegativeControl
+
     features = np.random.default_rng(0).standard_normal((200, 7))
     labels = np.zeros(200, dtype=bool)
     labels[::2] = True
-    with pytest.raises(NotImplementedError, match="T069"):
-        pooled_fit(features, labels, random_state=0)
+    result = pooled_fit(features, labels, random_state=0, n_bootstrap=50)
+    assert isinstance(result, PooledNegativeControl)

@@ -261,28 +261,28 @@ acceptance scenarios US4.1–US4.4.
 
 ### FPCA (skfda)
 
-- [ ] T062 [P] [US4] Write `tests/contract/test_skfda_fpca_shape.py` per `contracts/composite.md` test obligations — `(n_curves, 32)` → `(n_curves, n_fpcs)`; variance-explained monotone decreasing; threshold `0.95` returns `n_fpcs ∈ [2, 8]` on synthetic intrinsic-dim-4 curves
-- [ ] T063 [US4] Implement `src/phi3geom/analysis/fda.py::fit_fpca(curves, variance_threshold)` wrapping `skfda` per `research.md §3`; passes T062
+- [X] T062 [P] [US4] Write `tests/contract/test_skfda_fpca_shape.py` per `contracts/composite.md` test obligations — `(n_curves, 32)` → `(n_curves, n_fpcs)`; variance-explained monotone decreasing; threshold `0.95` returns `n_fpcs ∈ [2, 8]` on synthetic intrinsic-dim-4 curves
+- [X] T063 [US4] Implement `src/phi3geom/analysis/fda.py::fit_fpca(curves, variance_threshold)` wrapping `skfda` per `research.md §3`; passes T062
 
 ### Functional logistic regression
 
-- [ ] T064 [P] [US4] Write `tests/contract/test_skfda_func_logistic.py` per `contracts/composite.md` — `(N, 32)` curves → β(ℓ) length 32 + CI bands length 32; identical inputs + seed → bit-identical fit; verifies discriminative-depth-interval extraction (intervals where CI excludes 0)
-- [ ] T065 [US4] Implement `src/phi3geom/analysis/fda.py::fit_functional_logistic(spine_curves, labels, bin_id, edge_type, *, n_fpcs_variance_threshold, random_state)` returning `FunctionalLogisticResult` per `contracts/composite.md`; passes T064 and T028 (single-bin invariant)
+- [X] T064 [P] [US4] Write `tests/contract/test_skfda_func_logistic.py` per `contracts/composite.md` — `(N, 32)` curves → β(ℓ) length 32 + CI bands length 32; identical inputs + seed → bit-identical fit; verifies discriminative-depth-interval extraction (intervals where CI excludes 0)
+- [X] T065 [US4] Implement `src/phi3geom/analysis/fda.py::fit_functional_logistic(spine_curves, labels, bin_id, edge_type, *, n_fpcs_variance_threshold, random_state)` returning `FunctionalLogisticResult` per `contracts/composite.md`; passes T064 and T028 (single-bin invariant)
 
 ### Two-stage FDA → change-detection (long lines)
 
-- [ ] T066 [P] [US4] Write `tests/unit/test_changepoint.py` — port DCSBM CUSUM tests; assert detected change-points on synthetic FPCA-score series with planted change; verify EWMA sensitivity-check produces a distinct but qualitatively-similar output
-- [ ] T067 [US4] Implement `src/phi3geom/analysis/changepoint.py` — `cusum_detect`, `ewma_detect` primitives ported from DCSBM, adapted for FPCA-score input; passes T066 per `research.md §7`
+- [X] T066 [P] [US4] Write `tests/unit/test_changepoint.py` — port DCSBM CUSUM tests; assert detected change-points on synthetic FPCA-score series with planted change; verify EWMA sensitivity-check produces a distinct but qualitatively-similar output
+- [X] T067 [US4] Implement `src/phi3geom/analysis/changepoint.py` — `cusum_detect`, `ewma_detect` primitives ported from DCSBM, adapted for FPCA-score input; passes T066 per `research.md §7`
 
 ### Pooled negative control (SC-003)
 
-- [ ] T068 [P] [US4] Write `tests/unit/test_pooled_negative_control.py` — pooled fit on synthetic 6-bin data with within-bin signal but across-bin noise; assert AUROC <0.75 OR CI overlaps 0.50 (the R2 lesson); verify the output is a `PooledNegativeControl` dataclass not a `PerRegimeCompositeFit`
-- [ ] T069 [US4] Implement `src/phi3geom/analysis/pooled_negative_control.py::fit(features, labels, *, l2_penalty, random_state)` per `contracts/composite.md`; passes T068 and T028 (segregation)
+- [X] T068 [P] [US4] Write `tests/unit/test_pooled_negative_control.py` — pooled fit on synthetic 6-bin data with within-bin signal but across-bin noise; assert AUROC <0.75 OR CI overlaps 0.50 (the R2 lesson); verify the output is a `PooledNegativeControl` dataclass not a `PerRegimeCompositeFit`
+- [X] T069 [US4] Implement `src/phi3geom/analysis/pooled_negative_control.py::fit(features, labels, *, l2_penalty, random_state)` per `contracts/composite.md`; passes T068 and T028 (segregation)
 
 ### Writeup generation
 
-- [ ] T070 [US4] Implement `src/phi3geom/reporting/writeup.py` — produces `reports/full/per_bin_auroc.md` (headline table per FR-014), `reports/full/beta_layer_functions/{bin_id}_{edge_type}.json` (β(ℓ) with 95% CI bands), `reports/full/pooled_negative_control.md` (SC-003 evidence), `reports/full/head_graph_comparison.md` (QKᵀ vs AVWO qualitative comparison per spec SC-009)
-- [ ] T071 [US4] Implement `src/phi3geom/reporting/long_lines.py` — runs the two-stage FDA → CUSUM pipeline on long lines, writes `reports/full/long_lines_cusum.json` (appendix-only output)
+- [X] T070 [US4] Implement `src/phi3geom/reporting/writeup.py` — produces `reports/full/per_bin_auroc.md` (headline table per FR-014), `reports/full/beta_layer_functions/{bin_id}_{edge_type}.json` (β(ℓ) with 95% CI bands), `reports/full/pooled_negative_control.md` (SC-003 evidence), `reports/full/head_graph_comparison.md` (QKᵀ vs AVWO qualitative comparison per spec SC-009)
+- [X] T071 [US4] Implement `src/phi3geom/reporting/long_lines.py` — runs the two-stage FDA → CUSUM pipeline on long lines, writes `reports/full/long_lines_cusum.json` (appendix-only output)
 - [ ] T072 [US4] Run the end-to-end US4 analysis on the full study via `src/phi3geom/scripts/run_analysis.py`; verify all `reports/full/` artifacts are produced and match the data-model.md schemas
 
 **Checkpoint**: US4 ready. Headline writeup artifacts produced; per-bin AUROC and β(ℓ) results
@@ -295,9 +295,9 @@ in publishable form; pooled-negative-control demonstrates the DCSBM-R2 lesson on
 **Purpose**: Final compliance checks, documentation polish, and the empirical validations of
 spec success criteria that depend on having all artifacts in hand.
 
-- [ ] T073 [P] Add `--help` and `--version` flags to all entrypoints in `src/phi3geom/scripts/`; ensure each script prints its constitution version (1.0.0) and the manifest SHA it consumed
+- [X] T073 [P] Add `--help` and `--version` flags to all entrypoints in `src/phi3geom/scripts/`; ensure each script prints its constitution version (1.0.0) and the manifest SHA it consumed
 - [ ] T074 [P] Profile end-to-end pilot runtime; if the Forman-Ricci `GraphRicciCurvature` call dominates, replace it with a hand-coded primitive in `src/phi3geom/geometry/ricci.py` and keep `GraphRicciCurvature` as the parity oracle only (per `research.md §4` contingency); re-run T014 to confirm parity holds
-- [ ] T075 [P] Documentation pass — add docstrings to all public functions in `src/phi3geom/**`; verify `pyproject.toml` long description renders; verify `quickstart.md` references current file paths
+- [X] T075 [P] Documentation pass — add docstrings to all public functions in `src/phi3geom/**`; verify `pyproject.toml` long description renders; verify `quickstart.md` references current file paths
 - [ ] T076 Run the SC-005 reproducibility cross-machine check on a second machine; record the per-event agreement rate in `reports/full/sc005_reproducibility.json`; if <99%, halt headline interpretation and investigate root cause
 - [ ] T077 Run the SC-007 hand-verification on the 50-event handcheck sample; record 100% agreement target outcome in `reports/full/sc007_handcheck.json`; flag any disagreements in the writeup
 - [ ] T078 Final writeup interpretation in `reports/full/headline.md` — name discriminative depths per bin per head-graph from T070's β(ℓ) output; flag any bin compromised per FR-015 (CEM yield) or B6-RoPE per FR-017; conclude whether the DCSBM-R2 finding transfers to Phi-3
