@@ -32,6 +32,9 @@ keywords = [
 dependencies = [
   "torch>=2.3",
   "transformers>=4.45",
+  # accelerate is required by transformers' from_pretrained(device_map="auto")
+  # used in the pilot/full-study drivers and the integration test.
+  "accelerate>=0.26",
   "huggingface_hub>=0.24",
   "numpy>=1.26",
   "scipy>=1.11",
