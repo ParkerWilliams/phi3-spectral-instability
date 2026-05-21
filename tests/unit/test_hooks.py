@@ -33,7 +33,14 @@ class _ToyModelWrapper(torch.nn.Module):
                 self.self_attn = attn
 
             def forward(self, x: "torch.Tensor") -> "torch.Tensor":
-                return self.self_attn(x)
+                # self_attn returns (hidden_states, attn_weights) to mimic
+                # HF's output_attentions=True shape. A real Phi3DecoderLayer
+                # unpacks the hidden states and passes only those up the
+                # stack; mirror that here so layer chaining stays a tensor.
+                # The attention-capture hook still fires on self_attn's full
+                # tuple output, so attn_weights are captured regardless.
+                out = self.self_attn(x)
+                return out[0] if isinstance(out, tuple) else out
 
         class _Inner(torch.nn.Module):
             def __init__(self, layers_: list[torch.nn.Module]) -> None:
