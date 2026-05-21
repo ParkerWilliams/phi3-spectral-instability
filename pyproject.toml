@@ -22,8 +22,13 @@ keywords = [
 # Runtime dependencies. Versions chosen for plan.md compatibility:
 #   - torch>=2.3 for Phi3Attention forward hooks
 #   - transformers>=4.45 for stable Phi3Attention API
-#   - skfda over FDApy for FPCA + functional logistic (research.md §3)
 #   - GraphRicciCurvature as Forman-Ricci parity oracle (research.md §4)
+# NOTE: research.md §3 named scikit-fda as the FPCA backend, but the v1
+# implementation (src/phi3geom/analysis/fda.py) computes FPCA directly via
+# numpy SVD + scikit-learn LogisticRegression and does NOT import it. It is
+# therefore intentionally absent from this list. To swap in basis-fitting
+# FPCA later, add "scikit-fda>=0.9" here (the PyPI distribution name; the
+# import name is `skfda`).
 dependencies = [
   "torch>=2.3",
   "transformers>=4.45",
@@ -31,7 +36,6 @@ dependencies = [
   "numpy>=1.26",
   "scipy>=1.11",
   "scikit-learn>=1.4",
-  "skfda>=0.9",
   "GraphRicciCurvature>=0.5",
   "networkx>=3.2",
   "pandas>=2.1",

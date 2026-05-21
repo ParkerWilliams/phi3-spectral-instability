@@ -2,11 +2,11 @@
 on 32-point spine curves (FR-009, T063, T065).
 
 Backend: we implement FPCA directly via SVD on centered curves for v1.
-This avoids skfda version churn and gives the same mathematical output.
-``research.md §3`` notes skfda as the chosen backend; we keep that label
-for the dependency declaration but use the simpler SVD path internally.
-For studies that need basis-fitting niceties (e.g., periodic-basis FPCA),
-the wrapper can be swapped to call ``skfda.preprocessing.dim_reduction.FPCA``.
+This avoids scikit-fda version churn and gives the same mathematical output,
+so scikit-fda is NOT a dependency (see the note in pyproject.toml). For
+studies that need basis-fitting niceties (e.g., periodic-basis FPCA), add
+``scikit-fda>=0.9`` to the deps and swap this wrapper to call
+``skfda.preprocessing.dim_reduction.FPCA``.
 
 Constitution Principle III: ``fit_functional_logistic`` accepts a single
 ``bin_id`` and is impossible to call on cross-bin data.
