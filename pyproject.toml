@@ -43,17 +43,16 @@ dependencies = [
 
 [project.optional-dependencies]
 # Development extras — TDD scope (Constitution Principle II) requires pytest +
-# hypothesis. DCSBM reference repo is pinned by commit SHA so parity tests
-# are reproducible across machines (Constitution Principle I).
+# hypothesis. Spectral/Ricci primitives are verified by analytic property
+# tests (closed-form values), not by cross-implementation parity against the
+# prior DCSBM exploratory code (which was a research-direction scaffold, not a
+# ground-truth oracle — see constitution v1.0.1 amendment).
 dev = [
   "pytest>=8.0",
   "pytest-cov>=5.0",
   "hypothesis>=6.100",
   "ruff>=0.4",
   "mypy>=1.10",
-  # DCSBM reference implementation — parity oracle for spectral primitives.
-  # Pinned to commit c06a4f8 (main HEAD at 2026-05-19).
-  "dcsbm-transformer @ git+https://github.com/ParkerWilliams/dcsbm-transformer.git@c06a4f848a0d26d9c5d1ab5a57bf13207e5cfd14",
 ]
 
 [project.scripts]

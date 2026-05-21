@@ -1,6 +1,16 @@
 <!--
 Sync Impact Report
 ==================
+Version change: 1.0.0 → 1.0.1
+Amendment (2026-05-21): Removed the cross-implementation parity-vs-DCSBM
+requirement from Principles II and IV. The prior DCSBM work was a
+research-direction scaffold, not a ground-truth oracle; spectral/Ricci
+primitives are now verified by analytic property tests against closed-form
+values in float64. PATCH bump: clarifies the verification method without
+changing the float64-discipline rule. Dropped the `dcsbm-transformer` dev
+dependency and deleted tests/unit/test_spectral_parity.py accordingly.
+
+----- Original 1.0.0 ratification notes -----
 Version change: (uninitialized template) → 1.0.0
 Bump rationale: Initial ratification; first concrete principles defined from the
 v1 design brainstorm (docs/superpowers/specs/2026-05-18-phi3-attention-geometry-
@@ -74,9 +84,12 @@ Ricci-token (Ollivier-Ricci, Forman-Ricci), per-head extraction hooks on
 matching logic, failure-EM normalization, crossbar pairwise Grassmannian,
 event-alignment infrastructure (including log-spaced lookback), storage manifest
 read/write/integrity, and the two-stage CUSUM/EWMA adapter on FPCA scores.
-Parity tolerance for spectral and Ricci primitives is `max_abs_diff ≤ 1e-7` in
-float64 on at least 100 seeded random inputs versus the DCSBM reference
-implementation or against published reference cases.
+Spectral and Ricci primitives MUST be verified by analytic property tests
+against known closed-form values (e.g., rank-1 spectral entropy = 0, identity
+stable rank = N, identity-aligned Grassmannian distance = 0) computed in
+`float64`. Cross-implementation parity against the prior DCSBM exploratory code
+is NOT required: that work was a research-direction scaffold, not a ground-truth
+oracle, and treating it as authoritative is explicitly out of scope.
 
 External library wrappers (`skfda` FPCA, `skfda` functional logistic regression,
 `sklearn` per-regime composite logistic) are NOT under TDD; they require a
@@ -117,8 +130,8 @@ The spectral seam — every computation that produces stable rank, Grassmannian
 subspace distance, spectral entropy, or any other singular-value-derived
 scalar from `QKᵀ` or `AVWO` — MUST execute in `float64`. Downcasting to
 `float32` is permitted only at the storage boundary (the production cache of
-`F` and `D` tensors). Tests assert float64 parity at the seam to
-`max_abs_diff ≤ 1e-7` (see Principle II). Ricci-token computations operate on
+`F` and `D` tensors). Tests assert correctness at the seam via analytic
+property checks in float64 (see Principle II). Ricci-token computations operate on
 attention graphs sparsified to top-`k_attn` edges per node; the chosen
 `k_attn` MUST be pinned per-study in the spec and not varied during a single
 analysis. The Grassmannian subspace dimension is `k_Grass = 8`, fixed for v1;
@@ -234,4 +247,4 @@ to a final compliance check before being included in any external writeup.
 the current plan; that pointer is the runtime entry into spec-derived context.
 This constitution is the standing entry.
 
-**Version**: 1.0.0 | **Ratified**: 2026-05-18 | **Last Amended**: 2026-05-18
+**Version**: 1.0.1 | **Ratified**: 2026-05-18 | **Last Amended**: 2026-05-21

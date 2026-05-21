@@ -4,10 +4,10 @@ All computations run in float64 (Constitution Principle IV). Float32 inputs
 raise ``TypeError`` — the cache-boundary downcast to float32 is the
 responsibility of ``phi3geom.storage.cache`` ONLY.
 
-Parity invariant (Constitution Principle II): on 100 seeded random
-``float64`` matrices, these functions agree with the DCSBM reference
-implementation to within ``max_abs_diff ≤ 1e-7``. Tests live in
-``tests/unit/test_spectral_parity.py``.
+Correctness (Constitution Principle II): verified by analytic property
+tests against closed-form values in float64 (rank-1 spectral entropy = 0,
+identity stable rank = N, identity-aligned Grassmannian distance = 0, etc.).
+Tests live in ``tests/unit/test_spectral_individual.py``.
 """
 
 from __future__ import annotations

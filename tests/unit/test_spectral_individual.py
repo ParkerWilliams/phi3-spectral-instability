@@ -1,10 +1,9 @@
 """Per-primitive correctness tests for the spectral seam.
 
-These are deterministic property tests (rank-1 case, identity case,
-isotropic case) that don't require the DCSBM reference. They run on any
-machine with numpy installed.
-
-The 1e-7-vs-DCSBM parity tests live in ``test_spectral_parity.py``.
+These are deterministic property tests against closed-form values (rank-1
+case, identity case, isotropic case) computed in float64. They are the
+authoritative verification of the spectral primitives (Constitution
+Principle II) and run on any machine with numpy installed.
 """
 
 from __future__ import annotations
