@@ -81,8 +81,9 @@ def fit_per_regime_composite(
 
     # ``LogisticRegression`` uses ``C = 1 / l2_penalty`` as the inverse-reg
     # parameter.
+    # L2 is the default penalty; we set it via C only (passing penalty="l2"
+    # explicitly is deprecated in sklearn ≥1.8 and removed in 1.10).
     model = LogisticRegression(
-        penalty="l2",
         C=1.0 / l2_penalty,
         solver="lbfgs",
         max_iter=1000,

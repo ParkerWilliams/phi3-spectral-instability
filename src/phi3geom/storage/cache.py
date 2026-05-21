@@ -118,9 +118,12 @@ def _write_tensor_and_header(
     tensor: np.ndarray,
     header: CacheHeader,
 ) -> None:
-    # Write .npy via numpy's atomic-ish save (write+rename)
+    # Write .npy via numpy's atomic-ish save (write+rename). Pass an open
+    # file object — np.save appends ".npy" to *string/Path* targets that
+    # don't already end in .npy, which would corrupt the temp filename.
     tmp_npy = npy_path.with_suffix(".npy.tmp")
-    np.save(tmp_npy, tensor, allow_pickle=False)
+    with open(tmp_npy, "wb") as fh:
+        np.save(fh, tensor, allow_pickle=False)
     os.replace(tmp_npy, npy_path)
     header_bytes = json.dumps(_header_to_dict(header), sort_keys=True, indent=2).encode(
         "utf-8"

@@ -142,8 +142,7 @@ def fit_functional_logistic(
         raise ValueError("FPCA returned 0 components; spine_curves are degenerate.")
 
     model = LogisticRegression(
-        penalty="l2", solver="lbfgs", max_iter=1000,
-        random_state=random_state,
+        solver="lbfgs", max_iter=1000, random_state=random_state,
     )
     model.fit(fpca.scores, labels.astype(int))
     # Reconstruct β(ℓ) = sum_k (coef_k * fpc_k(ℓ)) — the projection of the
@@ -164,7 +163,7 @@ def fit_functional_logistic(
             beta_samples[b] = beta_function
             continue
         boot_model = LogisticRegression(
-            penalty="l2", solver="lbfgs", max_iter=1000, random_state=random_state,
+            solver="lbfgs", max_iter=1000, random_state=random_state,
         )
         try:
             boot_model.fit(boot_fpca.scores, labels[idx].astype(int))

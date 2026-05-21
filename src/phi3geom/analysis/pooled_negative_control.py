@@ -84,7 +84,7 @@ def fit(
         stratify=labels,
     )
     model = LogisticRegression(
-        penalty="l2", C=1.0 / l2_penalty,
+        C=1.0 / l2_penalty,
         solver="lbfgs", max_iter=1000, random_state=random_state,
     )
     model.fit(x_train, y_train)

@@ -49,10 +49,10 @@ def normalize_em(text: str) -> str:
     text = text.lstrip()
     text = text.lstrip(_PUNCT)
     text = text.lstrip()
-    # 4. strip leading articles (if a word boundary follows)
+    # 4. strip leading articles + any whitespace they leave behind
     for article in _LEADING_ARTICLES:
         if text.startswith(article):
-            text = text[len(article):]
+            text = text[len(article):].lstrip()
             break
     # 5. collapse internal whitespace
     text = _WS_RUN.sub(" ", text)

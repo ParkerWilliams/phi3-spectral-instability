@@ -35,15 +35,15 @@ def test_lexical_distractor_detects_overlap() -> None:
 
 def test_select_lexical_distractors() -> None:
     candidates = [
-        "Marie Curie discovered radium and polonium.",  # 2 content overlap
+        "Marie Curie discovered radium and polonium.",  # {marie, curie} = 2 overlap
         "The cat sat on the mat.",  # 0 overlap
-        "Curie won two Nobel prizes for her research.",  # 2 overlap
+        "Marie Curie won two Nobel prizes.",  # {marie, curie} = 2 overlap
     ]
     rng = random.Random(0)
     picked = select_lexical_distractors(
         "Where was Marie Curie born?", candidates, n=5, rng=rng
     )
-    # Both lexically-overlapping sentences are picked.
+    # Both lexically-overlapping sentences (1st and 3rd) are picked.
     assert len(picked) == 2
 
 

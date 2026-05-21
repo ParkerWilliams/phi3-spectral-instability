@@ -29,7 +29,7 @@ def test_edge_index_pairs_lex_order() -> None:
 def test_pairwise_grassmannian_self_distances_zero() -> None:
     """Identical heads produce distance 0 on the diagonal of edges_to_dense."""
     rng = np.random.default_rng(0)
-    base = rng.standard_normal((4, 8))  # one head's matrix shape (d_head, d_head)
+    base = rng.standard_normal((8, 8))  # one head's matrix (d_head, d_head), square
     heads = np.stack([base, base, base, base], axis=0)  # 4 identical heads
     distances = compute_pairwise_grassmannian(heads, k_grass=2)
     # All pairwise distances should be ~0
