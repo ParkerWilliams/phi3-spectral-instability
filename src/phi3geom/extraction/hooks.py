@@ -47,6 +47,14 @@ class LayerCapture:
     v: "torch.Tensor | None" = None
     attention_weights: "torch.Tensor | None" = None
     o_weight: "torch.Tensor | None" = None
+    # Largest query length seen so far. During model.generate(), the attention
+    # modules fire once for the PREFILL (query length = prompt length) and once
+    # per generated token (query length = 1, with KV cache). We capture only
+    # the prefill pass — the decode-step attention is (1, n_heads, 1, T), which
+    # is not the square (T, T) matrix the geometry pipeline expects. Captured
+    # tensors are moved to CPU immediately to keep peak GPU memory low on the
+    # long evidence-distance bins (B5/B6 at ~3-4k tokens).
+    prefill_seq_len: int = 0
 
 
 @dataclass
@@ -84,9 +92,9 @@ class Phi3ExtractionHook:
         cap = self.captures[layer_idx]
 
         # Capture o_proj weight up front (it's a learned parameter; doesn't
-        # change during forward).
+        # change during forward). Offloaded to CPU like the other captures.
         if hasattr(attn_module, "o_proj"):
-            cap.o_weight = attn_module.o_proj.weight.detach()
+            cap.o_weight = attn_module.o_proj.weight.detach().cpu()
 
         # QKV projection — fused (Phi3Attention's ``qkv_proj``) or split.
         if hasattr(attn_module, "qkv_proj"):
@@ -136,26 +144,39 @@ def _make_qkv_capture_hook(attn_module: Any, cap: LayerCapture):
         # ``output`` shape: (B, T, 3 * d_model) for fused proj.
         # Phi3Attention reshapes this to (B, T, 3, n_heads, d_head) and
         # splits along dim=2. We mirror that.
-        import torch
+        b, t, _ = output.shape
+        # Capture the prefill pass only (largest T); ignore decode steps (T=1).
+        if t < cap.prefill_seq_len:
+            return output
+        cap.prefill_seq_len = t
 
         n_heads = attn_module.config.num_attention_heads
         d_head = output.shape[-1] // (3 * n_heads)
-        b, t, _ = output.shape
         qkv = output.reshape(b, t, 3, n_heads, d_head)
         q, k, v = qkv.unbind(dim=2)
-        cap.q = q.detach()
-        cap.k = k.detach()
-        cap.v = v.detach()
+        cap.q = q.detach().cpu()
+        cap.k = k.detach().cpu()
+        cap.v = v.detach().cpu()
         return output
 
     return hook
 
 
 def _make_proj_hook(cap: LayerCapture, which: str):
-    """Hook for split-projection variant."""
+    """Hook for split-projection variant.
+
+    Note: split q/k/v proj outputs are (B, T, d_model) — flat, not yet
+    reshaped to heads. Downstream ``recover_qkt_avwo`` expects the head-major
+    (B, T, n_heads, d_head) layout; for the split variant the caller must
+    reshape. For Phi-3-mini-128k (fused qkv_proj) this path is unused.
+    """
 
     def hook(_module: Any, _inputs: Any, output: Any) -> Any:
-        setattr(cap, which, output.detach())
+        t = output.shape[1]
+        if t < cap.prefill_seq_len:
+            return output  # decode step; keep the prefill capture
+        cap.prefill_seq_len = t
+        setattr(cap, which, output.detach().cpu())
         return output
 
     return hook
@@ -172,7 +193,14 @@ def _make_attn_capture_hook(cap: LayerCapture):
         if isinstance(output, tuple) and len(output) >= 2 and output[1] is not None:
             attn_w = output[1]
             if hasattr(attn_w, "detach"):
-                cap.attention_weights = attn_w.detach()
+                q_len = attn_w.shape[-2]
+                # Capture the prefill pass only. The qkv/proj hook (which fires
+                # earlier in the same forward) sets prefill_seq_len; for the
+                # prefill, q_len == prefill_seq_len, so we capture. Decode steps
+                # have q_len == 1 < prefill_seq_len and are skipped, avoiding a
+                # non-square (1, T) attention matrix downstream.
+                if q_len >= cap.prefill_seq_len and q_len > 1:
+                    cap.attention_weights = attn_w.detach().cpu()
         return output
 
     return hook
