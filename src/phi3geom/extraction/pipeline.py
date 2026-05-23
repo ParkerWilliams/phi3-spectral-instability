@@ -27,14 +27,17 @@ from phi3geom.dataset.normalization import normalize_em
 from phi3geom.dataset.types import DocQAEvent
 from phi3geom.extraction.hooks import Phi3ExtractionHook, recover_qkt_avwo
 from phi3geom.extraction.lookback import (
-    J_LOOKBACK,
     LookbackOutOfBoundsError,
     d_lookback_absolute_indices,
     f_lookback_absolute_indices,
 )
 from phi3geom.geometry.atomic_unit import compute_atomic_unit_features
 from phi3geom.geometry.ricci import build_attention_graph
-from phi3geom.lattice.crossbar import N_HEADS_DEFAULT, compute_pairwise_grassmannian
+from phi3geom.lattice.crossbar import (
+    N_HEADS_DEFAULT,
+    compute_pairwise_grassmannian,
+    edges_to_dense,
+)
 from phi3geom.lattice.spine import compute_spine_curve
 from phi3geom.storage.cache import (
     D_LOOKBACK_INDICES,
@@ -186,57 +189,52 @@ def run_event_extraction(
         dtype=np.float64,
     )
 
-    # 7. For each layer, recover per-head QKᵀ/AVWO, build attention graphs,
-    # compute atomic features at each (t, h) in the F window, build head-
-    # graphs at sparser D positions for the D tensor.
+    # 7. Recover each head's pass-level QKᵀ/AVWO operator EXACTLY ONCE per
+    # (layer, head) and reuse it for both the F (atomic) and D (crossbar)
+    # tensors. These operators are layer-internal and do not vary token-by-
+    # token within the lookback window at v1 granularity, so the atomic
+    # features are computed once per (ℓ, h) and broadcast across all J
+    # positions. The attention graph is built and discarded inline (it feeds
+    # only the Ricci slot) to avoid holding 1024 graphs in memory at once.
+    qkt_by_layer: dict[int, np.ndarray] = {}
+    avwo_by_layer: dict[int, np.ndarray] = {}
     for ell, cap in hook.captures.items():
+        qkt_list: list[np.ndarray] = []
+        avwo_list: list[np.ndarray] = []
         for h in range(N_HEADS_DEFAULT):
             qkt_h, avwo_h = recover_qkt_avwo(cap, head_idx=h, token_idx=t_answer_commit)
-            qkt_np = qkt_h.cpu().numpy()
-            avwo_np = avwo_h.cpu().numpy()
+            qkt_np = qkt_h.cpu().numpy().astype(np.float64)
+            avwo_np = avwo_h.cpu().numpy().astype(np.float64)
+            qkt_list.append(qkt_np)
+            avwo_list.append(avwo_np)
 
-            # Build attention graph for this (ℓ, h) using full-sequence A_h.
-            # The hooks captured (B, n_heads, T_q, T_k); we use the row at
-            # t_answer_commit as the "query position" graph.
             a_h = cap.attention_weights[0, h].cpu().numpy().astype(np.float64)
             attn_graph = build_attention_graph(a_h, k_attn=k_attn)
-
-            # For F: dense over the lookback window. We compute atomic
-            # features once per (ℓ, h) at t_answer_commit and broadcast — the
-            # spectral operators are layer-internal and don't vary token-by-
-            # token at this granularity. Higher-fidelity per-token spectra
-            # are a v2 enhancement.
             features = compute_atomic_unit_features(
                 qkt_np, avwo_np, attn_graph,
                 k_grass=8, k_attn=k_attn, compute_ricci=compute_ricci,
             )
-            for rel_idx in range(J_LOOKBACK):
-                F_tensor[rel_idx, ell, h] = features
+            # Broadcast the (7,) feature vector across all J lookback positions.
+            F_tensor[:, ell, h, :] = features
 
-    # 8. Crossbar pairwise Grassmannian at each (t-in-D, ℓ) — build the head-
-    # graph from the 32 heads' QKᵀ and AVWO matrices.
-    for d_idx_pos in range(len(D_LOOKBACK_INDICES)):
-        for ell, cap in hook.captures.items():
-            qkt_heads = np.stack([
-                recover_qkt_avwo(cap, head_idx=h, token_idx=t_answer_commit)[0]
-                .cpu().numpy().astype(np.float64)
-                for h in range(N_HEADS_DEFAULT)
-            ], axis=0)
-            avwo_heads = np.stack([
-                recover_qkt_avwo(cap, head_idx=h, token_idx=t_answer_commit)[1]
-                .cpu().numpy().astype(np.float64)
-                for h in range(N_HEADS_DEFAULT)
-            ], axis=0)
-            qkt_edges = compute_pairwise_grassmannian(qkt_heads, k_grass=8)
-            avwo_edges = compute_pairwise_grassmannian(avwo_heads, k_grass=8)
-            # Densify into the D tensor's (n_heads, n_heads) slot
-            from phi3geom.lattice.crossbar import edges_to_dense
-            D_tensor[d_idx_pos, ell, :, :, 0] = edges_to_dense(qkt_edges)
-            D_tensor[d_idx_pos, ell, :, :, 1] = edges_to_dense(avwo_edges)
-        # NOTE: at v1 we use the same head matrices for all D positions; the
-        # log-spaced D tensor is filled by repeating. Per-token-position
-        # variation across the lookback is a v2 enhancement (the spectral
-        # operators captured here are pass-level, not per-token).
+        qkt_by_layer[ell] = np.stack(qkt_list, axis=0)
+        avwo_by_layer[ell] = np.stack(avwo_list, axis=0)
+
+    # 8. Crossbar pairwise Grassmannian: computed ONCE per (layer, edge-type)
+    # from the pass-level head operators above. The 10 log-spaced D positions
+    # all share the same pass-level crossbar at v1 (per-token-position
+    # variation across the lookback is a v2 enhancement), so we fill them by
+    # copy rather than recomputing.
+    for ell in qkt_by_layer:
+        qkt_dense = edges_to_dense(
+            compute_pairwise_grassmannian(qkt_by_layer[ell], k_grass=8)
+        )
+        avwo_dense = edges_to_dense(
+            compute_pairwise_grassmannian(avwo_by_layer[ell], k_grass=8)
+        )
+        for d_idx_pos in range(len(D_LOOKBACK_INDICES)):
+            D_tensor[d_idx_pos, ell, :, :, 0] = qkt_dense
+            D_tensor[d_idx_pos, ell, :, :, 1] = avwo_dense
 
     # 9. F summary: mean/p10/p50/p90/std along the F axis-0 (token-position).
     F_summary = np.stack([

@@ -71,3 +71,22 @@ def test_full_32_heads_shape() -> None:
     distances = compute_pairwise_grassmannian(heads, k_grass=2)
     assert distances.shape == (496,)
     assert distances.dtype == np.float64
+
+
+def test_cached_projector_path_matches_per_pair_top_k_grassmannian() -> None:
+    """The optimized cached-projector path must be bit-identical to the naive
+    per-pair ``top_k_grassmannian`` it replaced (same numbers, less work)."""
+    from phi3geom.geometry.spectral import top_k_grassmannian
+
+    rng = np.random.default_rng(5)
+    n_heads = 6
+    heads = rng.standard_normal((n_heads, 12, 12))
+    k = 4
+
+    fast = compute_pairwise_grassmannian(heads, k_grass=k)
+    naive = np.array([
+        top_k_grassmannian(heads[i], k=k, reference=heads[j])
+        for (i, j) in edge_index_pairs(n_heads)
+    ])
+    # Bit-identical: same SVD, same projectors, same Frobenius norm.
+    np.testing.assert_array_equal(fast, naive)

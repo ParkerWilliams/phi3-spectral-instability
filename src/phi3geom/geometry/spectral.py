@@ -162,3 +162,31 @@ def top_k_grassmannian(
 
     diff = p_matrix - p_ref
     return float(np.linalg.norm(diff, ord="fro"))
+
+
+def top_k_left_projector(matrix: np.ndarray, k: int) -> np.ndarray:
+    """Projector onto the top-k left-singular subspace of ``matrix``.
+
+    Public entry point for callers (e.g. the crossbar) that need to compute
+    many pairwise Grassmannian distances among a set of matrices: compute
+    each matrix's projector ONCE here, then call ``grassmannian_distance`` on
+    pairs of projectors — avoiding the O(n²) re-SVD of ``top_k_grassmannian``.
+
+    Returns an ``(m, m)`` float64 projector for an ``(m, n)`` input.
+    """
+    _check_float64(matrix)
+    if k < 1:
+        raise ValueError(f"k must be ≥ 1; got {k}")
+    if k > min(matrix.shape):
+        raise ValueError(f"k={k} exceeds min(matrix.shape)={min(matrix.shape)}")
+    return _top_k_left_subspace_projector(matrix, k)
+
+
+def grassmannian_distance(p1: np.ndarray, p2: np.ndarray) -> float:
+    """Frobenius distance ``||p1 - p2||_F`` between two rank-k projectors.
+
+    Equivalent to ``top_k_grassmannian(a, k, reference=b)`` when
+    ``p1 = top_k_left_projector(a, k)`` and ``p2 = top_k_left_projector(b, k)``,
+    but computed without re-running the SVDs.
+    """
+    return float(np.linalg.norm(p1 - p2, ord="fro"))

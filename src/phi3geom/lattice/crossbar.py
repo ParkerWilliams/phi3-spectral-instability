@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from phi3geom.geometry.spectral import top_k_grassmannian
+from phi3geom.geometry.spectral import grassmannian_distance, top_k_left_projector
 
 N_HEADS_DEFAULT = 32
 N_EDGES_DEFAULT = (N_HEADS_DEFAULT * (N_HEADS_DEFAULT - 1)) // 2  # 496
@@ -43,6 +43,12 @@ def compute_pairwise_grassmannian(
 
     The same primitive is called for both QKᵀ and AVWO head matrices to
     produce the two parallel head-graphs.
+
+    Performance: each head's top-k projector is computed exactly ONCE (n_heads
+    SVDs total), then the 496 pairwise distances are read off the cached
+    projectors. This is mathematically identical to calling
+    ``top_k_grassmannian`` per pair but avoids re-SVD-ing each head ~(n_heads-1)
+    times (the dominant cost at pilot/full-study scale).
     """
     if head_matrices.dtype != np.float64:
         raise TypeError(
@@ -58,12 +64,13 @@ def compute_pairwise_grassmannian(
             f"head matrices must be square; got d_head={d_head}, d_head_2={d_head_2}"
         )
 
+    # Compute each head's top-k left-singular projector ONCE.
+    projectors = [top_k_left_projector(head_matrices[h], k_grass) for h in range(n_heads)]
+
     pairs = edge_index_pairs(n_heads)
     distances = np.empty(len(pairs), dtype=np.float64)
     for e, (i, j) in enumerate(pairs):
-        distances[e] = top_k_grassmannian(
-            head_matrices[i], k=k_grass, reference=head_matrices[j]
-        )
+        distances[e] = grassmannian_distance(projectors[i], projectors[j])
     return distances
 
 
