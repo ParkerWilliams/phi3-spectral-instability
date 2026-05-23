@@ -27,7 +27,7 @@ from phi3geom.geometry.spectral import (
 def compute_atomic_unit_features(
     qkt: np.ndarray,
     avwo: np.ndarray,
-    attention_graph: nx.Graph,
+    attention_graph: nx.Graph | None,
     *,
     k_grass: int = 8,
     k_attn: int,
@@ -39,8 +39,9 @@ def compute_atomic_unit_features(
         qkt: ``(d_head, d_head)`` float64 QKᵀ matrix.
         avwo: ``(d_head, d_head)`` float64 AVWO matrix.
         attention_graph: Per-(t, ℓ, h) attention graph (from
-            ``ricci.build_attention_graph``). Used for the Ricci slot when
-            ``compute_ricci=True``.
+            ``ricci.build_attention_graph``). Used for the Ricci slot ONLY when
+            ``compute_ricci=True``. May be ``None`` when ``compute_ricci=False``
+            — the caller should skip the (expensive) graph build in that case.
         k_grass: Pinned to 8 for v1.
         k_attn: Used in attention-graph construction upstream; recorded for
             reproducibility.
@@ -69,6 +70,11 @@ def compute_atomic_unit_features(
     features[4] = top_k_grassmannian(avwo, k=k_grass)
     features[5] = spectral_entropy(avwo)
     if compute_ricci:
+        if attention_graph is None:
+            raise ValueError(
+                "attention_graph is required when compute_ricci=True; "
+                "got None. Build it with ricci.build_attention_graph."
+            )
         # Lazy import to keep US1 baseline path free of the heavier Ricci
         # path during pilot kickoff.
         from phi3geom.geometry.ricci import forman_ricci_token

@@ -50,23 +50,40 @@ def build_attention_graph(
     g: nx.Graph = nx.Graph()
     g.add_nodes_from(range(n))
 
-    # For each row, keep the top-k_attn out-edges (excluding self-loops).
     eff_k = min(k_attn, n - 1)
-    for i in range(n):
-        row = attention[i].copy()
-        row[i] = -np.inf  # exclude self-loop
-        # argpartition for top-k; then filter strictly positive weights only
-        top_idx = np.argpartition(row, -eff_k)[-eff_k:]
-        for j in top_idx:
-            j_int = int(j)
-            w = float((attention[i, j_int] + attention[j_int, i]) * 0.5)
-            if w <= 0.0:
-                continue
-            if g.has_edge(i, j_int):
-                # If already added from the other direction, keep the max
-                g[i][j_int]["weight"] = max(g[i][j_int]["weight"], w)
-            else:
-                g.add_edge(i, j_int, weight=w)
+    if eff_k < 1:
+        return g  # single node (or empty); no edges
+
+    # Vectorized top-k per row. Mask the diagonal so self-loops can't be picked.
+    masked = attention.copy()
+    np.fill_diagonal(masked, -np.inf)
+    top_idx = np.argpartition(masked, -eff_k, axis=1)[:, -eff_k:]  # (n, eff_k)
+
+    rows = np.repeat(np.arange(n), eff_k)
+    cols = top_idx.ravel()
+    # Symmetric edge weight (A[i,j] + A[j,i]) / 2, keep strictly positive.
+    w = (attention[rows, cols] + attention[cols, rows]) * 0.5
+    keep = w > 0.0
+    rows, cols, w = rows[keep], cols[keep], w[keep]
+    if rows.size == 0:
+        return g
+
+    # Collapse (i,j) and (j,i) to one undirected edge, keeping the MAX weight
+    # (matches the previous per-edge behavior). Done with a sort + reduceat
+    # rather than per-edge has_edge checks.
+    lo = np.minimum(rows, cols).astype(np.int64)
+    hi = np.maximum(rows, cols).astype(np.int64)
+    key = lo * n + hi
+    order = np.argsort(key, kind="stable")
+    key_s, w_s, lo_s, hi_s = key[order], w[order], lo[order], hi[order]
+    _, group_starts = np.unique(key_s, return_index=True)
+    max_w = np.maximum.reduceat(w_s, group_starts)
+    uniq_lo = lo_s[group_starts]
+    uniq_hi = hi_s[group_starts]
+
+    g.add_weighted_edges_from(
+        zip(uniq_lo.tolist(), uniq_hi.tolist(), max_w.tolist())
+    )
     return g
 
 

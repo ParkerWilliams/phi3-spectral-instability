@@ -208,8 +208,15 @@ def run_event_extraction(
             qkt_list.append(qkt_np)
             avwo_list.append(avwo_np)
 
-            a_h = cap.attention_weights[0, h].cpu().numpy().astype(np.float64)
-            attn_graph = build_attention_graph(a_h, k_attn=k_attn)
+            # Build the attention graph ONLY when Ricci is being computed —
+            # it is ~90% of per-event cost (O(T^2) per (layer, head)) and is
+            # otherwise discarded. The US1 baseline (compute_ricci=False) skips
+            # it entirely.
+            if compute_ricci:
+                a_h = cap.attention_weights[0, h].cpu().numpy().astype(np.float64)
+                attn_graph = build_attention_graph(a_h, k_attn=k_attn)
+            else:
+                attn_graph = None
             features = compute_atomic_unit_features(
                 qkt_np, avwo_np, attn_graph,
                 k_grass=8, k_attn=k_attn, compute_ricci=compute_ricci,
