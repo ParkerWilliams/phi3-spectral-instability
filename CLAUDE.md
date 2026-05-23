@@ -26,8 +26,8 @@ the bot faster, more accurate, smarter, and capable of new behaviors
 - **Authenticity.** This should feel like Quake, not a Quake-themed clone.
   Movement, weapons, level pacing should be recognizable.
 - **Hands-off but engaging.** Idle, but the menu side rewards active attention.
-- **Open source throughout.** Engine, base assets, maps — all libre or
-  permissively licensed.
+- **Open source throughout.** Engine, base assets, maps — all libre and
+  GPLv2-compatible.
 
 ## Stack
 
@@ -137,11 +137,12 @@ See `SETUP.md` for first-time setup. Day-to-day:
 
 ## Two-developer workflow
 
-This project is being developed by two people sharing a persistent Claude
-Code session on a DigitalOcean droplet via tmux. Conventions:
+This project is being developed by Parker (P:) and Taber (T:) — oldest
+friends — sharing a persistent Claude Code session on a DigitalOcean droplet
+via tmux. Conventions:
 
 - Prefix chat messages with your initial when both attached (e.g. "P: ...",
-  "[other]: ...") so the conversation thread is parseable later
+  "T: ...") so the conversation thread is parseable later
 - Periodically have Claude write a state summary to `docs/session-log.md`
   to survive session loss
 - Solo work can use local Claude Code; the shared session is for
@@ -166,10 +167,13 @@ Code session on a DigitalOcean droplet via tmux. Conventions:
 
 - Shared dev droplet runs persistent tmux session with Claude Code
 - CI runs on droplet (self-hosted runner) or GitHub Actions — TBD
-- Nightly sim batches scheduled via systemd timer; results in `/data/sims/`
+- Nightly sim batches scheduled via systemd timer; results land in
+  `sims/results/` (repo-relative, gitignored)
 - Backups: DO weekly snapshots; repo is source of truth for code
 
 ## License
 
-TBD. Committing to libre/permissive given asset choices. GPL likely given
-FTEQW base (GPLv2). Confirm and document in `LICENSE` before first release.
+GPLv2. Linking our QuakeC and engine code against FTEQW (GPLv2) forces this,
+and the LibreQuake base is GPLv2 as well. Add a top-level `LICENSE` (GPLv2)
+before first release. See `docs/licenses.md` for per-asset attribution and
+the one outstanding question (FrikBot's exact license).

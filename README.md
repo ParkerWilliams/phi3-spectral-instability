@@ -49,4 +49,6 @@ point.
 
 ## License
 
-TBD. See `docs/licenses.md` for asset attribution as we build it out.
+GPLv2, forced by the FTEQW engine base (also GPLv2). A top-level `LICENSE`
+will be added before first release. See `docs/licenses.md` for per-asset
+attribution as we build it out.

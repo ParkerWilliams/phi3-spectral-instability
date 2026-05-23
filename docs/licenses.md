@@ -23,7 +23,9 @@ and source. If a license is unclear, the asset doesn't ship.
 
 ### Bot baseline: FrikBot
 
-- **License:** [confirm — historically permissive but verify]
+- **License:** ⚠️ UNCONFIRMED — flagged open task. Must verify the exact
+  license and confirm GPLv2-compatibility before we vendor FrikBot under
+  `quakec/`. Do not ship until resolved.
 - **Source:** Quake community archives (Quake Wiki has links)
 - **Vendoring:** QuakeC source in `quakec/` with our modifications
 - **Attribution:** preserve original author credits in source headers
