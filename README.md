@@ -20,13 +20,15 @@ Spec-Kit artifact under `specs/001-phi3-attention-geometry-v1/`. Implementation 
 
 See `specs/001-phi3-attention-geometry-v1/quickstart.md`.
 
+See **[RUNPOD.md](RUNPOD.md)** for the full fresh-GPU-box runbook. Short version:
+
 ```bash
-git clone git@github.com:ParkerWilliams/phi3-spectral-instability.git
+git clone https://github.com/ParkerWilliams/phi3-spectral-instability.git
 cd phi3-spectral-instability
 python -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
-pytest tests/unit/          # parity tests vs DCSBM reference (requires the pinned dcsbm-transformer)
-bash scripts/run_pilot.sh   # 600-event pilot; needs CUDA GPU + HF auth
+pytest tests/unit tests/contract   # analytic + contract tests; should all pass
+bash scripts/run_pilot.sh          # 600-event pilot; needs a CUDA GPU (HF token optional)
 ```
 
 ## License

@@ -12,10 +12,12 @@ def main() -> int:
     """Print authenticated user identity, or actionable failure message.
 
     Returns:
-        Process exit code: 0 on success, 1 on missing/invalid token.
+        Process exit code: 0 on success OR no-token (public model, downloads
+        still work but may be rate-limited); 1 only on a present-but-invalid
+        token or a missing huggingface_hub install.
     """
     try:
-        from huggingface_hub import whoami  # noqa: PLC0415  (lazy import)
+        from huggingface_hub import get_token, whoami  # noqa: PLC0415 (lazy import)
     except ImportError:
         print(
             "[check-hf-auth] huggingface_hub not installed. "
@@ -24,14 +26,27 @@ def main() -> int:
         )
         return 1
 
+    token = get_token()
+    if not token:
+        # microsoft/Phi-3-mini-128k-instruct is public — it downloads without
+        # a token, just rate-limited. Warn but DO NOT block the pipeline.
+        print(
+            "[check-hf-auth] No HF token found. microsoft/Phi-3-mini-128k-instruct "
+            "is public, so it will still download — but possibly rate-limited.\n"
+            "For faster/unthrottled downloads, run `huggingface-cli login` or set "
+            "HF_TOKEN before the run.",
+            file=sys.stderr,
+        )
+        return 0
+
+    # A token IS present — verify it's valid (a broken token is a real error).
     try:
-        info = whoami()
+        info = whoami(token=token)
     except Exception as exc:  # noqa: BLE001  (we want any auth failure)
         print(
-            "[check-hf-auth] HuggingFace authentication failed:\n"
+            "[check-hf-auth] An HF token is set but authentication failed:\n"
             f"  {type(exc).__name__}: {exc}\n\n"
-            "To fix: run `huggingface-cli login` with a token that has read access to "
-            "microsoft/Phi-3-mini-128k-instruct.",
+            "The token may be expired or invalid. Re-run `huggingface-cli login`.",
             file=sys.stderr,
         )
         return 1

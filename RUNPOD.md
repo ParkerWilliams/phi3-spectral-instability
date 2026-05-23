@@ -118,6 +118,12 @@ bash scripts/regenerate_dataset.sh   # regenerates from the manifest; targets >=
 
 ## Notes / gotchas already handled in this branch
 
+- `transformers` is pinned `>=4.45,<5.0`. The hooks + `output_attentions` + eager-attention
+  path target the 4.x `Phi3Attention` API; transformers 5.x is a major release not yet
+  validated against this code. A fresh `pip` on a 2026 box will otherwise grab 5.x.
+- `huggingface_hub` is pinned `<1.0` to match the 4.x transformers line.
+- HF token is **optional** — Phi-3-mini-128k is public, so `check-hf-auth` warns and
+  continues without one (downloads just may be rate-limited). Set `HF_TOKEN` for speed.
 - `skfda` is **not** a dependency (FPCA is done via numpy SVD); the PyPI name would be
   `scikit-fda` if ever needed.
 - `accelerate` is required for `device_map="auto"` and is in the deps.
