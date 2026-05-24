@@ -68,6 +68,44 @@ just run
 If `just run` opens a window with the engine on the left and a placeholder
 upgrade panel on the right, you're set up.
 
+## Current state: engine + bot slice
+
+The host app (`just run`) does not exist yet. What builds today is the FTEQW
+engine and a `progs.dat` (rerelease GPLv2 QuakeC + FrikBot), which you launch
+directly. **All of this compiles C — build on your local machine, never on the
+1 GB droplet (it will OOM).**
+
+```bash
+# Pull the FTEQW engine submodule (shallow keeps the clone light)
+git submodule update --init --depth 1 engine
+
+just build-fteqcc     # -> engine/engine/qclib/fteqcc.bin
+just build-engine     # -> engine/engine/fteqw-gl*   (GL client)
+just build-quakec     # -> quakec/progs.dat
+```
+
+The engine source nests one level down: the submodule root is `engine/`, the
+FTEQW C tree is `engine/engine/` (so `make` runs in `engine/engine`).
+
+### Running it (needs Quake game data)
+
+`progs.dat` is gamecode only — to watch the bot you need a Quake game-data dir
+(maps/models/sounds). We will vendor LibreQuake (GPLv2) as `assets/libre-quake/`
+in a later slice; for now point FTEQW at a libre/owned data dir you have
+locally. **Do not** use id's original `pak0.pak`/`pak1.pak` (not
+redistributable — see `docs/licenses.md`).
+
+```bash
+mkdir -p <quakedir>/idledoom
+cp quakec/progs.dat <quakedir>/idledoom/
+engine/engine/fteqw-gl* -basedir <quakedir> -game idledoom +map dm3
+# in the console:  impulse 100   (add a bot)
+```
+
+FrikBot ships waypoints for `dm1`–`dm6`; `dm3` is a good first smoke test.
+The integration is not yet compile-verified — see `quakec/INTEGRATION.md` for
+the known open issues to resolve at first build.
+
 ## Common issues
 
 ### `engine/` is empty
@@ -119,6 +157,12 @@ tmux new -s dev   # or: tmux attach -t dev
 The droplet does not need the full host app build, frontend deps, or
 graphics libraries. A `just build-sim` target installs only what's needed
 for headless sim runs and Claude Code editing.
+
+> ⚠️ **Never compile on the droplet (1 GB RAM, no swap).** `just build-engine`,
+> `just build-fteqcc`, `just build-quakec`, and the engine-compiling part of
+> `just build-sim` all run `make` over C and will OOM here. Edit, run git, and
+> do lightweight scripting on the droplet; build and run on your local machines.
+> Any Python on the droplet must go through a `uv`-managed venv (`uv run`).
 
 ## Verifying your setup
 

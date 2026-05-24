@@ -1,0 +1,61 @@
+progs.dat
+
+defs.qc
+
+// === FrikBot X v0.10.2 (Public Domain — see frikbot/bot.qc header) ===========
+// Inserted immediately after defs.qc per FrikBot's src/install.txt. The
+// QuakeWorld variant (frikbot/bot_qw.qc) is intentionally NOT compiled here;
+// this is a NetQuake/single-player build. See quakec/INTEGRATION.md.
+frikbot/bot.qc
+frikbot/bot_way.qc
+frikbot/bot_fight.qc
+frikbot/bot_ai.qc
+frikbot/bot_misc.qc
+frikbot/bot_phys.qc
+frikbot/bot_move.qc
+frikbot/bot_ed.qc
+// FrikBot-supplied waypoints for the id1 deathmatch maps dm1-dm6.
+waypoints/map_dm1.qc
+waypoints/map_dm2.qc
+waypoints/map_dm3.qc
+waypoints/map_dm4.qc
+waypoints/map_dm5.qc
+waypoints/map_dm6.qc
+// === end FrikBot =============================================================
+
+subs.qc
+fight.qc
+ai.qc
+combat.qc
+itemnames.qc
+items.qc
+weapons.qc
+world.qc
+client.qc
+player.qc
+monsters.qc
+doors.qc
+buttons.qc
+triggers.qc
+plats.qc
+misc.qc
+
+monsters/ogre.qc
+monsters/fiend.qc
+monsters/shambler.qc
+monsters/knight.qc
+monsters/grunt.qc
+monsters/scrag.qc
+monsters/rottweiler.qc
+monsters/zombie.qc
+monsters/chthon.qc
+
+monsters/spawn.qc		// registered
+monsters/hellknight.qc	// registered
+monsters/rotfish.qc		// registered
+monsters/vore.qc		// registered
+monsters/enforcer.qc	// registered
+monsters/shub.qc		// registered
+
+bots/bot.qc				// rerelease bot stub — inert on FTEQW (its AI lives in the
+						// closed rerelease engine C++, which FTEQW does not have)

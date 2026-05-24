@@ -27,13 +27,25 @@ build-sim: build-engine build-quakec
 
 # === Component builds ===
 
-build-engine:
-    @echo "Building FTEQW engine..."
-    cd engine && make -j$(nproc 2>/dev/null || sysctl -n hw.ncpu)
+# NOTE: building the engine and fteqcc compiles C — do this LOCALLY, never on
+# the shared 1GB droplet (it will OOM). The FTEQW submodule nests its source one
+# level down, so paths are engine/engine/... (submodule root is engine/).
 
-build-quakec:
-    @echo "Compiling QuakeC..."
-    cd quakec && fteqcc
+build-engine:
+    @echo "Building FTEQW GL client (LOCAL ONLY — do not run on the droplet)..."
+    make -C engine/engine gl-rel -j$(nproc 2>/dev/null || sysctl -n hw.ncpu)
+    @echo "Built client -> engine/engine/fteqw-gl*  (exact suffix is target-dependent)"
+
+# fteqcc ships inside the FTEQW tree (engine/engine/qclib). build-quakec needs it.
+build-fteqcc:
+    @echo "Building fteqcc QuakeC compiler (LOCAL ONLY)..."
+    make -C engine/engine/qclib
+    @echo "Built compiler -> engine/engine/qclib/fteqcc.bin"
+
+build-quakec: build-fteqcc
+    @echo "Compiling QuakeC (rerelease base + FrikBot) -> progs.dat..."
+    cd quakec && ../engine/engine/qclib/fteqcc.bin
+    @echo "Built gamecode -> quakec/progs.dat"
 
 build-host:
     @echo "Building Tauri host app..."
