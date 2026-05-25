@@ -71,6 +71,11 @@ Tracked via standard tooling (`cargo.lock`, `package-lock.json`,
 
 ## License-incompatible (do not ship)
 
+This is a Quake-*like* game using original/libre content — **not** Quake. We do
+not ship id Software's assets, original maps, monsters, or the "Quake"
+trademark; keep names/art original or libre. (Building on id's GPLv2 *code* —
+FTEQW, the rerelease QuakeC — is fine; their *content* and brand are not.)
+
 - Original Quake shareware `pak0.pak` — id Software copyright, free to
   play but not redistribute
 - Quake registered `pak1.pak` — id Software copyright, definitely not

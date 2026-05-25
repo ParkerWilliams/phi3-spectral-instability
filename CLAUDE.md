@@ -5,26 +5,36 @@ non-trivial changes. Update it when architectural decisions change.
 
 ## Project: [working title TBD]
 
-An idle game built on a Quake 1 open source engine fork. The player watches
-an AI bot play Quake and spends accumulated currency on upgrades that make
-the bot faster, more accurate, smarter, and capable of new behaviors
-(rocket-jumping, finding secrets, using advanced weapons). The fantasy is
-"watching your friend get progressively better at Quake."
+An idle game where you watch an AI agent get progressively better at a
+**Quake-like**, PS1-era shooter. The agent plays autonomously; you spend
+accumulated currency — and, above all, configure its behavior — to make it
+faster, more accurate, smarter, and capable of new behaviors (rocket-jumping,
+finding secrets, using advanced weapons). The fantasy is "watching your friend
+get progressively better at a Quake-like shooter."
+
+It is built on a Quake-1 engine fork (FTEQW) with original/libre content, but
+it is deliberately *not* Quake — no id Software assets, maps, monsters, or
+trademark. See `docs/design.md` for the full vision.
 
 ### Core loop
 
-1. Bot plays a Quake level autonomously
-2. Player watches in the left viewport, browses upgrades in the right panel
-3. Player spends currency to improve bot stats or unlock behaviors
-4. Bot's next run reflects the upgrades; pace and capability visibly increase
+1. The agent plays a level autonomously
+2. Player watches in the left viewport, browses upgrades/behavior in the right panel
+3. Player spends currency to improve stats, unlock behaviors, and tune how the agent thinks
+4. The agent's next run reflects the changes; pace and capability visibly increase
 5. Progression unlocks harder maps and new weapon/movement tech
 
 ### Design pillars
 
 - **Visible progression.** Every upgrade should be observable in play within
   a minute or two. No invisible +0.3% stats.
-- **Authenticity.** This should feel like Quake, not a Quake-themed clone.
-  Movement, weapons, level pacing should be recognizable.
+- **Behavior configuration is the gameplay.** The player never controls the
+  agent directly; agency comes from shaping how it thinks — playstyles,
+  targeting, movement, ability triggers. (A full rule engine is deferred; see
+  `docs/design.md` §9.)
+- **Quake-like authenticity.** Movement, weapons, and pacing should read as a
+  classic Quake-like shooter — of that lineage, with a PS1-era aesthetic —
+  built from original/libre content, never id's.
 - **Hands-off but engaging.** Idle, but the menu side rewards active attention.
 - **Open source throughout.** Engine, base assets, maps — all libre and
   GPLv2-compatible.
