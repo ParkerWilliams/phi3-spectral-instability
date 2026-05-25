@@ -1,0 +1,8 @@
+[submodule "engine"]
+	path = engine
+	url = https://github.com/fte-team/fteqw.git
+	# FTEQW (GPLv2). Pinned deliberately per ADR-0001; bump only via a new ADR.
+	# Shallow by default to keep clones light (see SETUP.md). If a pinned commit
+	# is older than the remote tip and a shallow fetch fails, do a full:
+	#   git submodule update --init --no-recommend-shallow engine
+	shallow = true

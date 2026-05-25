@@ -2,7 +2,7 @@
 
 **Status:** Accepted
 **Date:** 2026-05-23
-**Deciders:** [names]
+**Deciders:** Parker, Taber
 
 ## Context
 

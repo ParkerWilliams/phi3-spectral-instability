@@ -3,163 +3,278 @@
 Living document. Edit freely. When a section stabilizes, consider extracting
 its decisions into an ADR.
 
+> Provenance: incorporates ideas from the early design brainstorm (Google Doc,
+> May 2026). That draft centered on a full player-facing rule engine; we keep
+> the behavior-configuration *spirit* but **defer the rule engine itself**
+> (see §9).
+
 ## 1. Vision
 
-[Replace with your elevator pitch — refined version of "idle game where you
-watch your friend get better at Quake." Aim for 3-5 sentences that another
-dev could read and immediately understand the soul of the project.]
+You watch a friend get better at a Quake-*like*, PS1-era shooter. An AI agent
+plays original libre levels autonomously — moving, fighting, looting — and you
+improve it not by controlling it, but by shaping how it thinks and what it
+carries. Each run you observe, diagnose, and adjust; the next run is faster,
+smarter, more capable. The soul of the game is **behavior configuration**:
+turning a clumsy bot into a kiting, headshot-hunting, secret-sniffing menace and
+feeling like that competence is *yours*.
+
+This is deliberately a Quake-*like* game, **not Quake**. We want the
+boomer-shooter feel and a PS1 aesthetic (low resolution, chunky lighting,
+affine-warped textures, crunchy audio), built on a libre engine with
+original/libre content. We do **not** ship or depend on id Software's assets,
+maps, monsters, or the "Quake" name/trademark (see §9 and `docs/licenses.md`).
 
 ## 2. Core experience
 
+### The loop
+
+**Observe → Diagnose → Adjust → Re-run.**
+
+1. Deploy the agent into a level (or auto-repeat the current one)
+2. It moves, acquires targets, fires, uses abilities
+3. You earn currency and drops (mods, weapons, upgrades)
+4. You return to the loadout/behavior panel and tune
+5. Re-run — clears get faster and cleaner
+
 ### The two panels
 
-- **Left (engine viewport):** Live view of the bot playing Quake. Real
-  engine, real maps, real movement. No HUD changes from vanilla Quake unless
-  needed.
-- **Right (upgrade panel):** Categorized upgrades, currency display, run
-  history, telemetry, unlocks.
+- **Left (engine viewport):** live view of the agent playing. Real engine, real
+  physics, real movement — the boomer-shooter feel must read as skillful play.
+- **Right (config/upgrade panel):** loadout, behavior settings, upgrades,
+  currency, run history, telemetry, unlocks. All player agency lives here.
 
-[Sketch the layout here in ASCII or link to mockups.]
+[Sketch the layout in ASCII or link to mockups.]
 
-### The session arc
+### Player agency without direct control
 
-What does a 5-minute session look like? A 1-hour session? A 1-week
-progression curve?
+The player never inputs moment-to-moment actions; all agency comes from
+*configuration*, across three pillars:
 
-- **Minute 0-5:** [bot does X, player buys Y]
-- **Minute 5-30:** [...]
-- **Hour 1-5:** [...]
-- **Day 1+:** [...]
+1. **Loadout design** — weapons, mods, abilities
+2. **Behavior configuration** — targeting, movement, ability triggers (the core — §3)
+3. **Strategic progression** — better automation, scaling efficiency, specialization
 
 ### Idle vs active
 
-[Resolve: true offline progression, or only progresses while window is open?
-Implications for sim engine, save format, fairness.]
+Current lean (from the early draft) is **pure idle**: the agent runs
+autonomously and the panel rewards active attention, but nothing is lost by
+stepping away. Still open: true offline progression vs progresses-only-while-
+open — implications for the sim engine, save format, and fairness. [Resolve;
+tracked in §11.]
 
-## 3. The bot
+### Session arc
+
+- **Minute 0–5:** crude agent auto-fires and wanders; first upgrades land fast (30–90s apart)
+- **Minute 5–30:** first behavior settings unlock; weapon identity begins to show
+- **Hour 1–5:** multiple behavior slots, movement behaviors, early specialization
+- **Day 1+:** longer-tail capability unlocks; offline accrual if we go that way
+
+[Tighten with real numbers once we can sim.]
+
+## 3. The agent (core)
+
+### Behavior configuration — the heart of the game
+
+You shape *how the agent thinks*, not what it does each frame. For now this is
+exposed as tunable settings and presets — **not** free-form scripting (that is
+the deferred rule engine, §9):
+
+- **Playstyle / behavior profiles** — high-level personalities that bias
+  everything: risk-taker, map completionist, "no drop left behind,"
+  secret-hunter (checks walls for secrets), aggressive dopamine-chaser,
+  methodical defensive. Choosing a profile sets sensible defaults you then
+  fine-tune.
+- **Targeting preferences** — prefer headshots, focus lowest-HP, prioritize
+  elites/shielded, nearest vs most-dangerous.
+- **Movement logic** — kiting radius (maintain distance), aggressive push vs
+  defensive retreat, seek cover vs ignore cover, patrol/clear vs beeline-to-exit.
+- **Engagement positioning** — hold optimal weapon range, avoid getting
+  surrounded, use flanking routes (later unlock).
+- **Ability triggers** — threshold-driven: "shield under 30% HP," "grenade when
+  ≥5 enemies," "slow-time when an elite appears" (§4).
+
+Design rule: tuning must be **intuitive but deep**, and every change must show a
+visible cause→effect on the next run (§3 visible progression, §10 risks).
 
 ### Behavioral model
 
-[How does the bot decide what to do? FrikBot baseline plus our modifications.
-Stat-driven (accuracy, reaction time, awareness) vs script-driven
-(rocket-jump, secret knowledge) vs goal-driven (find exit, kill all,
-explore).]
+Stat-driven + config-driven, on a FrikBot-derived baseline
+(`docs/bot-stats.md`, ADR-0001). Stats are cvars readable by gamecode and
+writable from the host. The agent's decisions should be **legible** — a viewer
+can read intention into them.
 
-### Tunable parameters
-
-See `bot-stats.md` for the catalog. Summary of dimensions:
+### Tunable parameters (see `bot-stats.md`)
 
 - **Mechanical skill:** accuracy, reaction time, tracking, prediction
-- **Movement:** speed, strafe jumping, rocket jumping, bunny hopping
-- **Knowledge:** map awareness, secret locations, weapon spawn timing,
-  item priority
-- **Decision-making:** aggression, retreat threshold, target selection,
-  resource management
-- **Combat:** weapon affinity, ammo management, splash damage awareness
+- **Perception / awareness:** detection range, threat assessment, line-of-sight use
+- **Movement:** speed, strafing, rocket-jump, bunny-hop (original/libre tech, quake-like)
+- **Knowledge:** map awareness, secret locations, item/spawn timing, pickup priority
+- **Decision-making:** aggression, retreat threshold, target selection, resource mgmt
+- **Combat:** weapon affinity per enemy type, ammo management, splash awareness
 
 ### Visible progression
 
-Design constraint: every upgrade should produce an observable change within
-1-2 minutes of play.
+Every upgrade produces an observable change within 1–2 minutes of play. No
+invisible +0.3% stats. Good: "now it rocket-jumps to the megahealth." Bad:
+"+2% reload speed with no visible tell."
 
-[How do we ensure this? Examples of good vs bad upgrades.]
+### "FPS feel" without input
 
-## 4. Progression and economy
+Even hands-off, it must *look* like a skilled player: smooth target snapping,
+recoil settling over a burst, clean kiting/strafing, well-timed abilities. Nail
+this and players read their own intent into the system they built. This is a
+presentation requirement, not just an AI one.
 
-See `progression.md` for the full upgrade tree. This section covers
-philosophy and pacing.
+## 4. Weapons, abilities, enemies
 
-### Currency
+### Weapons as behavior (behavior > stats)
 
-[What does the bot earn? How much per minute, per kill, per level
-completion? How does currency scale with progression?]
+Weapons shouldn't only scale numbers — they should change *how* the agent
+fights.
 
-### Upgrade pacing
+- **Core stats:** damage, fire rate, accuracy/spread, reload, range, plus how a
+  weapon shifts perception and per-enemy weapon choice.
+- **Behavioral modifiers:** target-preference shifts ("prefer headshots"),
+  firing patterns (burst vs sustained, charge shots), projectile behavior
+  (hitscan → projectile → tracking → chaining).
+- **Evolution examples:** SMG → perfect tracking beam; shotgun → cone-clearing
+  wave; sniper → auto-headshot chain. Upgrades change *identity*, not just output.
 
-[How long between purchases at each stage? Early-game should reward every
-30-90 seconds; mid-game several minutes; late-game can stretch to hours
-with offline accumulation if applicable.]
+### Abilities (strategic overrides)
+
+The main expression layer beyond weapons. Categories: **AOE clearing**
+(grenades, explosions), **control** (slow, stun, freeze), **survivability**
+(shield, regen), **utility** (loot boost, radar, aggro manipulation). Principle:
+abilities solve problems the baseline AI can't — swarms → AOE, snipers → shield
+timing, fast enemies → slow field.
+
+### Enemies (force build decisions)
+
+Enemies exist to break naive automation; all original/libre designs (not id
+monsters):
+
+- **Archetypes:** swarmers (punish single-target), tanks (punish burst), snipers
+  (punish bad positioning), rushers (punish no-kiting), shielded (require
+  angle/priority logic).
+- **Advanced traits:** line-of-sight abuse, weak points (reward headshot builds),
+  on-death effects (force spacing logic).
+
+### Maps must justify positioning
+
+Movement/positioning only matter if levels demand them: chokepoints vs open
+arenas, vertical layers, cover objects, multi-path routes. Otherwise movement
+behavior is decoration.
+
+## 5. Progression and economy
+
+See `progression.md` for the tree. Philosophy: progression should feel like
+**"my system is getting smarter, not just stronger."**
+
+### Currency & pacing
+
+[What the agent earns per kill/clear/time, and how it scales.] Early-game rewards
+every 30–90s; mid-game minutes; late-game can stretch to hours (with offline
+accrual if we go that way).
+
+### Capability growth
+
+- **Early:** very limited behavior settings, basic auto-fire, crude targeting
+- **Mid:** multiple behavior slots, movement behaviors unlock, weapon identities emerge
+- **Late:** stacked behaviors, specialized builds, near-perfect efficiency
 
 ### Prestige / reset loops
 
-[Is there a reset mechanic that grants permanent buffs? Common in idle
-games, optional here.]
+Resets unlock **capability, not multipliers** — additional behavior slots, new
+condition/trigger types (e.g. enemy-type detection), advanced targeting
+(predictive, multi-target), new weapon archetypes. Keeps the game off a pure
+stat-treadmill. (When the rule engine lands, prestige is the natural place to
+hand out rule slots.)
 
-## 5. Content progression
+## 6. Content progression
 
 ### Maps
 
-LibreQuake base maps first. Then curated Quaddicted content. Then any
-custom levels we make.
-
-[Order? Difficulty curve? Gating criteria?]
+Original/libre levels with a PS1 aesthetic — LibreQuake-derived or hand-made;
+curated libre community maps later if licensing checks out (`docs/licenses.md`).
+[Difficulty curve, gating criteria.]
 
 ### Weapons and behaviors
 
-[Order in which the bot gains access to and competence with weapons.
-Vanilla Quake order? Different?]
+[Unlock order — boomer-shooter-flavored but original. Even early weapons should
+already express the behavior system, not just raw damage.]
 
 ### Episodes / chapters
 
-[Does the game have a narrative or structural arc beyond difficulty
-progression?]
+[A structural arc beyond difficulty progression? Optional.]
 
-## 6. Architecture
+## 7. Architecture
 
 See ADRs for individual decisions. Summary:
 
-- Engine: FTEQW with our QuakeC mod
-- Bot: FrikBot fork with cvar-driven stats
-- Host: Tauri (Rust + web frontend) wrapping the engine window
+- Engine: FTEQW + our QuakeC mod (GPLv2; ADR-0001)
+- Agent: FrikBot-derived gamecode with cvar-driven stats/behavior
+- Host: Tauri (Rust + web frontend) wrapping the engine window (ADR-0002)
 - State: SQLite save file; cvars for engine config
 - IPC: stdin console commands + watched state file
 
 ### Open architectural questions
 
-[Track here until resolved into ADRs.]
+- Window embedding: native reparenting vs render-to-texture in the host?
+- Sim engine: same binary as the game, or a separate headless build?
+- Save versioning: evolve the schema without breaking saves?
 
-- Window embedding: native reparenting vs texture-based render-to-host?
-- Sim engine: same binary as game, or a separate headless build?
-- Save versioning: how do we evolve the schema without breaking saves?
+## 8. Headless simulation
 
-## 7. Headless simulation
+See `telemetry.md` for the output schema. Use cases: tuning the progression
+curve, regression-checking behavior after engine/gamecode changes, and balancing
+specific upgrades. Approach (tick acceleration / parallel instances) [resolve].
 
-See `telemetry.md` for the output schema.
+## 9. Out of scope / deferred
 
-### Use cases
+**Deferred (build later — not cut):**
 
-- Tuning: "given this upgrade tree, does the progression curve feel right?"
-- Regression: "did this engine patch change bot behavior unexpectedly?"
-- Balance: "is the rocket launcher upgrade too strong?"
+- **Player-facing rule engine** — condition→action blocks with priority ordering
+  and expandable slots. This is the eventual full form of behavior configuration
+  (§3), and the early draft centered on it. For now we ship behavior config as
+  curated settings/presets and add the rule engine once the core loop is proven.
+  Rushing it risks the game getting niche/overwhelming fast.
 
-### Approach
+**Out of scope:**
 
-[Tick acceleration, parallel instances, or both. Resolve and document.]
+- Anything that ties us to **actual Quake / id IP** — id assets, original id
+  maps, id monsters, or the "Quake" name/trademark. We are quake-*like* with
+  libre/original content.
+- Multiplayer; player-facing modding; mobile/web ports; voice/narrative content;
+  microtransactions of any kind.
 
-## 8. Out of scope (for now)
+## 10. Design risks (what makes this work or fail)
 
-Listing what we're explicitly not doing is as valuable as listing what we
-are.
+**Works if:** players see clear cause→effect from their changes; behavior tuning
+is intuitive but deep; combat visuals reinforce "skillful play."
 
-- Multiplayer
-- Modding support for players
-- Mobile / web ports
-- Original maps (initially)
-- Voice / narrative content
-- Microtransactions of any kind
+**Fails if:** it devolves into a pure stat treadmill; AI decisions feel opaque or
+random; movement/positioning doesn't matter.
 
-## 9. Open questions
+## 11. Open questions
 
-(Mirror of `CLAUDE.md` open questions. Resolve here, then update both.)
+(Mirror of `CLAUDE.md`; resolve here, then update both.)
 
-- [List active questions with brief context]
+- Idle pacing: true offline progression vs active-watch only? (early lean: pure idle)
+- Stat-improvement vs behavior-unlock ratio in progression?
+- How much behavior config to expose *before* the rule engine exists?
+- PS1-aesthetic target: how far to push it (resolution, dithering, affine warp, palette)?
+- Save format versioning; host↔engine binary discovery; sim approach; frontend
+  framework; window embedding (see §7 and `CLAUDE.md`).
+- Working title — needs to read as quake-like without inviting id trouble (TBD).
 
-## 10. Glossary
+## 12. Glossary
 
-- **Bot:** the AI player visible in the left viewport
-- **Run:** one instance of the bot playing a level start-to-finish
-- **Stat:** a numeric tunable parameter on the bot
-- **Behavior:** an unlockable capability (rocket-jump, secret-finding)
-- **Cvar:** Quake engine console variable; how we pass config in
+- **Agent / bot:** the AI player visible in the left viewport
+- **Run:** one instance of the agent playing a level start-to-finish
+- **Stat:** a numeric tunable parameter on the agent
+- **Behavior profile / playstyle:** a high-level personality preset biasing targeting/movement/abilities
+- **Behavior configuration:** the core system of shaping the agent's decisions via settings (and, later, the rule engine)
+- **Rule engine (deferred):** future condition→action scripting for agent behavior
+- **Ability:** an activatable strategic override (AOE, control, survivability, utility)
+- **Cvar:** engine console variable; how we pass config into the running game
 - **QuakeC:** the scripting language compiled into `progs.dat`
-- [Add terms as they emerge]

@@ -7,9 +7,12 @@ and source. If a license is unclear, the asset doesn't ship.
 
 ### Engine: FTEQW
 
-- **License:** GPLv2
-- **Source:** https://www.fteqw.org/ — https://sourceforge.net/p/fteqw/code/
-- **Vendoring:** git submodule under `engine/`
+- **License:** GPLv2 (root `LICENSE` in the repo)
+- **Source:** https://www.fteqw.org/ — official GitHub mirror
+  https://github.com/fte-team/fteqw
+- **Vendoring:** git submodule under `engine/`, pinned to commit
+  `3584377302cda4bd1b6950b126d147451895a1da`. fteqcc (the QuakeC compiler)
+  builds from `engine/engine/qclib` in the same tree.
 - **Implications:** Our QuakeC code that links against FTEQW is effectively
   GPLv2. Confirm with a lawyer before commercial release.
 
@@ -21,12 +24,25 @@ and source. If a license is unclear, the asset doesn't ship.
 - **Attribution:** see upstream `CREDITS` / `AUTHORS`. Mirror into our
   `CREDITS` file before release.
 
-### Bot baseline: FrikBot
+### Game logic base: Quake rerelease QuakeC
 
-- **License:** [confirm — historically permissive but verify]
-- **Source:** Quake community archives (Quake Wiki has links)
-- **Vendoring:** QuakeC source in `quakec/` with our modifications
-- **Attribution:** preserve original author credits in source headers
+- **License:** GPLv2 (`quakec/COPYING.txt`, vendored from upstream)
+- **Source:** https://github.com/id-Software/quake-rerelease-qc — the `quakec/`
+  (id1 base campaign) tree only
+- **Vendoring:** copied into `quakec/` with our FrikBot modifications, pinned to
+  commit `7bcbd29c9934e8523974263de50b3ae90b5d2605`
+- **Attribution:** id Software copyright headers preserved in each `.qc`
+
+### Bot baseline: FrikBot X v0.10.2
+
+- **License:** **Public Domain** ✅ (confirmed — stated in `src/install.txt` and
+  the header of every `frikbot/*.qc`). One condition: the notice must be
+  reproduced in its entirety, so do not strip the file headers. GPLv2-compatible.
+- **Source:** FrikBot X v0.10.2 (`fbxc.zip`), by Ryan "FrikaC" Smith — archived
+  at https://github.com/Jason2Brownlee/QuakeBotArchive (`bin/fbxc.zip`)
+- **Vendoring:** QuakeC source under `quakec/frikbot/` (+ `quakec/waypoints/`)
+  with our modifications; integrated into the rerelease base above
+- **Attribution:** original author notice preserved verbatim in source headers
 
 ## Maps
 
@@ -54,6 +70,11 @@ Tracked via standard tooling (`cargo.lock`, `package-lock.json`,
 "do not use" list here as we discover them.
 
 ## License-incompatible (do not ship)
+
+This is a Quake-*like* game using original/libre content — **not** Quake. We do
+not ship id Software's assets, original maps, monsters, or the "Quake"
+trademark; keep names/art original or libre. (Building on id's GPLv2 *code* —
+FTEQW, the rerelease QuakeC — is fine; their *content* and brand are not.)
 
 - Original Quake shareware `pak0.pak` — id Software copyright, free to
   play but not redistribute
