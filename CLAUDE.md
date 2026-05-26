@@ -146,6 +146,20 @@ See `SETUP.md` for first-time setup. Day-to-day:
 - **Asset licensing matters.** Never add an asset without updating
   `docs/licenses.md`. If license is unclear, don't add it.
 
+## Spec-driven workflow (Spec Kit)
+
+This repo uses [Spec Kit](https://github.com/github/spec-kit). The
+non-negotiable principles live in `.specify/memory/constitution.md`
+(**canonical**) — seeded from the design pillars and conventions above; keep
+this file and `docs/design.md` consistent with it.
+
+Feature flow via the `/speckit-*` skills (in `.claude/skills/`):
+`/speckit-constitution` → `/speckit-specify` → `/speckit-clarify` (optional) →
+`/speckit-plan` → `/speckit-tasks` → `/speckit-analyze` (optional) →
+`/speckit-implement`. Specs and plans should draw on `docs/design.md`,
+`docs/adr/`, `docs/bot-stats.md`, and `docs/progression.md`; record decisions as
+ADRs. Per-feature specs live under `specs/`.
+
 ## Two-developer workflow
 
 This project is being developed by Parker (P:) and Taber (T:) — oldest
@@ -188,3 +202,8 @@ GPLv2. Linking our QuakeC and engine code against FTEQW (GPLv2) forces this,
 and the LibreQuake base is GPLv2 as well. Add a top-level `LICENSE` (GPLv2)
 before first release. See `docs/licenses.md` for per-asset attribution and
 the one outstanding question (FrikBot's exact license).
+
+<!-- SPECKIT START -->
+For additional context about technologies to be used, project structure,
+shell commands, and other important information, read the current plan
+<!-- SPECKIT END -->
