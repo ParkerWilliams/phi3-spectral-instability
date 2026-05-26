@@ -10,7 +10,7 @@ its decisions into an ADR.
 
 ## 1. Vision
 
-You watch a friend get better at a Quake-*like*, PS1-era shooter. An AI agent
+You watch a friend get better at a boomer-shooter — a PS1-era arena FPS. An AI agent
 plays original libre levels autonomously — moving, fighting, looting — and you
 improve it not by controlling it, but by shaping how it thinks and what it
 carries. Each run you observe, diagnose, and adjust; the next run is faster,
@@ -18,11 +18,11 @@ smarter, more capable. The soul of the game is **behavior configuration**:
 turning a clumsy bot into a kiting, headshot-hunting, secret-sniffing menace and
 feeling like that competence is *yours*.
 
-This is deliberately a Quake-*like* game, **not Quake**. We want the
-boomer-shooter feel and a PS1 aesthetic (low resolution, chunky lighting,
-affine-warped textures, crunchy audio), built on a libre engine with
-original/libre content. We do **not** ship or depend on id Software's assets,
-maps, monsters, or the "Quake" name/trademark (see §9 and `docs/licenses.md`).
+This is deliberately an original boomer-shooter. We want the classic PS1-era
+arena-FPS feel (low resolution, chunky lighting, affine-warped textures, crunchy
+audio), built on a libre engine with original/libre content. We do **not** ship
+or depend on id Software's assets, maps, monsters, or the "Quake" name/trademark
+(see §9 and `docs/licenses.md`).
 
 ## 2. Core experience
 
@@ -107,7 +107,7 @@ can read intention into them.
 
 - **Mechanical skill:** accuracy, reaction time, tracking, prediction
 - **Perception / awareness:** detection range, threat assessment, line-of-sight use
-- **Movement:** speed, strafing, rocket-jump, bunny-hop (original/libre tech, quake-like)
+- **Movement:** speed, strafing, rocket-jump, bunny-hop (original/libre, boomer-shooter movement tech)
 - **Knowledge:** map awareness, secret locations, item/spawn timing, pickup priority
 - **Decision-making:** aggression, retreat threshold, target selection, resource mgmt
 - **Combat:** weapon affinity per enemy type, ammo management, splash awareness
@@ -241,9 +241,8 @@ specific upgrades. Approach (tick acceleration / parallel instances) [resolve].
 
 **Out of scope:**
 
-- Anything that ties us to **actual Quake / id IP** — id assets, original id
-  maps, id monsters, or the "Quake" name/trademark. We are quake-*like* with
-  libre/original content.
+- Anything that ties us to **id IP** — id assets, original id maps, id monsters,
+  or the "Quake" name/trademark. We build original/libre content only.
 - Multiplayer; player-facing modding; mobile/web ports; voice/narrative content;
   microtransactions of any kind.
 
@@ -265,7 +264,7 @@ random; movement/positioning doesn't matter.
 - PS1-aesthetic target: how far to push it (resolution, dithering, affine warp, palette)?
 - Save format versioning; host↔engine binary discovery; sim approach; frontend
   framework; window embedding (see §7 and `CLAUDE.md`).
-- Working title — needs to read as quake-like without inviting id trouble (TBD).
+- Working title — needs to evoke a retro arena FPS without inviting id trouble (TBD).
 
 ## 12. Glossary
 

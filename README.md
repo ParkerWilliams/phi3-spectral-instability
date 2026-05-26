@@ -1,24 +1,24 @@
 # [working title TBD]
 
-An idle game where you watch an AI get progressively better at a Quake-like,
-PS1-era shooter.
+An idle game where you watch an AI get progressively better at a boomer-shooter
+— a PS1-era arena FPS.
 
 Built on the [FTEQW](https://www.fteqw.org/) engine with
 [LibreQuake](https://github.com/MissLavender-LQ/LibreQuake) assets. Open source
-and libre throughout — a Quake-*like* game using original/libre content,
-deliberately not Quake itself (no id Software assets or trademark).
+and libre throughout — a boomer-shooter built from original/libre content, using
+no id Software assets or trademarks.
 
 ## Concept
 
 Two-panel interface. On the left, the engine runs and an AI agent plays our
-Quake-like shooter. On the right, a config/upgrade menu where you spend currency
+boomer-shooter. On the right, a config/upgrade menu where you spend currency
 the agent earns — and tune how it behaves — to make it faster, smarter, more
 accurate, and capable of new behaviors: rocket-jumping, weapon mastery, finding
 secrets, taking risks. Progress unlocks harder maps and more advanced movement
 and combat tech.
 
-The fantasy: watching your friend get progressively better at a Quake-like
-shooter, on a several-hour-to-several-week arc.
+The fantasy: watching your friend get progressively better at a boomer-shooter,
+on a several-hour-to-several-week arc.
 
 ## Status
 
