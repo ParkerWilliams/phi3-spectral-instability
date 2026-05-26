@@ -74,5 +74,5 @@ code and the upgrade tree in `progression.md`.
   before/during runs
 - Defaults represent a "newbie friend" baseline — competent enough to play,
   visibly improvable
-- Maxed-out across the board should look like a high-level boomer-shooter player
+- Maxed-out across the board should look like a high-level FPS player
   (intentional ceiling: human-plausible expert, not aimbot-perfect)

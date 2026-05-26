@@ -6,7 +6,7 @@ non-trivial changes. Update it when architectural decisions change.
 ## Project: [working title TBD]
 
 An idle game where you watch an AI agent get progressively better at a
-**boomer-shooter** — a PS1-era arena FPS. The agent plays autonomously; you
+**low-poly, PS1-era FPS**. The agent plays autonomously; you
 spend accumulated currency — and, above all, configure its behavior — to make
 it faster, more accurate, smarter, and capable of new behaviors (rocket-jumping,
 finding secrets, using advanced weapons). The fantasy is "watching your friend
@@ -32,9 +32,10 @@ and uses no id Software assets, maps, monsters, or trademarks. See
   agent directly; agency comes from shaping how it thinks — playstyles,
   targeting, movement, ability triggers. (A full rule engine is deferred; see
   `docs/design.md` §9.)
-- **Boomer-shooter authenticity.** Movement, weapons, and pacing should read as
-  a classic PS1-era arena FPS — fast, weighty, recognizably of that lineage —
-  built from original/libre content, never id's.
+- **Low-poly PS1 authenticity.** Movement, weapons, and pacing should read as a
+  classic late-'90s low-poly FPS — fast and weighty — with a consistent PS1-era
+  look (low-poly models, low-res textures), built from original/libre content,
+  never id's.
 - **Hands-off but engaging.** Idle, but the menu side rewards active attention.
 - **Open source throughout.** Engine, base assets, maps — all libre and
   GPLv2-compatible.

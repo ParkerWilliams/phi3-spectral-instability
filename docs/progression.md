@@ -66,7 +66,7 @@ Higher-level combat decisions.
 
 ### 5. Weapon Mastery
 
-Per-weapon affinity unlocks and improvements. A classic boomer-shooter weapon
+Per-weapon affinity unlocks and improvements. A classic low-poly-FPS weapon
 order suggested (original analogues, not id's named weapons):
 
 1. Axe (always available)

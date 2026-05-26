@@ -10,7 +10,7 @@ its decisions into an ADR.
 
 ## 1. Vision
 
-You watch a friend get better at a boomer-shooter — a PS1-era arena FPS. An AI agent
+You watch a friend get better at a low-poly, PS1-era FPS. An AI agent
 plays original libre levels autonomously — moving, fighting, looting — and you
 improve it not by controlling it, but by shaping how it thinks and what it
 carries. Each run you observe, diagnose, and adjust; the next run is faster,
@@ -18,9 +18,9 @@ smarter, more capable. The soul of the game is **behavior configuration**:
 turning a clumsy bot into a kiting, headshot-hunting, secret-sniffing menace and
 feeling like that competence is *yours*.
 
-This is deliberately an original boomer-shooter. We want the classic PS1-era
-arena-FPS feel (low resolution, chunky lighting, affine-warped textures, crunchy
-audio), built on a libre engine with original/libre content. We do **not** ship
+This is deliberately an original low-poly, PS1-era FPS. We want the late-'90s
+look and feel (low-poly models, low-res affine-warped textures, chunky lighting,
+crunchy audio), built on a libre engine with original/libre content. We do **not** ship
 or depend on id Software's assets, maps, monsters, or the "Quake" name/trademark
 (see §9 and `docs/licenses.md`).
 
@@ -39,7 +39,7 @@ or depend on id Software's assets, maps, monsters, or the "Quake" name/trademark
 ### The two panels
 
 - **Left (engine viewport):** live view of the agent playing. Real engine, real
-  physics, real movement — the boomer-shooter feel must read as skillful play.
+  physics, real movement — the low-poly FPS feel must read as skillful play.
 - **Right (config/upgrade panel):** loadout, behavior settings, upgrades,
   currency, run history, telemetry, unlocks. All player agency lives here.
 
@@ -107,7 +107,7 @@ can read intention into them.
 
 - **Mechanical skill:** accuracy, reaction time, tracking, prediction
 - **Perception / awareness:** detection range, threat assessment, line-of-sight use
-- **Movement:** speed, strafing, rocket-jump, bunny-hop (original/libre, boomer-shooter movement tech)
+- **Movement:** speed, strafing, rocket-jump, bunny-hop (original/libre FPS movement tech)
 - **Knowledge:** map awareness, secret locations, item/spawn timing, pickup priority
 - **Decision-making:** aggression, retreat threshold, target selection, resource mgmt
 - **Combat:** weapon affinity per enemy type, ammo management, splash awareness
@@ -200,7 +200,7 @@ curated libre community maps later if licensing checks out (`docs/licenses.md`).
 
 ### Weapons and behaviors
 
-[Unlock order — boomer-shooter-flavored but original. Even early weapons should
+[Unlock order — classic-FPS-flavored but original. Even early weapons should
 already express the behavior system, not just raw damage.]
 
 ### Episodes / chapters
@@ -264,7 +264,7 @@ random; movement/positioning doesn't matter.
 - PS1-aesthetic target: how far to push it (resolution, dithering, affine warp, palette)?
 - Save format versioning; host↔engine binary discovery; sim approach; frontend
   framework; window embedding (see §7 and `CLAUDE.md`).
-- Working title — needs to evoke a retro arena FPS without inviting id trouble (TBD).
+- Working title — needs to evoke a low-poly PS1-era FPS without inviting id trouble (TBD).
 
 ## 12. Glossary
 
