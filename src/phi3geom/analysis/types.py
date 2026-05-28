@@ -58,3 +58,26 @@ class PooledNegativeControl:
     auroc_ci_upper: float
     n_events_train: int
     n_events_held_out: int
+
+
+@dataclass(frozen=True, slots=True)
+class PooledDetectorFit:
+    """The headline distance-blind detector (constitution v2.0.0, Principle III).
+
+    Fit over all events POOLED across evidence-distance bins, using only
+    attention-geometry features. Distance is never an input.
+    """
+
+    feature_names: tuple[str, ...]
+    coefficients: np.ndarray  # float64, shape (n_features,)
+    intercept: float
+    auroc: float
+    auroc_ci_lower: float
+    auroc_ci_upper: float
+    n_events_train: int
+    n_events_held_out: int
+
+    @property
+    def beats_chance(self) -> bool:
+        """Primary success criterion: 95% CI lower bound strictly above 0.5."""
+        return self.auroc_ci_lower > 0.5
