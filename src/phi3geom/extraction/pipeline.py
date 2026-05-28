@@ -91,6 +91,37 @@ def build_prompt(document: str, question: str) -> str:
     return PROMPT_TEMPLATE.format(document=document, question=question)
 
 
+def _token_len(tokenizer: "object", text: str) -> int:
+    """Token length of ``text``. Handles HF's flat ``input_ids`` list (single
+    string, no return_tensors), a nested ``[[...]]`` batch, or a tensor."""
+    out = tokenizer(text)["input_ids"]
+    if hasattr(out, "shape"):
+        return int(out.shape[-1])
+    if out and isinstance(out[0], (list, tuple)):
+        return len(out[0])
+    return len(out)
+
+
+def measure_evidence_distance_tokens(event: DocQAEvent, tokenizer: "object") -> int:
+    """Measure tokens from end-of-evidence to the answer-commit position.
+
+    ``event.evidence_position_token_idx`` is a *word* index into the document
+    (set at generation). We render the prompt preamble plus the document
+    truncated at end-of-evidence, tokenize it, and subtract that length from
+    the full prompt's token length. The shared preamble (and any BOS) cancels,
+    so the result is the true evidence->answer token distance. Approximate to
+    within tokenizer boundary effects — acceptable for a diagnostic (Principle
+    III, v2.0.0: bin fidelity may be low).
+    """
+    words = event.document.split()
+    n_words = max(0, min(event.evidence_position_token_idx, len(words)))
+    doc_prefix = " ".join(words[:n_words])
+    preamble = PROMPT_TEMPLATE.split("{document}")[0]
+    prefix_len = _token_len(tokenizer, preamble + doc_prefix)
+    full_len = _token_len(tokenizer, build_prompt(event.document, event.question))
+    return full_len - prefix_len
+
+
 def run_event_extraction(
     event: DocQAEvent,
     model: "torch.nn.Module",
@@ -159,13 +190,15 @@ def run_event_extraction(
     gen_norm = normalize_em(model_generation_raw)
     is_fail = gen_norm != event.gold_answer_normalized
 
-    # 4. Update the event with model output + label.
+    # 4. Update the event with model output + label + MEASURED distance.
     from dataclasses import replace
+    measured_distance = measure_evidence_distance_tokens(event, tokenizer)
     event = replace(
         event,
         model_generation=model_generation_raw,
         model_generation_normalized=gen_norm,
         is_fail=is_fail,
+        evidence_distance_tokens=measured_distance,
     )
 
     # 5. Determine t_answer_commit (the absolute token index of the first
