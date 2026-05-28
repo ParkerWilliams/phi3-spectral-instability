@@ -83,3 +83,22 @@ def assign_bin(distance_tokens: int) -> BinId:
             return bin_id
     # Should be unreachable given the range check above.
     raise AssertionError(f"unreachable: distance={distance_tokens}")
+
+
+def diagnostic_bin(distance_tokens: int) -> str:
+    """Tolerant post-hoc diagnostic label for the distance slice.
+
+    Unlike ``assign_bin`` (which raises outside [128, 4096) because that is
+    the v1 *generation* scope), this never raises: it adds catch-all buckets
+    ``"B0"`` (below B1's floor) and ``"B7"`` (at/above B6's ceiling) so the
+    distance-diagnostic report can bin every event. Constitution v2.0.0:
+    bins are a diagnostic, not a gate.
+    """
+    if distance_tokens < 128:
+        return "B0"
+    if distance_tokens >= 4096:
+        return "B7"
+    for bin_id, (lower, upper) in BIN_RANGES.items():
+        if lower <= distance_tokens < upper:
+            return bin_id
+    raise AssertionError(f"unreachable: distance={distance_tokens}")
