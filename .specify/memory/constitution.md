@@ -1,6 +1,32 @@
 <!--
 Sync Impact Report
 ==================
+Version change: 1.0.1 → 2.0.0 (MAJOR)
+Amendment (2026-05-28): Redefined Principle III. Per-regime analysis is no
+longer primary. The PRIMARY analysis is now a single POOLED classifier, BLIND
+to evidence distance, evaluated on a balanced (CEM 50/50) set — testing whether
+attention-geometry is a deployable failure detector "in the wild." Per-regime /
+per-bin analysis is retained only as a SECONDARY DIAGNOSTIC (slice the pooled
+detector by measured distance). MAJOR bump: a principle is redefined backward-
+incompatibly (the per-regime-primary requirement is dropped). Driver:
+docs/superpowers/specs/2026-05-28-distance-blind-failure-detector-design.md.
+
+Modified principles: "III. Per-Regime Analysis (No Pooling Across Evidence-
+Distance Bins)" → "III. Pooled Distance-Blind Primary Analysis (Per-Regime as
+Diagnostic)".
+Consistency edits in this file: Principle I rationale wording; the Plan-gate
+list in Research Workflow & Quality Gates (pooling across regimes removed from
+the forbidden-proposals list).
+Templates/docs: ✅ plan-template.md (generic Constitution Check; no edit needed);
+✅ spec-template.md (no principle-specific slots); ✅ tasks-template.md
+(principle-agnostic); ⚠ README.md (per-bin-AUROC headline updated to pooled).
+Downstream code reworked in the FEATURE implementation plan, NOT in this commit:
+composite.py's bin_id gate, the pooled_negative_control.py quarantine, and
+tests/unit/test_principle_iii_segregation.py — the pooled fit is promoted from
+negative control to the primary detector path.
+Follow-up TODOs: none.
+
+----- Amendment 1.0.0 → 1.0.1 -----
 Version change: 1.0.0 → 1.0.1
 Amendment (2026-05-21): Removed the cross-implementation parity-vs-DCSBM
 requirement from Principles II and IV. The prior DCSBM work was a
@@ -68,8 +94,8 @@ truth; they are recomputed on demand from `seed + model + input`. Cached
 intermediate tensors (e.g., `F`, `D`) MUST carry the manifest SHA in their
 directory so divergence is detectable.
 
-**Rationale:** This study's claims rest on small effect sizes inside per-regime
-composites. Any silent drift in the model revision, prompt string, decoding
+**Rationale:** This study's claims rest on small effect sizes inside the geometry
+composite. Any silent drift in the model revision, prompt string, decoding
 config, or matching RNG could explain those effects away. A reviewer (or
 future-self) MUST be able to reproduce any reported number from the manifest
 alone.
@@ -106,23 +132,35 @@ composite without producing a visible failure. The seam must be defended by
 property tests and parity tests; the analysis layer above it tolerates
 exploration.
 
-### III. Per-Regime Analysis (No Pooling Across Evidence-Distance Bins)
+### III. Pooled Distance-Blind Primary Analysis (Per-Regime as Diagnostic)
 
-All FPCA fits, functional logistic regressions, per-regime composite logistic
-models, AUROC reports, and Ricci-variant decision rules MUST be computed
-per-bin (B1 through B6 over evidence-distance). Pooling across bins — either
-by concatenating events or by fitting a model that treats the bin as a free
-parameter rather than a stratification axis — is FORBIDDEN in the primary
-analysis. A model that uses regime as a covariate (e.g., bin id as a
-categorical predictor) is acceptable only when its per-bin marginals are also
-reported and the pooled estimate is labeled as such. The "no phase bucketing on
-the layer axis" commitment is on the layer axis only and explicitly does NOT
-extend to the regime axis. The 6 bins are never averaged.
+The PRIMARY analysis MUST be a single classifier fit over all events POOLED
+across evidence-distance bins, fed ONLY attention-geometry features and BLIND to
+evidence distance: the bin — or the distance itself — MUST NOT be an input
+feature, a stratification gate, or a free parameter of the primary model. This
+pooled, distance-blind detector, evaluated on a balanced (CEM-matched 50/50) set
+as a proof-of-signal testbed, is the reported headline result; it answers whether
+attention-geometry is a practical, deployable failure detector "in the wild."
 
-**Rationale:** The DCSBM prior result (R2) showed that pooled composites
-collapse while per-regime composites recover near-perfect discrimination. The
-present study's primary aim is to confirm this within a new architecture and
-new task family; pooling is the failure mode the design is built to avoid.
+Per-regime / per-bin analysis is RETAINED but is SECONDARY and DIAGNOSTIC ONLY:
+the pooled detector's scores MAY be sliced by measured evidence distance to show
+where it works or degrades. Per-bin slices MUST be labeled as diagnostics and
+MUST NOT be reported as the primary discrimination result. Evidence-distance bins
+are a post-hoc label derived from the tokenizer-measured distance; bin fidelity
+MAY be low, and the bins are never a gate on what enters the primary analysis.
+The "no phase bucketing on the layer axis" commitment is unchanged and applies to
+the layer axis only.
+
+**Rationale:** The DCSBM prior (R2) — pooled composites collapse while per-regime
+composites recover near-perfect discrimination — was this project's founding
+belief and motivated a per-regime-only design. We now recognize that per-regime
+stratification controls confounds and narrows the task, which can flatter a weak
+detector; leaning on it therefore cannot answer the question this study now asks:
+would a geometry-based detector be useful in real deployment, where evidence
+distance is unknown? Pooling, distance-blind, is the realistic deployment
+scenario, so it is the primary analysis rather than a forbidden failure mode.
+Natural base-rate and calibration are deferred — v1 evaluates on a balanced set.
+See docs/superpowers/specs/2026-05-28-distance-blind-failure-detector-design.md.
 
 ### IV. Numerical Discipline at the Spectral Seam
 
@@ -201,10 +239,9 @@ composition, GQA, multi-scale TS, head-graph Ricci — all v2) is stated.
 
 **Plan gate:** A plan is ready for `/speckit-tasks` only when its Constitution
 Check addresses each of the five principles above and the Complexity Tracking
-table justifies any violation. Plans that propose pooling across regimes,
-float32 in the seam, or skipping tests for items in the Principle II TDD scope
-MUST list the violation and a rejection-justification — there is no implicit
-exemption.
+table justifies any violation. Plans that propose float32 in the seam, or
+skipping tests for items in the Principle II TDD scope MUST list the violation
+and a rejection-justification — there is no implicit exemption.
 
 **Implementation gate:** Tests under the TDD scope (Principle II) MUST exist
 and fail before implementation. Contract tests for library wrappers MUST exist
@@ -247,4 +284,4 @@ to a final compliance check before being included in any external writeup.
 the current plan; that pointer is the runtime entry into spec-derived context.
 This constitution is the standing entry.
 
-**Version**: 1.0.1 | **Ratified**: 2026-05-18 | **Last Amended**: 2026-05-21
+**Version**: 2.0.0 | **Ratified**: 2026-05-18 | **Last Amended**: 2026-05-28

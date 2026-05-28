@@ -3,15 +3,17 @@
 Phi-3 attention-geometry as a leading indicator of DocQA failures (v1 study).
 
 Extends the [DCSBM spectral-instability work][1] to `microsoft/Phi-3-mini-128k-instruct`:
-build a balanced 4800-event DocQA dataset stratified across 6 evidence-distance bins, extract
-per-(token, layer, head) spectral and Forman-Ricci features, and recover per-bin AUROC plus
-β(ℓ) coefficient functions identifying discriminative depths.
+build a balanced DocQA dataset spanning a range of evidence distances, extract per-(token, layer,
+head) spectral and Forman-Ricci features, and train a single **distance-blind** detector — asking
+whether attention-geometry separates DocQA failures from successes "in the wild" (Principle III,
+constitution v2.0.0). Evidence distance is a secondary diagnostic — where does the detector
+degrade? — not a stratification gate; β(ℓ) depth attribution is a follow-on.
 
 ## Status
 
 Spec-Kit artifact under `specs/001-phi3-attention-geometry-v1/`. Implementation in progress.
 
-- **Constitution**: `.specify/memory/constitution.md` (v1.0.0, ratified 2026-05-18)
+- **Constitution**: `.specify/memory/constitution.md` (v2.0.0, amended 2026-05-28)
 - **Spec**: `specs/001-phi3-attention-geometry-v1/spec.md`
 - **Plan**: `specs/001-phi3-attention-geometry-v1/plan.md`
 - **Quickstart**: `specs/001-phi3-attention-geometry-v1/quickstart.md`
