@@ -18,7 +18,10 @@ import json
 import random
 from pathlib import Path
 
-from phi3geom.analysis.types import PerRegimeCompositeFit
+import numpy as np
+
+from phi3geom.analysis.types import PerRegimeCompositeFit, PooledDetectorFit
+from phi3geom.dataset.distance import diagnostic_bin
 from phi3geom.dataset.types import BinId, CEMStratum, DocQAEvent
 
 REPORTS_PILOT_DIR = Path("reports/pilot")
@@ -143,25 +146,124 @@ def write_handcheck_sample(
     return path
 
 
+def _impute_and_score(coefficients, intercept, feature_matrix):
+    arr = feature_matrix.astype(np.float64).copy()
+    for col in range(arr.shape[1]):
+        m = np.isnan(arr[:, col])
+        if m.any():
+            med = float(np.nanmedian(arr[:, col]))
+            arr[m, col] = med if np.isfinite(med) else 0.0
+    z = arr @ np.asarray(coefficients, dtype=np.float64) + float(intercept)
+    return 1.0 / (1.0 + np.exp(-z))
+
+
+def write_pooled_auroc(
+    fit: PooledDetectorFit, *, out_dir: Path = REPORTS_PILOT_DIR
+) -> Path:
+    """Headline result: the pooled distance-blind detector's AUROC + CI."""
+    out_dir.mkdir(parents=True, exist_ok=True)
+    payload = {
+        "auroc": fit.auroc,
+        "auroc_ci_lower": fit.auroc_ci_lower,
+        "auroc_ci_upper": fit.auroc_ci_upper,
+        "beats_chance": bool(fit.beats_chance),
+        "n_events_train": fit.n_events_train,
+        "n_events_held_out": fit.n_events_held_out,
+    }
+    path = out_dir / "pooled_auroc.json"
+    path.write_text(json.dumps(payload, indent=2, sort_keys=True))
+    return path
+
+
+def write_distance_diagnostic(
+    *, coefficients, intercept, feature_matrix, distances, labels,
+    out_dir: Path = REPORTS_PILOT_DIR,
+) -> Path:
+    """SECONDARY diagnostic: pooled detector AUROC sliced by measured distance.
+
+    Diagnostic only (Principle III) — never the headline. Scores all events
+    with the fitted coefficients and reports per-diagnostic-bin AUROC.
+    """
+    from sklearn.metrics import roc_auc_score
+
+    out_dir.mkdir(parents=True, exist_ok=True)
+    scores = _impute_and_score(coefficients, intercept, feature_matrix)
+    labels = np.asarray(labels).astype(int)
+    bins = np.array([diagnostic_bin(int(d)) for d in distances])
+    payload: dict[str, dict[str, object]] = {}
+    for b in sorted(set(bins)):
+        mask = bins == b
+        y, s = labels[mask], scores[mask]
+        auroc = float(roc_auc_score(y, s)) if len(np.unique(y)) == 2 else None
+        payload[b] = {"auroc": auroc, "n": int(mask.sum())}
+    path = out_dir / "distance_diagnostic.json"
+    path.write_text(json.dumps(payload, indent=2, sort_keys=True))
+    return path
+
+
+def write_confound_audit(
+    *, geometry_auroc, labels, doc_lengths, distances, random_state,
+    out_dir: Path = REPORTS_PILOT_DIR,
+) -> Path:
+    """Robustness check (not a filter): can document length + distance ALONE
+    separate fail from control? If a length/position-only logistic matches the
+    geometry detector, the 'signal' may be a confound proxy. CEM already
+    balances template/density/answer-length, so we audit the unmatched ones.
+    """
+    from sklearn.linear_model import LogisticRegression
+    from sklearn.metrics import roc_auc_score
+    from sklearn.model_selection import train_test_split
+
+    out_dir.mkdir(parents=True, exist_ok=True)
+    x = np.column_stack([np.asarray(doc_lengths), np.asarray(distances)]).astype(np.float64)
+    y = np.asarray(labels).astype(int)
+    x_tr, x_te, y_tr, y_te = train_test_split(
+        x, y, test_size=0.2, random_state=random_state, stratify=y
+    )
+    m = LogisticRegression(max_iter=1000, random_state=random_state).fit(x_tr, y_tr)
+    confound_auroc = float(roc_auc_score(y_te, m.predict_proba(x_te)[:, 1]))
+    payload = {
+        "geometry_auroc": float(geometry_auroc),
+        "confound_only_auroc": confound_auroc,
+        "is_suspicious": bool(confound_auroc >= float(geometry_auroc) - 0.05),
+    }
+    path = out_dir / "confound_audit.json"
+    path.write_text(json.dumps(payload, indent=2, sort_keys=True))
+    return path
+
+
 def write_pilot_summary(
     *,
-    fits: dict[BinId, PerRegimeCompositeFit],
+    detector_fit: PooledDetectorFit,
+    feature_matrix,
+    labels,
+    distances,
+    doc_lengths,
     strata_by_bin: dict[BinId, list[CEMStratum]],
     wall_time_sec: float,
     gpu_hours_estimate: float,
     n_events: int,
     matched_events: list[DocQAEvent],
+    random_state: int,
     out_dir: Path = REPORTS_PILOT_DIR,
 ) -> dict[str, Path]:
-    """Convenience: write all 4 reports in one call."""
+    """Write all pilot reports: pooled headline + diagnostics + ops."""
     return {
-        "per_bin_auroc": write_per_bin_auroc(fits, out_dir=out_dir),
+        "pooled_auroc": write_pooled_auroc(detector_fit, out_dir=out_dir),
+        "distance_diagnostic": write_distance_diagnostic(
+            coefficients=detector_fit.coefficients, intercept=detector_fit.intercept,
+            feature_matrix=feature_matrix, distances=distances, labels=labels,
+            out_dir=out_dir,
+        ),
+        "confound_audit": write_confound_audit(
+            geometry_auroc=detector_fit.auroc, labels=labels,
+            doc_lengths=doc_lengths, distances=distances,
+            random_state=random_state, out_dir=out_dir,
+        ),
         "cem_yield": write_cem_yield(strata_by_bin, out_dir=out_dir),
         "runtime": write_runtime(
-            wall_time_sec=wall_time_sec,
-            gpu_hours_estimate=gpu_hours_estimate,
-            n_events=n_events,
-            out_dir=out_dir,
+            wall_time_sec=wall_time_sec, gpu_hours_estimate=gpu_hours_estimate,
+            n_events=n_events, out_dir=out_dir,
         ),
         "handcheck_sample": write_handcheck_sample(matched_events, out_dir=out_dir),
     }
