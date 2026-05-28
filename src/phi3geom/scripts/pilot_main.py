@@ -2,8 +2,10 @@
 
 Generates ~150 candidate events per bin (oversampled so CEM matching can hit
 50/class), runs Phi-3 forward passes, applies EM normalization, CEM-matches
-within bin, runs feature extraction on matched events, fits the per-regime
-composite logistic per bin, writes the 4 pilot reports.
+within bin, runs feature extraction on matched events, fits ONE pooled
+distance-blind detector over all matched events (Principle III, v2.0.0),
+writes the pilot reports (pooled AUROC headline + distance/confound
+diagnostics + ops).
 
 This script is the driver for ``scripts/run_pilot.sh``. It expects:
 
@@ -26,11 +28,7 @@ import time
 from pathlib import Path
 from typing import Any
 
-from phi3geom.analysis.composite import (
-    InsufficientDataError,
-    fit_per_regime_composite,
-)
-from phi3geom.analysis.types import PerRegimeCompositeFit
+from phi3geom.analysis.pooled_detector import fit_pooled_detector
 from phi3geom.dataset.generation import FACTS, TEMPLATES, generate_event
 from phi3geom.dataset.manifest import write_manifest
 from phi3geom.dataset.matching import MatchingFailedError, cem_match
@@ -231,31 +229,27 @@ def main(argv: list[str] | None = None) -> int:
             print(f"[pilot] {exc}", file=sys.stderr)
             strata_by_bin[bin_id] = []
 
-    # 6. Build feature matrix + fit per-regime composite per bin.
-    fits: dict[BinId, PerRegimeCompositeFit] = {}
-    for bin_id in BIN_IDS:
-        bin_events = [e for e in matched_events if e.bin_id == bin_id]
-        if len(bin_events) < 100:
-            print(f"[pilot] bin {bin_id}: only {len(bin_events)} events, skipping fit")
-            continue
-        features, labels = _build_feature_matrix(
-            bin_events,
-            cache_root=args.cache_root,
-            expected_manifest_sha256=placeholder_sha,
-        )
-        try:
-            fits[bin_id] = fit_per_regime_composite(
-                features, labels, bin_id=bin_id,
-                feature_names=FEATURE_NAMES,
-                random_state=seed_for_analysis(f"per_regime_composite:{bin_id}"),
-            )
-            print(
-                f"[pilot] {bin_id} AUROC = {fits[bin_id].auroc:.3f} "
-                f"(95% CI [{fits[bin_id].auroc_ci_lower:.3f}, "
-                f"{fits[bin_id].auroc_ci_upper:.3f}])"
-            )
-        except InsufficientDataError as exc:
-            print(f"[pilot] bin {bin_id} fit failed: {exc}", file=sys.stderr)
+    # 6. Pool ALL matched events into one distance-blind fit (Principle III,
+    #    constitution v2.0.0). The detector never sees the bin or distance.
+    import numpy as np
+    features, labels = _build_feature_matrix(
+        matched_events, cache_root=args.cache_root,
+        expected_manifest_sha256=placeholder_sha,
+    )
+    distances = np.array([e.evidence_distance_tokens for e in matched_events])
+    doc_lengths = np.array([len(e.document.split()) for e in matched_events])
+    detector_fit = fit_pooled_detector(
+        features, labels,
+        feature_names=FEATURE_NAMES,
+        random_state=seed_for_analysis("pooled_detector"),
+    )
+    print(
+        f"[pilot] POOLED AUROC = {detector_fit.auroc:.3f} "
+        f"(95% CI [{detector_fit.auroc_ci_lower:.3f}, "
+        f"{detector_fit.auroc_ci_upper:.3f}]) "
+        f"beats_chance={detector_fit.beats_chance} "
+        f"on {len(matched_events)} pooled events"
+    )
 
     # 7. Write the dataset manifest with real SHA.
     header = ManifestHeader(
@@ -281,14 +275,19 @@ def main(argv: list[str] | None = None) -> int:
     final_header = write_manifest(matched_events, header, args.dataset_dir)
     print(f"[pilot] manifest SHA = {final_header.manifest_sha256[:8]}")
 
-    # 8. Write the 4 pilot reports.
+    # 8. Write the pilot reports (pooled headline + diagnostics + ops).
     paths = write_pilot_summary(
-        fits=fits,
+        detector_fit=detector_fit,
+        feature_matrix=features,
+        labels=labels,
+        distances=distances,
+        doc_lengths=doc_lengths,
         strata_by_bin=strata_by_bin,
         wall_time_sec=elapsed,
         gpu_hours_estimate=elapsed / 3600.0,
         n_events=len(matched_events),
         matched_events=matched_events,
+        random_state=seed_for_analysis("confound_audit"),
         out_dir=args.reports_dir,
     )
     for name, p in paths.items():
