@@ -1,12 +1,12 @@
-"""Constitution Principle III segregation test.
+"""Constitution v2.0.0 architecture guard (Principle III).
 
-Verifies that the per-regime composite API CANNOT be tricked into fitting on
-cross-bin pooled data, and that the pooled negative control lives in a
-separate module that is NOT re-exported through ``composite``.
-
-These tests guard the architectural rule at the type-system + import-system
-level. They MUST pass at the T029 skeleton stage and continue passing through
-T044 (composite impl) and T069 (pooled impl).
+The PRIMARY analysis is now the pooled, distance-blind detector
+(``analysis.pooled_detector``); the per-bin composite (``analysis.composite``)
+is a SECONDARY diagnostic. These tests guard that the per-bin composite still
+refuses to be pooled (bin_id required) and that the pooled primary takes no
+bin_id and lives in its own module. The legacy SC-003 ``pooled_negative_control``
+checks below are retained until that module is retired in the full-study
+reconciliation (out of this feature's scope).
 """
 
 from __future__ import annotations
@@ -136,3 +136,19 @@ def test_pooled_fit_runs_post_t069() -> None:
     labels[::2] = True
     result = pooled_fit(features, labels, random_state=0, n_bootstrap=50)
     assert isinstance(result, PooledNegativeControl)
+
+
+def test_pooled_detector_is_distance_blind_primary() -> None:
+    """v2.0.0: the PRIMARY detector is pooled + distance-blind, in its own module."""
+    from phi3geom.analysis import composite, pooled_detector
+    from phi3geom.analysis.pooled_detector import fit_pooled_detector
+    from phi3geom.analysis.types import PooledDetectorFit
+
+    feats, labels = _well_shaped_features()
+    # Distance cannot enter the primary model: bin_id is not a parameter.
+    with pytest.raises(TypeError):
+        fit_pooled_detector(feats, labels, bin_id="B1", random_state=0)  # type: ignore[call-arg]
+    out = fit_pooled_detector(feats, labels, random_state=0, n_bootstrap=50)
+    assert isinstance(out, PooledDetectorFit)
+    # Primary (pooled) and diagnostic (per-bin) live in separate modules.
+    assert composite.__file__ != pooled_detector.__file__
