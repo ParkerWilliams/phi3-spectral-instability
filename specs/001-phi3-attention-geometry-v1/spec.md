@@ -1,5 +1,12 @@
 # Feature Specification: Phi-3 Attention-Geometry as a Leading Indicator of DocQA Failures (v1)
 
+> **SUPERSEDED IN PART (2026-05-28, constitution v2.0.0):** The primary analysis
+> is now a single POOLED, distance-blind detector; per-regime/per-bin analysis is
+> a secondary diagnostic. See
+> `docs/superpowers/specs/2026-05-28-distance-blind-failure-detector-design.md`.
+> Sections describing per-regime composites as the headline are retained for
+> history but are no longer the primary methodology.
+
 **Feature Branch**: `001-phi3-attention-geometry-v1`
 
 **Created**: 2026-05-18
