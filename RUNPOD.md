@@ -1,7 +1,7 @@
 # Running phi3geom on a fresh RunPod GPU instance
 
 End-to-end runbook for cloning and validating the pipeline on a fresh RunPod box,
-through to the pilot run. Branch: `001-phi3-attention-geometry-v1`.
+through to the pilot run. Branch: `main`.
 
 ## 0. Instance choice
 
@@ -10,8 +10,8 @@ download).
 
 | Phase | GPU | Why |
 |-------|-----|-----|
-| Validation (steps 4–5) | 24 GB (RTX 4090 / A5000) | Cheap; toy docs are short |
-| Full study (B6 at 4096 tokens) | 48–80 GB (A6000 / A100 / H100) | Eager attention materializes `(32 heads, T, T)` per layer; ~34 GB just for attention at T=4096 |
+| Validation + pilot (steps 4–6) | **≥16 GB**, any of: RTX 3090, L4, RTX 4000/5000 Ada, A40, A100/H100 (whatever's in stock) | GPU is **not** the bottleneck — pilot docs are short (B1–B4 only). Phi-3-mini loads ~8 GB at fp16; the rest is CPU-bound. Pick by vCPU/RAM + availability. |
+| Full study (B5/B6 at 2048–4096 tokens) — **deferred in v1** | 48–80 GB (A6000 / A100 / H100) | Eager attention materializes `(32 heads, T, T)` per layer; ~34 GB just for attention at T=4096. The 201-fact corpus can't reach these distances, so this is future work. |
 
 - **Disk volume**: ~60 GB for validation/pilot, ~120–150 GB for the full study (model ~8 GB + HF cache + ~46 GB F/D cache + headroom).
 - **System RAM**: 32 GB+ (the spectral work is CPU-side numpy; attention captures are offloaded to CPU, so B5/B6 want ~64 GB RAM).
@@ -23,7 +23,7 @@ download).
 cd /workspace    # RunPod's persistent volume mount
 git clone https://github.com/ParkerWilliams/phi3-spectral-instability.git
 cd phi3-spectral-instability
-git checkout 001-phi3-attention-geometry-v1
+git checkout main    # IMPORTANT: the repo default branch is `master`, which does NOT have the v2.0.0 work
 ```
 
 If the repo is private, clone with a token instead:
