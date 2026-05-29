@@ -874,6 +874,16 @@ void() NextLevel =
 	if (nextmap != string_null)
 		return; // already done
 
+	// idledoom headless-sim: the agent reached the exit -> terminal "completed"
+	// (feature 001, T015). Emit before the changelevel proceeds, then quit so
+	// the dedicated server ends the run instead of loading another map.
+	if (cvar("sim_mode"))
+	{
+		Tel_LevelEnd("completed");
+		localcmd("quit\n");
+		return;
+	}
+
 	if (mapname == "start")
 	{
 		if (!cvar("registered"))

@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://idledoom/specs/001/summary.schema.json",
+  "title": "Per-run summary (schema_version 1)",
+  "description": "Binding contract for the per-run summary JSON. Mirrors docs/telemetry.md. FR-004, FR-006, FR-007, FR-012.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "run_id", "batch_id", "config_hash",
+    "started_at", "ended_at", "duration_sec", "map", "outcome",
+    "bot_config", "stats"
+  ],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "run_id": { "type": "string", "format": "uuid" },
+    "batch_id": { "type": ["string", "null"], "format": "uuid" },
+    "config_hash": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "started_at": { "type": "string", "format": "date-time" },
+    "ended_at": { "type": "string", "format": "date-time" },
+    "duration_sec": { "type": "number", "minimum": 0 },
+    "map": { "type": "string", "minLength": 1 },
+    "outcome": { "enum": ["completed", "died", "timeout", "error"] },
+    "bot_config": {
+      "type": "object",
+      "description": "Each catalogued bot_* cvar -> its clamped value (FR-007/FR-008).",
+      "minProperties": 1,
+      "additionalProperties": { "type": ["number", "boolean"] }
+    },
+    "stats": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kills", "deaths", "damage_dealt", "damage_taken",
+        "secrets_found", "secrets_total", "items_collected",
+        "shots_fired", "shots_hit", "accuracy",
+        "time_to_exit_sec", "weapon_usage", "deaths_by_cause"
+      ],
+      "properties": {
+        "kills": { "type": "integer", "minimum": 0 },
+        "deaths": { "type": "integer", "minimum": 0 },
+        "damage_dealt": { "type": "integer", "minimum": 0 },
+        "damage_taken": { "type": "integer", "minimum": 0 },
+        "secrets_found": { "type": "integer", "minimum": 0 },
+        "secrets_total": { "type": "integer", "minimum": 0 },
+        "items_collected": { "type": "integer", "minimum": 0 },
+        "shots_fired": { "type": "integer", "minimum": 0 },
+        "shots_hit": { "type": "integer", "minimum": 0 },
+        "accuracy": { "type": "number", "minimum": 0, "maximum": 1 },
+        "time_to_exit_sec": { "type": ["number", "null"], "minimum": 0 },
+        "weapon_usage": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["shots", "hits", "damage"],
+            "properties": {
+              "shots": { "type": "integer", "minimum": 0 },
+              "hits": { "type": "integer", "minimum": 0 },
+              "damage": { "type": "integer", "minimum": 0 }
+            }
+          }
+        },
+        "deaths_by_cause": {
+          "type": "object",
+          "additionalProperties": { "type": "integer", "minimum": 0 }
+        }
+      }
+    }
+  }
+}

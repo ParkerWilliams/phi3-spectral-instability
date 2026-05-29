@@ -37,11 +37,11 @@ Single repo, two code surfaces (plan.md "Structure Decision"):
 
 **Purpose**: Scaffold the harness package, build wiring, and content — not story-specific.
 
-- [ ] T001 Create the `sims/` Python package layout per plan.md: `sims/idledoom_sim/__init__.py`, `sims/configs/`, `sims/schema/`, `sims/tests/`, and `sims/results/.gitkeep` (tree already gitignored via `.gitignore:42`).
-- [ ] T002 Author `sims/pyproject.toml` (uv-managed, Python 3.11+): runtime dep `jsonschema`; dev deps `pytest`, `ruff`, `mypy`; project metadata. Replaces the legacy `requirements.txt` reference (R9).
-- [ ] T003 [P] Copy `specs/001-headless-sim-telemetry/contracts/summary.schema.json` and `event.schema.json` into `sims/schema/` as the canonical copies the harness validates against (plan.md keeps them identical to the contracts).
-- [ ] T004 [P] Configure `ruff`, `mypy`, and `pytest` sections in `sims/pyproject.toml` (lint rules, strict-ish typing, test discovery under `tests/`) so `just check-python` / `just test` pass.
-- [ ] T005 Update `Justfile` sim recipes from `pip`/`python` → `uv` (R9): `build-sim` runs `uv sync` and builds the dedicated server (`make -C engine/engine sv-rel`); `sim` → `uv run harness.py run --config configs/current.toml`; `sim-smoke` → `uv run harness.py smoke --config configs/smoke.toml`; `check-python` and `test` → `uv run ruff`/`uv run mypy`/`uv run pytest`.
+- [X] T001 Create the `sims/` Python package layout per plan.md: `sims/idledoom_sim/__init__.py`, `sims/configs/`, `sims/schema/`, `sims/tests/`, and `sims/results/.gitkeep` (tree already gitignored via `.gitignore:42`).
+- [X] T002 Author `sims/pyproject.toml` (uv-managed, Python 3.11+): runtime dep `jsonschema`; dev deps `pytest`, `ruff`, `mypy`; project metadata. Replaces the legacy `requirements.txt` reference (R9).
+- [X] T003 [P] Copy `specs/001-headless-sim-telemetry/contracts/summary.schema.json` and `event.schema.json` into `sims/schema/` as the canonical copies the harness validates against (plan.md keeps them identical to the contracts).
+- [X] T004 [P] Configure `ruff`, `mypy`, and `pytest` sections in `sims/pyproject.toml` (lint rules, strict-ish typing, test discovery under `tests/`) so `just check-python` / `just test` pass.
+- [X] T005 Update `Justfile` sim recipes from `pip`/`python` → `uv` (R9): `build-sim` runs `uv sync` and builds the dedicated server (`make -C engine/engine sv-rel`); `sim` → `uv run harness.py run --config configs/current.toml`; `sim-smoke` → `uv run harness.py smoke --config configs/smoke.toml`; `check-python` and `test` → `uv run ruff`/`uv run mypy`/`uv run pytest`.
 - [ ] T006 Vendor LibreQuake as a submodule at `assets/libre-quake/`, select the smallest map exercising movement/combat/pickup/(ideally) ≥1 secret, and record its file/author/license/source in the `docs/licenses.md` Maps table (FR-015, R8; "adding a map" convention). Vendor locally, not on the droplet.
 
 ---
@@ -52,13 +52,13 @@ Single repo, two code surfaces (plan.md "Structure Decision"):
 
 **⚠️ CRITICAL**: No user story can be exercised until this phase is complete — without the autostart shim there is no autonomous agent, and without the emit helper + parser + writer there is no telemetry at all.
 
-- [ ] T007 [P] Create `sims/idledoom_sim/botstats.py` — machine-readable catalogue of every `bot_*` cvar (`name → {type, min, max, default}`) mirroring `docs/bot-stats.md`, plus the `sim_*` control cvars (`sim_mode`, `sim_seed`, `sim_time_limit`). Single source of ranges for clamping (R5, contracts/cvars.md).
-- [ ] T008 Create `quakec/telemetry.qc` — the `@EVT|<t>|<type>|<k>=<v>|...` stdout emit helper, capture of `level_start_time` so `t = time - level_start_time`, and reads of `sim_mode` / `sim_seed` / `sim_time_limit` cvars (contracts/engine-event-line.md, contracts/cvars.md, R4).
-- [ ] T009 Add `quakec/telemetry.qc` to the `quakec/progs.src` compile list (after `defs.qc`/FrikBot block so its globals are visible to the game files that call the emit helper).
-- [ ] T010 Add the headless autostart shim to `quakec/frikbot/bot.qc` `BotFrame()`: when `cvar("sim_mode")` is set and no agent has spawned, call `BotConnect(0, 0, <skill>)` exactly once per level (one-shot guard). This is the autonomy mechanism with no human client (R2, FR-001/FR-002).
-- [ ] T011 Create `sims/idledoom_sim/launcher.py` — locate `fteqw-sv` (env override → well-known `engine/engine/` path), build the `+set` command line (`deathmatch 0`, `skill`, `sv_cheats 1`, `sim_*`, `bot_*`, `+map`), spawn headless, stream stdout, and enforce a wall-clock watchdog that kills a server that overruns `sim_time_limit` (R1, FR-003).
-- [ ] T012 Create `sims/idledoom_sim/telemetry.py` — parse `@EVT|...` stdout lines into event dicts (coerce numeric/token/`null` values per the event schema; tolerate and ignore non-`@EVT` engine log noise) (R4, contracts/engine-event-line.md).
-- [ ] T013 Create `sims/idledoom_sim/writer.py` — generate `run_id` (UUID4), resolve `batch_id` (default a single-run batch), build non-colliding `results/<batch_id>/<run_id>` output paths, and provide the base file-write helpers (FR-009, R10).
+- [X] T007 [P] Create `sims/idledoom_sim/botstats.py` — machine-readable catalogue of every `bot_*` cvar (`name → {type, min, max, default}`) mirroring `docs/bot-stats.md`, plus the `sim_*` control cvars (`sim_mode`, `sim_seed`, `sim_time_limit`). Single source of ranges for clamping (R5, contracts/cvars.md).
+- [X] T008 Create `quakec/telemetry.qc` — the `@EVT|<t>|<type>|<k>=<v>|...` stdout emit helper, capture of `level_start_time` so `t = time - level_start_time`, and reads of `sim_mode` / `sim_seed` / `sim_time_limit` cvars (contracts/engine-event-line.md, contracts/cvars.md, R4).
+- [X] T009 Add `quakec/telemetry.qc` to the `quakec/progs.src` compile list (after `defs.qc`/FrikBot block so its globals are visible to the game files that call the emit helper).
+- [X] T010 Add the headless autostart shim to `quakec/frikbot/bot.qc` `BotFrame()`: when `cvar("sim_mode")` is set and no agent has spawned, call `BotConnect(0, 0, <skill>)` exactly once per level (one-shot guard). This is the autonomy mechanism with no human client (R2, FR-001/FR-002).
+- [X] T011 Create `sims/idledoom_sim/launcher.py` — locate `fteqw-sv` (env override → well-known `engine/engine/` path), build the `+set` command line (`deathmatch 0`, `skill`, `sv_cheats 1`, `sim_*`, `bot_*`, `+map`), spawn headless, stream stdout, and enforce a wall-clock watchdog that kills a server that overruns `sim_time_limit` (R1, FR-003).
+- [X] T012 Create `sims/idledoom_sim/telemetry.py` — parse `@EVT|...` stdout lines into event dicts (coerce numeric/token/`null` values per the event schema; tolerate and ignore non-`@EVT` engine log noise) (R4, contracts/engine-event-line.md).
+- [X] T013 Create `sims/idledoom_sim/writer.py` — generate `run_id` (UUID4), resolve `batch_id` (default a single-run batch), build non-colliding `results/<batch_id>/<run_id>` output paths, and provide the base file-write helpers (FR-009, R10).
 
 **Checkpoint**: A headless `fteqw-sv` can be launched with `sim_mode 1`, the FrikBot agent autostarts, `@EVT` lines stream back and parse, and output paths resolve. Story work can begin.
 
@@ -72,24 +72,29 @@ Single repo, two code surfaces (plan.md "Structure Decision"):
 
 ### QuakeC: run boundaries & timeout
 
-- [ ] T014 [US1] Emit `level_start{map, seed, secrets_total}` once at level start in `quakec/world.qc` — the first event of every run; `seed` from `sim_seed`; `secrets_total` = count of `trigger_secret` entities in the map (0 if none), counted after map entities have spawned (G2). Also add the `secrets_total` key to the `level_start` payload row in `contracts/engine-event-line.md` (schema-compatible — `event.schema.json` `level_start.data` permits extra keys). (FR-011, FR-016, contracts.)
-- [ ] T015 [US1] Emit `level_end{outcome, time_sec}` on level exit/`NextLevel` in `quakec/client.qc` (last event), and add the in-engine `sim_time_limit` end so an overrunning run terminates as `timeout` (FR-003, R7).
+- [X] T014 [US1] Emit `level_start{map, seed, secrets_total}` once at level start in `quakec/world.qc` — the first event of every run; `seed` from `sim_seed`; `secrets_total` = count of `trigger_secret` entities in the map (0 if none), counted after map entities have spawned (G2). Also add the `secrets_total` key to the `level_start` payload row in `contracts/engine-event-line.md` (schema-compatible — `event.schema.json` `level_start.data` permits extra keys). (FR-011, FR-016, contracts.)
+- [X] T015 [US1] Emit `level_end{outcome, time_sec}` on level exit/`NextLevel` in `quakec/client.qc` (last event), and add the in-engine `sim_time_limit` end so an overrunning run terminates as `timeout` (FR-003, R7).
 
 ### Harness: outcome → summary
 
-- [ ] T016 [P] [US1] Create `sims/idledoom_sim/config.py` — load the TOML run config (`map`, `seed`, `time_limit`) and apply `--map`/`--seed`/`--time-limit`/`--batch-id`/`--out` CLI overrides; build the full `bot_config` from `botstats.py` defaults + config values, and compute `config_hash` = sha256 over canonical sorted-key JSON of `bot_config` **in US1** so the summary carries the schema-required 64-hex hash from the start (C1 — summary.schema.json requires `config_hash` matching `^[0-9a-f]{64}$` and a non-empty `bot_config`). Clamping + `--bot.<name>` overrides are layered on in US3 (T034). (contracts/harness-cli.md, FR-007.)
-- [ ] T017 [P] [US1] Create `sims/idledoom_sim/outcome.py` — terminal state machine: `completed` requires a terminal `level_end{outcome:"completed"}` **and** clean exit; else `died` / `timeout` / `error`; never `completed` on a broken chain (R7, FR-010, SC-006).
-- [ ] T018 [US1] Add `aggregate(events) -> StatsBlock` to `sims/idledoom_sim/telemetry.py` returning a complete StatsBlock with every field present (counts default 0; `accuracy = 0` on zero shots), and read `secrets_total` from the `level_start` payload (G2). US2 fills in the real per-type counting (data-model StatsBlock).
-- [ ] T019 [US1] In `sims/idledoom_sim/writer.py`, assemble and write `<run_id>.summary.json` (`schema_version:1`, `run_id`, `batch_id`, `config_hash` + `bot_config` from T016, ISO-8601 `started_at`/`ended_at`/`duration_sec`, `map`, `outcome`, `stats`) and validate it against `sims/schema/summary.schema.json` before exit. The schema **requires** a 64-hex `config_hash` and a non-empty `bot_config`, so US1 cannot emit placeholders (C1). (FR-004, FR-012, SC-002.)
-- [ ] T020 [US1] Create `sims/harness.py` with the `run` subcommand wiring config → launcher → stdout parse → outcome → summary writer; exit `0` on a written valid summary, non-zero with a stderr diagnostic on a broken chain (FR-001, FR-010, contracts/harness-cli.md).
-- [ ] T021 [P] [US1] Create `sims/configs/current.toml` — default run config: vendored `map`, a `seed`, a `time_limit`, and `bot_*` defaults (from `docs/bot-stats.md`).
+- [X] T016 [P] [US1] Create `sims/idledoom_sim/config.py` — load the TOML run config (`map`, `seed`, `time_limit`) and apply `--map`/`--seed`/`--time-limit`/`--batch-id`/`--out` CLI overrides; build the full `bot_config` from `botstats.py` defaults + config values, and compute `config_hash` = sha256 over canonical sorted-key JSON of `bot_config` **in US1** so the summary carries the schema-required 64-hex hash from the start (C1 — summary.schema.json requires `config_hash` matching `^[0-9a-f]{64}$` and a non-empty `bot_config`). Clamping + `--bot.<name>` overrides are layered on in US3 (T034). (contracts/harness-cli.md, FR-007.)
+- [X] T017 [P] [US1] Create `sims/idledoom_sim/outcome.py` — terminal state machine: `completed` requires a terminal `level_end{outcome:"completed"}` **and** clean exit; else `died` / `timeout` / `error`; never `completed` on a broken chain (R7, FR-010, SC-006).
+- [X] T018 [US1] Add `aggregate(events) -> StatsBlock` to `sims/idledoom_sim/telemetry.py` returning a complete StatsBlock with every field present (counts default 0; `accuracy = 0` on zero shots), and read `secrets_total` from the `level_start` payload (G2). US2 fills in the real per-type counting (data-model StatsBlock).
+- [X] T019 [US1] In `sims/idledoom_sim/writer.py`, assemble and write `<run_id>.summary.json` (`schema_version:1`, `run_id`, `batch_id`, `config_hash` + `bot_config` from T016, ISO-8601 `started_at`/`ended_at`/`duration_sec`, `map`, `outcome`, `stats`) and validate it against `sims/schema/summary.schema.json` before exit. The schema **requires** a 64-hex `config_hash` and a non-empty `bot_config`, so US1 cannot emit placeholders (C1). (FR-004, FR-012, SC-002.)
+- [X] T020 [US1] Create `sims/harness.py` with the `run` subcommand wiring config → launcher → stdout parse → outcome → summary writer; exit `0` on a written valid summary, non-zero with a stderr diagnostic on a broken chain (FR-001, FR-010, contracts/harness-cli.md).
+- [X] T021 [P] [US1] Create `sims/configs/current.toml` — default run config: vendored `map`, a `seed`, a `time_limit`, and `bot_*` defaults (from `docs/bot-stats.md`).
 
 ### Tests for User Story 1
 
-- [ ] T022 [P] [US1] `sims/tests/test_outcome.py` — assert the outcome state machine maps each terminal condition correctly and that an induced broken chain exits non-zero and is never reported as `completed` (SC-006, FR-010).
-- [ ] T023 [P] [US1] `sims/tests/test_schema.py` — assert a produced `*.summary.json` validates against `sims/schema/summary.schema.json` (SC-002).
+- [X] T022 [P] [US1] `sims/tests/test_outcome.py` — assert the outcome state machine maps each terminal condition correctly and that an induced broken chain exits non-zero and is never reported as `completed` (SC-006, FR-010).
+- [X] T023 [P] [US1] `sims/tests/test_schema.py` — assert a produced `*.summary.json` validates against `sims/schema/summary.schema.json` (SC-002).
 
 **Checkpoint**: `just sim` produces one schema-valid summary with a correct terminal `outcome`. MVP is demoable.
+
+> **Implementation status (committed 2026-05-29, built on the droplet — no engine compile possible there):**
+> - ✅ **Verified here:** all harness Python (T007, T011–T013, T016–T021) + tests (T022–T023) — `uv run pytest` 12/12, `ruff` clean, `mypy` strict clean. Harness broken-chain path exits non-zero with no leaked summary (FR-010/SC-006). Setup T001–T005 done.
+> - 📝 **Authored, compile-pending (droplet cannot run fteqcc):** QuakeC T008–T010, T014–T015 (`telemetry.qc`, `progs.src`, `BotFrame` autostart, `StartFrame`/`NextLevel` hooks). Build with `just build-quakec` locally/CI to compile-verify.
+> - ⏳ **Deferred to local (open):** T006 (vendor LibreQuake submodule + pick the real map — heavy clone). Then the end-to-end run (`just build-sim` → `just sim`) is the first place US1 is verified live: confirm `@EVT` lines reach `fteqw-sv` stdout (R4 — else FRIK_FILE fallback), the agent autostarts, and a `timeout`/`completed` summary lands under `sims/results/`.
 
 ---
 

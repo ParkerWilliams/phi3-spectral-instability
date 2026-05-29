@@ -1,0 +1,15 @@
+# Default run config for `just sim` (feature 001-headless-sim-telemetry).
+#
+# map: PLACEHOLDER. The real LibreQuake BSP stem is confirmed at vendor/first-load
+# time (T006 / research.md R8) — vendor the submodule locally, pick the smallest
+# map exercising movement/combat/pickup/(ideally) >=1 secret, then set it here and
+# record provenance in docs/licenses.md.
+map = "lq1m1"
+seed = 1
+time_limit = 120
+
+# Agent tunables (bot_* — see docs/bot-stats.md). Any key omitted here falls back
+# to its catalogue default; every value is clamped to its documented range and
+# recorded (clamped) in the summary's bot_config.
+[bot]
+bot_accuracy = 0.3

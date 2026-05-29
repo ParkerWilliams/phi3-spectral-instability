@@ -1203,7 +1203,19 @@ void() BotFrame =
 	sv_accelerate = cvar("sv_accelerate");
 	sv_stopspeed = cvar("sv_stopspeed");
 	real_frametime = frametime; // in NQ this is alright
-	
+
+	// === idledoom headless-sim autostart (feature 001, research R2) ==========
+	// On a dedicated server there is no human client to issue impulse 100, so
+	// with sim_mode set we spawn one FrikBot agent directly — once per level —
+	// giving us an autonomous player with no window and no input (FR-001/FR-002).
+	// BotConnect(whichteam, whatbot=0 -> random name, whatskill). self is reset
+	// by the client loop just below.
+	if (cvar("sim_mode") && !sim_autostart_done)
+	{
+		sim_autostart_done = TRUE;
+		BotConnect(0, 0, cvar("skill"));
+	}
+
 	self = nextent(world);
 	num = 0;
 	while (num < max_clients)

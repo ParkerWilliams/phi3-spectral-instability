@@ -1,0 +1,90 @@
+"""Machine-readable catalogue of tunable cvars (mirror of ``docs/bot-stats.md``).
+
+Single source of truth for the harness's clamping and defaults. Every ``bot_*``
+value is clamped to its documented range **before** it is set on the engine
+command line and **before** it is recorded in the summary's ``bot_config``
+(FR-007/FR-008). Keep this in sync with ``docs/bot-stats.md`` — when a stat's
+range or default changes there, change it here too.
+
+Reference: specs/001-headless-sim-telemetry/contracts/cvars.md
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+
+BotValue = float | int | bool
+
+
+@dataclass(frozen=True)
+class BotStat:
+    """One tunable ``bot_*`` cvar and its documented range."""
+
+    name: str
+    type: str  # "float" | "int" | "bool"
+    default: BotValue
+    minimum: float | None = None  # None for bool
+    maximum: float | None = None  # None for bool
+
+    def clamp(self, value: BotValue) -> BotValue:
+        """Coerce ``value`` to this stat's type and clamp it to range (FR-008)."""
+        if self.type == "bool":
+            return bool(value)
+        if self.type == "int":
+            ivalue = int(round(float(value)))
+            assert self.minimum is not None and self.maximum is not None
+            return max(int(self.minimum), min(int(self.maximum), ivalue))
+        # float
+        fvalue = float(value)
+        assert self.minimum is not None and self.maximum is not None
+        return max(self.minimum, min(self.maximum, fvalue))
+
+
+# Catalogue — mirrors docs/bot-stats.md (Mechanical / Movement / Knowledge /
+# Decision-making / Combat). Per-weapon bot_weapon_affinity_<wpn> is deferred
+# (one row per weapon when finalized) and intentionally omitted here.
+_STATS: tuple[BotStat, ...] = (
+    # Mechanical skill
+    BotStat("bot_accuracy", "float", 0.3, 0.0, 1.0),
+    BotStat("bot_reaction_ms", "int", 500, 50, 1000),
+    BotStat("bot_tracking_skill", "float", 0.2, 0.0, 1.0),
+    BotStat("bot_prediction_skill", "float", 0.0, 0.0, 1.0),
+    # Movement
+    BotStat("bot_move_speed_mult", "float", 1.0, 0.5, 1.5),
+    BotStat("bot_strafe_skill", "float", 0.0, 0.0, 1.0),
+    BotStat("bot_rocket_jump", "bool", False),
+    BotStat("bot_bunny_hop", "bool", False),
+    BotStat("bot_circle_strafe", "float", 0.0, 0.0, 1.0),
+    # Knowledge
+    BotStat("bot_map_awareness", "float", 0.3, 0.0, 1.0),
+    BotStat("bot_secret_knowledge", "float", 0.0, 0.0, 1.0),
+    BotStat("bot_item_timing", "bool", False),
+    BotStat("bot_weapon_priority_skill", "float", 0.5, 0.0, 1.0),
+    # Decision-making
+    BotStat("bot_aggression", "float", 0.5, 0.0, 1.0),
+    BotStat("bot_retreat_threshold", "float", 0.3, 0.0, 1.0),
+    BotStat("bot_target_priority_skill", "float", 0.5, 0.0, 1.0),
+    BotStat("bot_resource_management", "float", 0.3, 0.0, 1.0),
+    # Combat
+    BotStat("bot_splash_awareness", "float", 0.0, 0.0, 1.0),
+)
+
+BOT_STATS: dict[str, BotStat] = {s.name: s for s in _STATS}
+
+# sim_* control cvars (dev-only knobs; documented in cvars.md and bot-stats.md
+# notes). Not clamped like bot_* — they are harness-set run controls.
+SIM_CVARS: tuple[str, ...] = ("sim_mode", "sim_seed", "sim_time_limit")
+
+
+def default_bot_config() -> dict[str, BotValue]:
+    """The full ``bot_config`` with every catalogued stat at its default."""
+    return {s.name: s.default for s in _STATS}
+
+
+def clamp_bot_value(name: str, value: BotValue) -> BotValue:
+    """Clamp a single ``bot_*`` value to its documented range (FR-008).
+
+    Raises ``KeyError`` for an unknown stat name so typos in configs/CLI fail
+    loudly rather than being silently accepted.
+    """
+    return BOT_STATS[name].clamp(value)

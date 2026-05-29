@@ -48,7 +48,7 @@ and source. If a license is unclear, the asset doesn't ship.
 
 | File | Map | Author | License | Source | Notes |
 |------|-----|--------|---------|--------|-------|
-| (none yet) | | | | | |
+| _TBD_.bsp | _TBD_ | LibreQuake team | GPLv2 | https://github.com/MissLavender-LQ/LibreQuake | **PENDING (feature 001, T006/R8).** Smallest LibreQuake map exercising movement/combat/pickup/(ideally) ≥1 secret. Vendor the submodule **locally** (heavy clone — not on the droplet), confirm the exact map loads with our `progs.dat`, then fill this row with the real BSP filename + author credit. Configs reference `lq1m1` as a placeholder until confirmed. |
 
 Format: when a map is added, append a row with full provenance. Don't ship
 a map whose license you cannot cite here.
