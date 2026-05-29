@@ -72,15 +72,15 @@ Single repo, two code surfaces (plan.md "Structure Decision"):
 
 ### QuakeC: run boundaries & timeout
 
-- [ ] T014 [US1] Emit `level_start{map, seed}` at worldspawn in `quakec/world.qc` (first event of every run; `seed` from `sim_seed`) (FR-011, FR-016, contracts).
+- [ ] T014 [US1] Emit `level_start{map, seed, secrets_total}` once at level start in `quakec/world.qc` — the first event of every run; `seed` from `sim_seed`; `secrets_total` = count of `trigger_secret` entities in the map (0 if none), counted after map entities have spawned (G2). Also add the `secrets_total` key to the `level_start` payload row in `contracts/engine-event-line.md` (schema-compatible — `event.schema.json` `level_start.data` permits extra keys). (FR-011, FR-016, contracts.)
 - [ ] T015 [US1] Emit `level_end{outcome, time_sec}` on level exit/`NextLevel` in `quakec/client.qc` (last event), and add the in-engine `sim_time_limit` end so an overrunning run terminates as `timeout` (FR-003, R7).
 
 ### Harness: outcome → summary
 
-- [ ] T016 [P] [US1] Create `sims/idledoom_sim/config.py` — load the TOML run config (`map`, `seed`, `time_limit`, `bot_*` passthrough) and apply `--map`/`--seed`/`--time-limit`/`--batch-id`/`--out` CLI overrides (contracts/harness-cli.md). (Clamping + `config_hash` are added in US3.)
+- [ ] T016 [P] [US1] Create `sims/idledoom_sim/config.py` — load the TOML run config (`map`, `seed`, `time_limit`) and apply `--map`/`--seed`/`--time-limit`/`--batch-id`/`--out` CLI overrides; build the full `bot_config` from `botstats.py` defaults + config values, and compute `config_hash` = sha256 over canonical sorted-key JSON of `bot_config` **in US1** so the summary carries the schema-required 64-hex hash from the start (C1 — summary.schema.json requires `config_hash` matching `^[0-9a-f]{64}$` and a non-empty `bot_config`). Clamping + `--bot.<name>` overrides are layered on in US3 (T034). (contracts/harness-cli.md, FR-007.)
 - [ ] T017 [P] [US1] Create `sims/idledoom_sim/outcome.py` — terminal state machine: `completed` requires a terminal `level_end{outcome:"completed"}` **and** clean exit; else `died` / `timeout` / `error`; never `completed` on a broken chain (R7, FR-010, SC-006).
-- [ ] T018 [US1] Add `aggregate(events) -> StatsBlock` to `sims/idledoom_sim/telemetry.py` returning a complete StatsBlock with every field present (counts default 0; `accuracy = 0` on zero shots). US2 fills in the real per-type counting (data-model StatsBlock).
-- [ ] T019 [US1] In `sims/idledoom_sim/writer.py`, assemble and write `<run_id>.summary.json` (`schema_version:1`, `run_id`, `batch_id`, `config_hash`, ISO-8601 `started_at`/`ended_at`/`duration_sec`, `map`, `outcome`, `bot_config`, `stats`) and validate it against `sims/schema/summary.schema.json` before exit (FR-004, FR-012, SC-002).
+- [ ] T018 [US1] Add `aggregate(events) -> StatsBlock` to `sims/idledoom_sim/telemetry.py` returning a complete StatsBlock with every field present (counts default 0; `accuracy = 0` on zero shots), and read `secrets_total` from the `level_start` payload (G2). US2 fills in the real per-type counting (data-model StatsBlock).
+- [ ] T019 [US1] In `sims/idledoom_sim/writer.py`, assemble and write `<run_id>.summary.json` (`schema_version:1`, `run_id`, `batch_id`, `config_hash` + `bot_config` from T016, ISO-8601 `started_at`/`ended_at`/`duration_sec`, `map`, `outcome`, `stats`) and validate it against `sims/schema/summary.schema.json` before exit. The schema **requires** a 64-hex `config_hash` and a non-empty `bot_config`, so US1 cannot emit placeholders (C1). (FR-004, FR-012, SC-002.)
 - [ ] T020 [US1] Create `sims/harness.py` with the `run` subcommand wiring config → launcher → stdout parse → outcome → summary writer; exit `0` on a written valid summary, non-zero with a stderr diagnostic on a broken chain (FR-001, FR-010, contracts/harness-cli.md).
 - [ ] T021 [P] [US1] Create `sims/configs/current.toml` — default run config: vendored `map`, a `seed`, a `time_limit`, and `bot_*` defaults (from `docs/bot-stats.md`).
 
@@ -103,13 +103,13 @@ Single repo, two code surfaces (plan.md "Structure Decision"):
 
 - [ ] T024 [P] [US2] Emit `kill{victim, weapon, distance}` in `quakec/combat.qc` (the `Killed`/`T_Damage` death path); `victim` = monster classname, `weapon` = `IT_*` stem (FR-005, FR-011).
 - [ ] T025 [P] [US2] Emit `death{cause, killer}` for agent death in `quakec/client.qc` `ClientObituary` (drives the `died` edge case) (FR-005).
-- [ ] T026 [P] [US2] Emit `shot{weapon, target}` on fire and `hit{weapon, target, damage}` on landed damage in `quakec/weapons.qc` (accuracy denominator/numerator) (FR-005).
+- [ ] T026 [P] [US2] Emit `shot{weapon, target}` when the agent fires and `hit{weapon, target, damage}` when the agent's attack lands — the agent's **outgoing** damage only, feeding `shots_fired`/`shots_hit`/`damage_dealt` — in `quakec/weapons.qc`. Incoming damage *to* the agent is **not** emitted this slice (see T029/G1) (FR-005).
 - [ ] T027 [P] [US2] Emit `pickup{item, value}` on item touch in `quakec/items.qc` (FR-005).
-- [ ] T028 [P] [US2] Emit `secret{secret_id}` in `trigger_secret` in `quakec/triggers.qc`, and expose the map's `secrets_total` for the summary (FR-005, data-model).
+- [ ] T028 [P] [US2] Emit `secret{secret_id}` when a `trigger_secret` is activated in `quakec/triggers.qc` (drives `secrets_found`). `secrets_total` is carried by `level_start` (T014/G2), not here (FR-005, data-model).
 
 ### Harness: aggregation & JSONL output
 
-- [ ] T029 [US2] Extend `aggregate()` in `sims/idledoom_sim/telemetry.py` to count `kill`/`death`/`shot`/`hit`/`pickup`/`secret`, build `weapon_usage` and `deaths_by_cause`, and compute `accuracy` (`shots_hit/shots_fired`, 4 dp, `0` on zero), `damage_dealt`/`damage_taken`, `time_to_exit_sec` (data-model StatsBlock, FR-006).
+- [ ] T029 [US2] Extend `aggregate()` in `sims/idledoom_sim/telemetry.py` to count `kill`/`death`/`shot`/`hit`/`pickup`/`secret`, build `weapon_usage` and `deaths_by_cause`, and compute `accuracy` (`shots_hit/shots_fired`, 4 dp, `0` on zero), `damage_dealt` (Σ `hit.damage`), `secrets_found`, and `time_to_exit_sec`. **`damage_taken` is scoped to `0` this slice (G1)** — no incoming-damage event is emitted, so it is recorded as `0` and excluded from FR-006/SC-003 reconciliation; full incoming-damage telemetry is a follow-up (data-model StatsBlock, FR-006).
 - [ ] T030 [US2] In `sims/idledoom_sim/writer.py`, write `<run_id>.events.jsonl` (one event object per line, each carrying `schema_version:1`) (FR-005, FR-012).
 - [ ] T031 [US2] In `sims/harness.py`, write the events JSONL alongside the summary and assert the stream invariant (first `level_start`, last `level_end`) (US2 sc.1).
 
@@ -128,7 +128,7 @@ Single repo, two code surfaces (plan.md "Structure Decision"):
 
 **Independent Test**: Run the same map with `bot_accuracy=0.1` vs `0.9`; confirm both summaries record the clamped `bot_config` and a `config_hash` (equal for equal configs, differing otherwise), an out-of-range value (e.g. `5`) is clamped to `1.0` in `bot_config`, and higher `bot_accuracy` yields higher `stats.accuracy` (averaged over runs if needed).
 
-- [ ] T034 [US3] Extend `sims/idledoom_sim/config.py` — accept `--bot.<name> VAL` overrides, clamp each `bot_*` to its `botstats.py` range **before** use, build the clamped `bot_config`, and compute `config_hash` = sha256 over canonical sorted-key JSON of `bot_config` (FR-007, FR-008, R5).
+- [ ] T034 [US3] Extend `sims/idledoom_sim/config.py` — accept `--bot.<name> VAL` overrides and clamp each `bot_*` to its `botstats.py` range **before** use, so the clamped values populate `bot_config` (and therefore the `config_hash` already computed in T016/US1; C1). No silent out-of-range acceptance (FR-007, FR-008, R5).
 - [ ] T035 [US3] In `sims/idledoom_sim/launcher.py`, set the clamped `bot_*` values and `sim_seed` on the `+set` command line from the resolved config (contracts/cvars.md).
 - [ ] T036 [US3] In `sims/idledoom_sim/writer.py`, record the clamped `bot_config` and `config_hash` into the summary (replacing the US1 placeholders) (FR-007).
 - [ ] T037 [US3] Wire `bot_accuracy` → FrikBot aim error in `quakec/frikbot/bot_fight.qc` so higher accuracy produces measurably higher `stats.accuracy` — the SC-004 proof (R5).
@@ -157,7 +157,7 @@ Single repo, two code surfaces (plan.md "Structure Decision"):
 **Purpose**: Documentation reconciliation and end-to-end validation across all stories.
 
 - [ ] T042 [P] Update `docs/bot-stats.md` — add the `sim_*` control-cvar notes and mark `bot_accuracy` **Wired** vs the other `bot_*` **recorded-only** for this slice (contracts/cvars.md, R5).
-- [ ] T043 [P] Reconcile `docs/telemetry.md` with the implementation; bump `schema_version` only if implementation forced a schema change, otherwise note conformance to version `1` (FR-012, Assumptions).
+- [ ] T043 [P] Reconcile `docs/telemetry.md` and `data-model.md` with the implementation, including the this-slice scoping decisions — `secrets_total` carried by `level_start` (G2) and `damage_taken` fixed at `0`/not-reconciled (G1); bump `schema_version` only if implementation forced a schema change, otherwise note conformance to version `1` (FR-012, Assumptions).
 - [ ] T044 [P] Record the four bounded open questions from `research.md` ("Remaining open questions": waypoints, event-volume/sampling, `sim_*` naming, engine RNG seeding) under `docs/design.md` Open Questions (§8/§11) per CLAUDE.md convention.
 - [ ] T045 [P] Document the build-locally-not-on-droplet + `uv` workflow in `SETUP.md` (or a `sims/README.md`), matching quickstart.md step 0.
 - [ ] T046 Run `quickstart.md` end-to-end (`just sim`, reconcile via `jq`, vary `--bot.bot_accuracy`, `just sim-smoke`, `uv run pytest`) and confirm every acceptance/SC holds.
@@ -177,9 +177,9 @@ Single repo, two code surfaces (plan.md "Structure Decision"):
 
 - T009 (progs.src) and T010 (autostart) depend on T008 (`telemetry.qc` exists).
 - T011/T012/T013 (launcher/parser/writer skeletons) depend on T002 (pyproject) and T007 (botstats for cmdline ranges).
-- US1: T019 (summary writer) depends on T013 (writer base), T017 (outcome), T018 (stats skeleton); T020 (CLI) depends on T011/T012/T016/T019.
+- US1: T019 (summary writer) depends on T013 (writer base), T016 (`bot_config`/`config_hash`; C1), T017 (outcome), T018 (stats skeleton); T020 (CLI) depends on T011/T012/T016/T019.
 - US2: T029 (aggregate) extends T018; T030 (jsonl) extends T013/T019's writer; the QuakeC emits (T024–T028) feed T029's counts.
-- US3: T034 (clamp/hash) extends T016 (config); T036 extends T019; T037 is the only QuakeC behavioral wiring this slice.
+- US3: T034 (clamp + `--bot.*` overrides) extends T016 — `config_hash` itself is already computed in T016/US1 (C1); T036 extends T019; T037 is the only QuakeC behavioral wiring this slice.
 - US4: T040 (smoke) reuses T020's `run` flow.
 
 ### Within each user story
@@ -238,6 +238,6 @@ Task: "Emit secret in quakec/triggers.qc"
 
 - `[P]` = different files, no dependency on an incomplete task.
 - Zero engine-C patches (constitution): all new code is QuakeC + Python; build `fteqw-sv`/`progs.dat` locally or in CI, never on the droplet.
-- The summary's `stats` is a pure function of the event stream (data-model) — keep it that way so SC-003 reconciliation stays checkable.
+- The summary's `stats` is a pure function of the event stream (data-model) — keep it that way so SC-003 reconciliation stays checkable. Two fields are scoped this slice: `secrets_total` is sourced from the `level_start` payload (G2), and `damage_taken` is fixed at `0` (no incoming-damage event yet, G1) and excluded from reconciliation.
 - Commit after each task or logical group; reference FR/SC/R IDs in messages.
 - Stop at any checkpoint to validate a story independently.

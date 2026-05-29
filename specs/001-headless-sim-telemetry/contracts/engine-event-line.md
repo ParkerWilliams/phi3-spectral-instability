@@ -26,7 +26,7 @@ hashing, files).
 
 | `type` | keys (→ `event.data`) |
 |---|---|
-| `level_start` | `map`, `seed` |
+| `level_start` | `map`, `seed`, `secrets_total` |
 | `level_end` | `outcome`, `time_sec` |
 | `kill` | `victim`, `weapon`, `distance` |
 | `death` | `cause`, `killer` |
@@ -38,6 +38,14 @@ hashing, files).
 Naming follows `docs/telemetry.md` conventions (FR-011): `map` = BSP stem;
 `weapon` = `IT_*` flag stem lowercased (`shotgun`, `super_shotgun`,
 `rocket_launcher`); `victim`/monster = QuakeC classname (`monster_army`).
+
+This-slice scoping:
+- `level_start.secrets_total` = count of `trigger_secret` entities in the map
+  (0 if none); it sources the summary's `stats.secrets_total` (G2), since no
+  per-event channel otherwise carries the map-static total.
+- `hit` events record the **agent's outgoing** damage only (→ `damage_dealt`,
+  `shots_hit`); incoming damage to the agent is **not** emitted this slice, so
+  `stats.damage_taken` is fixed at `0` (G1).
 
 ## Sequencing invariants
 

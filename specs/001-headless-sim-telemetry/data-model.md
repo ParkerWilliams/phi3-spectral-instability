@@ -94,9 +94,9 @@ The aggregated machine-readable result. One JSON file per run. Schema:
 | `kills` | int | count of `kill` events (== SC-003). |
 | `deaths` | int | count of agent `death` events. |
 | `damage_dealt` | int | Σ `hit.damage`. |
-| `damage_taken` | int | Σ damage to the agent. |
+| `damage_taken` | int | **Fixed at `0` this slice (G1)** — no incoming-damage event is emitted, so it is recorded as `0` and excluded from reconciliation. Full incoming-damage telemetry is a follow-up. |
 | `secrets_found` | int | count of `secret` events. |
-| `secrets_total` | int | secrets present in the map (0 if none). |
+| `secrets_total` | int | secrets present in the map (0 if none); sourced from the `level_start` payload, not aggregated from per-event counts (G2). |
 | `items_collected` | int | count of `pickup` events. |
 | `shots_fired` | int | count of `shot` events. |
 | `shots_hit` | int | count of `hit` events. |
@@ -108,6 +108,9 @@ The aggregated machine-readable result. One JSON file per run. Schema:
 Reconciliation (FR-006 / SC-003): counts and rates derived from the events
 **must** equal the summary within documented rounding (floats to 4 dp,
 `docs/telemetry.md`). Zero discrepancies beyond rounding is the SC-003 bar.
+Two fields are exceptions this slice: `secrets_total` is read from the
+`level_start` payload (G2), and `damage_taken` is fixed at `0` (no
+incoming-damage event yet, G1) and is not reconciled.
 
 ---
 
@@ -128,7 +131,7 @@ JSONL stream. Schema: `contracts/event.schema.json`.
 
 | `type` | `data` payload | Required for |
 |---|---|---|
-| `level_start` | `{ map, seed }` | first event (US2 sc.1); FR-016 carries `seed`. |
+| `level_start` | `{ map, seed, secrets_total }` | first event (US2 sc.1); FR-016 carries `seed`; `secrets_total` = count of `trigger_secret` entities, 0 if none (G2). |
 | `level_end` | `{ outcome, time_sec }` | last event (US2 sc.1). |
 | `kill` | `{ victim, weapon, distance }` | FR-005; weapon/monster stems (FR-011). |
 | `death` | `{ cause, killer }` | `died` outcome (edge case). |
@@ -155,6 +158,7 @@ Run 1───1 Event Stream 1───* Event
 Per-run Summary.stats ◄── aggregation ── Event Stream   (FR-006 / SC-003)
 ```
 
-The Summary's `stats` is a **pure function** of the Event Stream (plus
-map-static `secrets_total`); this is what makes reconciliation checkable and the
-single source of truth the event stream.
+The Summary's `stats` is a **pure function** of the Event Stream — including
+`secrets_total`, which the `level_start` event carries (G2) — with the lone
+exception of `damage_taken`, fixed at `0` this slice (G1). This is what makes
+reconciliation checkable and the event stream the single source of truth.
