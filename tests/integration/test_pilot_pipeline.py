@@ -99,61 +99,44 @@ def test_pilot_pipeline_end_to_end(tmp_path: Path) -> None:
             event.event_id, expected_manifest_sha256=manifest_sha, cache_root=cache_root
         )
         assert F.shape == (256, 32, 32, 7)
+        assert isinstance(result.event.evidence_distance_tokens, int)
+        assert result.event.evidence_distance_tokens > 0
 
     # Cleanup (tmp_path is automatic, but explicitly ensure no leaks)
     shutil.rmtree(cache_root, ignore_errors=True)
 
 
-@pytest.mark.gpu
-def test_pilot_reports_writeable(tmp_path: Path) -> None:
-    """Pilot report writers don't require a forward pass — just data structures.
-
-    This test exercises the report-writing code path without invoking Phi-3,
-    so it can be useful for catching JSON-schema regressions early. Still
-    marked @pytest.mark.gpu to keep it grouped with the other integration
-    test for run ordering.
-    """
-    from phi3geom.analysis.types import PerRegimeCompositeFit
-    from phi3geom.dataset.types import CEMStratum
-    from phi3geom.geometry import FEATURE_NAMES
-    from phi3geom.reporting.pilot_reports import write_pilot_summary
+def test_pilot_reports_writeable(tmp_path):
+    """Report writers run end-to-end on a synthetic pooled fit (no GPU)."""
     import numpy as np
+    from phi3geom.analysis.pooled_detector import fit_pooled_detector
+    from phi3geom.dataset.types import CEMStratum
+    from phi3geom.reporting.pilot_reports import write_pilot_summary
 
     rng = random.Random(0)
     events = [_toy_event(b, rng) for b in BIN_IDS]
-    # Fill in placeholder model output so handcheck_sample can serialize.
     from dataclasses import replace
-    events = [replace(e, model_generation="x", is_fail=False) for e in events]
+    events = [replace(e, model_generation="x", is_fail=(i % 2 == 0),
+                      evidence_distance_tokens=200 + 100 * i)
+              for i, e in enumerate(events)]
 
-    fits = {
-        b: PerRegimeCompositeFit(
-            bin_id=b,
-            feature_names=FEATURE_NAMES,
-            coefficients=np.zeros(7, dtype=np.float64),
-            intercept=0.0,
-            auroc=0.82,
-            auroc_ci_lower=0.78,
-            auroc_ci_upper=0.86,
-            n_events_train=80,
-            n_events_held_out=20,
-        )
-        for b in BIN_IDS
-    }
-    strata_by_bin: dict[BinId, list[CEMStratum]] = {
-        b: [CEMStratum(b, "birthplace", "low", "1", 60, 60, 50)] for b in BIN_IDS
-    }
+    n = 240
+    gen = np.random.default_rng(0)
+    labels = np.zeros(n, dtype=bool); labels[::2] = True
+    feats = gen.standard_normal((n, 7)).astype(np.float64); feats[labels, 0] += 3.0
+    distances = gen.integers(20, 3000, size=n)
+    doc_lengths = gen.integers(100, 2000, size=n)
+    fit = fit_pooled_detector(feats, labels, random_state=0, n_bootstrap=50)
+
+    strata_by_bin = {b: [CEMStratum(b, "birthplace", "low", "1", 60, 60, 50)] for b in BIN_IDS}
     paths = write_pilot_summary(
-        fits=fits,
-        strata_by_bin=strata_by_bin,
-        wall_time_sec=3600.0 * 50,
-        gpu_hours_estimate=50.0,
-        n_events=600,
-        matched_events=events,
-        out_dir=tmp_path,
+        detector_fit=fit, feature_matrix=feats, labels=labels,
+        distances=distances, doc_lengths=doc_lengths,
+        strata_by_bin=strata_by_bin, wall_time_sec=3600.0 * 8,
+        gpu_hours_estimate=8.0, n_events=n, matched_events=events,
+        random_state=0, out_dir=tmp_path,
     )
     for name, p in paths.items():
         assert p.is_file(), f"{name} not written"
-    auroc = json.loads((tmp_path / "per_bin_auroc.json").read_text())
-    assert set(auroc.keys()) == set(BIN_IDS)
-    for bin_id in BIN_IDS:
-        assert auroc[bin_id]["auroc"] == 0.82
+    headline = json.loads((tmp_path / "pooled_auroc.json").read_text())
+    assert headline["auroc"] == fit.auroc
