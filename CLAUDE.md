@@ -204,6 +204,7 @@ before first release. See `docs/licenses.md` for per-asset attribution and
 the one outstanding question (FrikBot's exact license).
 
 <!-- SPECKIT START -->
-For additional context about technologies to be used, project structure,
-shell commands, and other important information, read the current plan
+Active feature plan: `specs/001-headless-sim-telemetry/plan.md` (headless sim run
+with telemetry). For technologies, project structure, shell commands, and design
+decisions, read that plan and its `research.md` / `data-model.md` / `contracts/`.
 <!-- SPECKIT END -->
