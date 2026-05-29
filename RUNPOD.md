@@ -62,8 +62,9 @@ huggingface-cli download microsoft/Phi-3-mini-128k-instruct     # ~7.6 GB, one-t
 python -m pytest tests/unit tests/contract
 ```
 
-Expect **all pass**. On a PyTorch template the torch hooks test runs too; without torch
-it skips cleanly. The 2 `@pytest.mark.gpu` integration tests are skipped here by design.
+Expect **all pass** — **245 passed, 1 skipped** without torch; on a PyTorch template
+the torch hooks test runs too (**246 passed, 0 skipped**). This command does not
+collect `tests/integration/` — the GPU end-to-end test runs in step 5.
 
 ## 5. GPU integration test + per-event timing (the real validation)
 
@@ -71,8 +72,10 @@ it skips cleanly. The 2 `@pytest.mark.gpu` integration tests are skipped here by
 time PHI3_RUN_GPU_TESTS=1 python -m pytest tests/integration/test_pilot_pipeline.py -s
 ```
 
-Runs 6 toy events end-to-end on real Phi-3. The `time` prefix gives total wall clock —
-**divide by 6 for per-event seconds**, which is the number used to size the pilot.
+**Expect 2 passed**: the GPU end-to-end test (6 toy events on real Phi-3) plus a
+CPU report-writer smoke test (no GPU marker, so it always runs). The `time` prefix
+gives total wall clock — **divide by 6 for per-event seconds** (the report test is
+near-instant), which is the number used to size the pilot.
 
 This test prints no per-event progress, so it can look frozen. To confirm it's alive,
 in another shell:
@@ -93,13 +96,22 @@ bash scripts/run_pilot.sh --with-ricci   # US2: adds the Forman-Ricci feature
 ```
 
 Outputs land in `reports/pilot/`:
-- `per_bin_auroc.json` — per-bin AUROC + 95% CI (spectral-only baseline)
+- `pooled_auroc.json` — **headline**: the pooled, distance-blind detector's AUROC +
+  95% CI + `beats_chance` (constitution v2.0.0, Principle III)
+- `distance_diagnostic.json` — the same detector's AUROC sliced by *measured*-distance
+  bin (diagnostic only — never assists the detector; shows where it degrades)
+- `confound_audit.json` — a length+distance-only logistic's AUROC vs the geometry
+  detector, with an `is_suspicious` flag if geometry looks like a length/position proxy
 - `cem_yield.json` — per-bin CEM match yield (flags compromised bins)
 - `runtime.json` — wall time + GPU-hour estimate
 - `handcheck_sample.jsonl` — 50 events for manual SC-007 verification
 
-**Pilot pass criteria (spec SC-004):** ≤72 GPU-hr, ≥5/6 bins ≥50% CEM yield, 100%
-hand-verification agreement, no B6 RoPE-wrap discontinuity vs B5.
+**Pilot success criterion (constitution v2.0.0):** pooled AUROC whose 95% CI lower
+bound is > 0.5 — i.e. `"beats_chance": true` in `pooled_auroc.json` — within the
+≤72 GPU-hr budget. Distance bins are now a **post-hoc diagnostic**, so the old
+per-bin SC-004 gate (≥5/6 bins ≥50% CEM yield) and the B6 RoPE-wrap check are
+**deferred** with the B5/B6 long-context work — the 201-fact corpus reaches only
+B1–B4. See `docs/superpowers/specs/2026-05-28-distance-blind-failure-detector-design.md`.
 
 ## 7. Full study (after pilot validates)
 
