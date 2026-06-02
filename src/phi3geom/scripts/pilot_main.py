@@ -135,6 +135,87 @@ def _build_feature_matrix(
     return feature_matrix, labels
 
 
+def _maybe_build_checkpoint_config(args):
+    """Build a CheckpointConfig if --experiment-branch is set; else return None.
+
+    Raises a clear RuntimeError before any expensive work if the PAT env var
+    is missing or the origin remote isn't an HTTPS URL.
+    """
+    if not args.experiment_branch:
+        return None
+    import os
+
+    from phi3geom.checkpointing import ARTIFACT_DIR_NAME, CheckpointConfig
+
+    token = os.environ.get(args.github_token_env)
+    if not token:
+        raise RuntimeError(
+            f"--experiment-branch set but env var ${args.github_token_env} is empty. "
+            f"Export a fine-grained GitHub PAT (repo scope) before running."
+        )
+    remote_url = args.remote_url
+    if remote_url is None:
+        remote_url = subprocess.check_output(
+            ["git", "remote", "get-url", "origin"], text=True
+        ).strip()
+    if not remote_url.startswith("https://"):
+        raise RuntimeError(
+            f"Remote URL must be HTTPS for PAT auth; got {remote_url!r}. "
+            f"Fix: git remote set-url origin https://github.com/<owner>/<repo>.git"
+        )
+    repo_root = Path(
+        subprocess.check_output(
+            ["git", "rev-parse", "--show-toplevel"], text=True
+        ).strip()
+    )
+    return CheckpointConfig(
+        branch=args.experiment_branch,
+        token=token,
+        remote_url=remote_url,
+        cache_root=args.cache_root,
+        artifact_root=repo_root / ARTIFACT_DIR_NAME,
+        repo_root=repo_root,
+    )
+
+
+def _do_checkpoint(
+    config,
+    *,
+    event_ids,
+    processed: int,
+    total: int,
+    resumed: int,
+    log_path,
+    reports_dir,
+    message: str | None = None,
+) -> None:
+    """Push one checkpoint. Logs the outcome but never raises into the loop."""
+    from phi3geom.checkpointing import checkpoint
+
+    msg = message or f"ckpt: {processed}/{total} events (resumed={resumed})"
+    progress = {
+        "events_processed": processed,
+        "events_total": total,
+        "events_resumed": resumed,
+    }
+    try:
+        pushed = checkpoint(
+            config,
+            event_ids=event_ids,
+            progress=progress,
+            log_path=log_path if log_path.is_file() else None,
+            extra_report_dir=reports_dir if reports_dir.is_dir() else None,
+            message=msg,
+        )
+    except subprocess.CalledProcessError as exc:
+        # Don't kill the run on a transient push failure — log + continue.
+        # Next checkpoint will pick up the same staged data.
+        print(f"[pilot] checkpoint FAILED ({exc}); continuing", file=sys.stderr)
+        return
+    if pushed:
+        print(f"[pilot] checkpoint pushed: {msg}", flush=True)
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -158,7 +239,56 @@ def main(argv: list[str] | None = None) -> int:
         default=PILOT_TARGET_PER_CLASS,
         help="Target matched events per class per bin.",
     )
+    # Resilient-checkpoint args (optional; enabled by passing --experiment-branch).
+    parser.add_argument(
+        "--experiment-branch",
+        type=str,
+        default=None,
+        help="Git branch to checkpoint progress to. Enables resume-on-restart.",
+    )
+    parser.add_argument(
+        "--checkpoint-every",
+        type=int,
+        default=25,
+        help="Push a checkpoint after every N processed events. Default: 25.",
+    )
+    parser.add_argument(
+        "--remote-url",
+        type=str,
+        default=None,
+        help="Git remote HTTPS URL for checkpoints. Default: `git remote get-url origin`.",
+    )
+    parser.add_argument(
+        "--github-token-env",
+        type=str,
+        default="GITHUB_TOKEN",
+        help="Name of the env var holding the GitHub PAT. Default: GITHUB_TOKEN.",
+    )
+    parser.add_argument(
+        "--log-path",
+        type=Path,
+        default=Path("reports/pilot_run.log"),
+        help="Pilot log path to mirror into each checkpoint. Default: reports/pilot_run.log",
+    )
     args = parser.parse_args(argv)
+
+    # 0. Resilient checkpoint/restore (optional). Fails fast (before model load)
+    #    if --experiment-branch is set but PAT/remote setup is broken.
+    ckpt_config = _maybe_build_checkpoint_config(args)
+    if ckpt_config is not None:
+        from phi3geom.checkpointing import restore_from_branch
+
+        result = restore_from_branch(ckpt_config)
+        if result["branch_existed"]:
+            print(
+                f"[pilot] restored {result['events_restored']} events from "
+                f"branch {args.experiment_branch}"
+            )
+        else:
+            print(
+                f"[pilot] fresh experiment branch {args.experiment_branch} "
+                f"(no prior checkpoint on remote)"
+            )
 
     # 1. Read the pinned model revision SHA.
     pin = read_pin(args.dataset_dir / "pinned_revision.json")
@@ -196,6 +326,7 @@ def main(argv: list[str] | None = None) -> int:
     code_commit_sha = _git_commit_sha()
     labeled: list[DocQAEvent] = []
     resumed = 0
+    pending_event_ids: list[str] = []  # since-last-checkpoint buffer
     for i, event in enumerate(candidates):
         cached = try_load_cached_event(event.event_id, cache_root=args.cache_root)
         progress = f"[pilot] {i + 1}/{len(candidates)} (bin {event.bin_id})"
@@ -203,21 +334,41 @@ def main(argv: list[str] | None = None) -> int:
             print(f"{progress} RESUMED from cache", flush=True)
             labeled.append(cached)
             resumed += 1
-            continue
-        print(f"{progress} ...", flush=True)
-        try:
-            result = run_event_extraction(
-                event, model, tokenizer,
-                k_attn=args.k_attn,
-                manifest_sha256=placeholder_sha,
-                code_commit_sha=code_commit_sha,
-                cache_root=args.cache_root,
-                compute_ricci=args.with_ricci,
+        else:
+            print(f"{progress} ...", flush=True)
+            try:
+                result = run_event_extraction(
+                    event, model, tokenizer,
+                    k_attn=args.k_attn,
+                    manifest_sha256=placeholder_sha,
+                    code_commit_sha=code_commit_sha,
+                    cache_root=args.cache_root,
+                    compute_ricci=args.with_ricci,
+                )
+            except RuntimeError as exc:
+                print(
+                    f"[pilot] event {event.event_id[:8]} skipped: {exc}",
+                    file=sys.stderr,
+                )
+                continue
+            labeled.append(result.event)
+        pending_event_ids.append(event.event_id)
+
+        # Periodic checkpoint (only if --experiment-branch is set).
+        if (
+            ckpt_config is not None
+            and len(pending_event_ids) >= args.checkpoint_every
+        ):
+            _do_checkpoint(
+                ckpt_config,
+                event_ids=pending_event_ids,
+                processed=i + 1,
+                total=len(candidates),
+                resumed=resumed,
+                log_path=args.log_path,
+                reports_dir=args.reports_dir,
             )
-        except RuntimeError as exc:
-            print(f"[pilot] event {event.event_id[:8]} skipped: {exc}", file=sys.stderr)
-            continue
-        labeled.append(result.event)
+            pending_event_ids = []
 
     elapsed = time.monotonic() - t0
     if resumed > 0:
@@ -311,6 +462,25 @@ def main(argv: list[str] | None = None) -> int:
         f"[pilot] done in {elapsed / 3600.0:.2f} GPU-hours "
         f"({elapsed / 60.0:.1f} min)."
     )
+
+    # 9. Final checkpoint: stage everything (including the reports just written).
+    if ckpt_config is not None:
+        _do_checkpoint(
+            ckpt_config,
+            event_ids=[e.event_id for e in matched_events],
+            processed=len(candidates),
+            total=len(candidates),
+            resumed=resumed,
+            log_path=args.log_path,
+            reports_dir=args.reports_dir,
+            message=(
+                f"final: {len(matched_events)} matched, "
+                f"pooled AUROC={detector_fit.auroc:.3f} "
+                f"(CI [{detector_fit.auroc_ci_lower:.3f}, "
+                f"{detector_fit.auroc_ci_upper:.3f}])"
+            ),
+        )
+
     return 0
 
 

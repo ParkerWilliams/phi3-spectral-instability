@@ -1,22 +1,15 @@
 #!/usr/bin/env bash
-# Pilot driver: 600-event end-to-end pipeline (US1 MVP).
+# Pilot driver: ~600-event end-to-end pipeline.
 #
-# Steps:
-#   1. Verify HuggingFace credentials.
-#   2. Pin the Phi-3-mini-128k-instruct revision SHA (if not already pinned).
-#   3. Run the pilot Python entrypoint.
+# All extra args pass through to `run-pilot` (pilot_main). See:
+#   python -m phi3geom.scripts.pilot_main --help
 #
-# Pass --with-ricci to enable US2's Forman-Ricci feature path.
+# Common usage:
+#   bash scripts/run_pilot.sh                                            # default pilot
+#   bash scripts/run_pilot.sh --with-ricci                               # US2 Ricci path
+#   bash scripts/run_pilot.sh --experiment-branch experiment/foo         # resilient mode
 
 set -euo pipefail
-
-WITH_RICCI=""
-for arg in "$@"; do
-  case "$arg" in
-    --with-ricci) WITH_RICCI="--with-ricci" ;;
-    *) ;;
-  esac
-done
 
 echo "[run-pilot] Step 1/3: HuggingFace auth check..."
 check-hf-auth
@@ -28,5 +21,5 @@ else
   echo "[run-pilot] Existing pin found at dataset/pinned_revision.json; skipping."
 fi
 
-echo "[run-pilot] Step 3/3: Run pilot (this is the long step; ~72 GPU-hours target)..."
-run-pilot $WITH_RICCI
+echo "[run-pilot] Step 3/3: Run pilot (long step; ~72 GPU-hours budget)..."
+run-pilot "$@"
