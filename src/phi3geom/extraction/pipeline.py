@@ -44,6 +44,7 @@ from phi3geom.storage.cache import (
     F_SHAPE,
     F_SUMMARY_SHAPE,
     write_D,
+    write_event_metadata,
     write_F,
     write_F_summary,
 )
@@ -302,6 +303,8 @@ def run_event_extraction(
         manifest_sha256=manifest_sha256, code_commit_sha=code_commit_sha,
         k_attn=k_attn, cache_root=cache_root,
     )
+    # Per-event labeled metadata for resume-from-cache (small JSON, ~1 KB).
+    write_event_metadata(event.event_id, event, cache_root=cache_root)
 
     _ = math.isnan  # quiet unused-import warning when not on the Ricci path
     _ = f_idx  # quiet unused-variable warning

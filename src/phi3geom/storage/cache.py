@@ -31,6 +31,7 @@ from typing import Any
 
 import numpy as np
 
+from phi3geom.dataset.types import DocQAEvent
 from phi3geom.geometry import FEATURE_NAMES
 
 SCHEMA_VERSION = "1.0.0"
@@ -364,3 +365,49 @@ def read_F_summary(
             f"F_summary.npy shape expected {F_SUMMARY_SHAPE}; got {arr.shape}"
         )
     return arr
+
+
+# ---------------------------------------------------------------------------
+# Per-event metadata (event.json — labels + identifiers for resume-from-cache)
+# ---------------------------------------------------------------------------
+
+def write_event_metadata(
+    event_id: str,
+    event: DocQAEvent,
+    *,
+    cache_root: Path,
+) -> Path:
+    """Write ``event.json`` next to F.npy/D.npy/F_summary.npy.
+
+    Carries the post-extraction event state (model_generation, is_fail,
+    measured evidence_distance_tokens, plus the generation-time fields).
+    Lets a fresh pod reconstruct the labeled event from cache, the
+    foundation of the resume-from-cache path.
+    """
+    if event_id != event.event_id:
+        raise ValueError(
+            f"event_id mismatch: arg={event_id!r}, event.event_id={event.event_id!r}"
+        )
+    event_dir = _event_dir(event_id, cache_root)
+    event_dir.mkdir(parents=True, exist_ok=True)
+    body = json.dumps(
+        dataclasses.asdict(event), indent=2, sort_keys=True
+    ).encode("utf-8")
+    path = event_dir / "event.json"
+    _atomic_write_bytes(path, body)
+    return path
+
+
+def read_event_metadata(
+    event_id: str,
+    *,
+    cache_root: Path,
+) -> DocQAEvent:
+    """Read ``event.json`` and reconstruct the labeled :class:`DocQAEvent`.
+
+    Raises:
+        FileNotFoundError: ``event.json`` not present at the expected path.
+    """
+    event_dir = _event_dir(event_id, cache_root)
+    raw = json.loads((event_dir / "event.json").read_bytes())
+    return DocQAEvent(**raw)

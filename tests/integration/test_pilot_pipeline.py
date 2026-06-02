@@ -91,6 +91,7 @@ def test_pilot_pipeline_end_to_end(tmp_path: Path) -> None:
         assert (cache_dir / "F.header.json").is_file()
         assert (cache_dir / "D.npy").is_file()
         assert (cache_dir / "F_summary.npy").is_file()
+        assert (cache_dir / "event.json").is_file()
         # Model output populated
         assert result.event.model_generation != ""
         assert isinstance(result.event.is_fail, bool)
