@@ -9,10 +9,15 @@ from __future__ import annotations
 
 import pytest
 
+import numpy as np
+
 from phi3geom.dataset.types import DocQAEvent
 from phi3geom.storage.cache import (
+    F_SUMMARY_SHAPE,
     read_event_metadata,
+    try_load_cached_event,
     write_event_metadata,
+    write_F_summary,
 )
 
 
@@ -71,3 +76,42 @@ def test_write_event_metadata_rejects_id_mismatch(tmp_path):
     event = _toy_event()  # event_id = "a"*64
     with pytest.raises(ValueError, match="event_id"):
         write_event_metadata("c" * 64, event, cache_root=tmp_path)
+
+
+# ---------------------------------------------------------------------------
+# Resume contract: try_load_cached_event
+# ---------------------------------------------------------------------------
+
+def _write_dummy_f_summary(event_id: str, cache_root):
+    write_F_summary(
+        event_id,
+        np.zeros(F_SUMMARY_SHAPE, dtype=np.float64),
+        manifest_sha256="0" * 64,
+        code_commit_sha="0" * 40,
+        k_attn=16,
+        cache_root=cache_root,
+    )
+
+
+def test_try_load_returns_none_when_neither_file_present(tmp_path):
+    assert try_load_cached_event("d" * 64, cache_root=tmp_path) is None
+
+
+def test_try_load_returns_none_when_only_event_json_present(tmp_path):
+    event = _toy_event()
+    write_event_metadata(event.event_id, event, cache_root=tmp_path)
+    assert try_load_cached_event(event.event_id, cache_root=tmp_path) is None
+
+
+def test_try_load_returns_none_when_only_f_summary_present(tmp_path):
+    event = _toy_event()
+    _write_dummy_f_summary(event.event_id, tmp_path)
+    assert try_load_cached_event(event.event_id, cache_root=tmp_path) is None
+
+
+def test_try_load_returns_labeled_event_when_both_present(tmp_path):
+    event = _toy_event()
+    _write_dummy_f_summary(event.event_id, tmp_path)
+    write_event_metadata(event.event_id, event, cache_root=tmp_path)
+    out = try_load_cached_event(event.event_id, cache_root=tmp_path)
+    assert out == event

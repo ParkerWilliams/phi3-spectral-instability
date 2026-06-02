@@ -411,3 +411,29 @@ def read_event_metadata(
     event_dir = _event_dir(event_id, cache_root)
     raw = json.loads((event_dir / "event.json").read_bytes())
     return DocQAEvent(**raw)
+
+
+def try_load_cached_event(
+    event_id: str,
+    *,
+    cache_root: Path,
+) -> DocQAEvent | None:
+    """Resume contract: return the labeled event iff both summary + json exist.
+
+    An event is "resumable from cache" only when **both** ``F_summary.npy``
+    (the feature input the pooled detector reads) **and** ``event.json``
+    (the post-extraction label + measured distance) are present. If either
+    is missing, returns ``None`` so the caller re-runs extraction.
+
+    Note: we deliberately do NOT validate the F_summary header here. Header
+    verification happens later, when ``_build_feature_matrix`` reads it; if
+    the cache is stale, that path raises ``CacheStaleError`` with full
+    context. Keeping this check cheap means a fresh-pod resume doesn't
+    re-read 900 ``.npy`` files just to decide what to skip.
+    """
+    event_dir = _event_dir(event_id, cache_root)
+    if not (event_dir / "F_summary.npy").is_file():
+        return None
+    if not (event_dir / "event.json").is_file():
+        return None
+    return read_event_metadata(event_id, cache_root=cache_root)

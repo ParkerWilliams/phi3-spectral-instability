@@ -46,6 +46,7 @@ from phi3geom.reproducibility.seeds import (
     seed_for_split,
 )
 from phi3geom.scripts.pin_model_revision import read_pin
+from phi3geom.storage.cache import try_load_cached_event
 
 PILOT_CANDIDATES_PER_BIN = 150  # ~1.5× the 50/class × 2 = 100-event target
 PILOT_TARGET_PER_CLASS = 50
@@ -194,8 +195,16 @@ def main(argv: list[str] | None = None) -> int:
     placeholder_sha = "0" * 64
     code_commit_sha = _git_commit_sha()
     labeled: list[DocQAEvent] = []
+    resumed = 0
     for i, event in enumerate(candidates):
-        print(f"[pilot] {i + 1}/{len(candidates)} (bin {event.bin_id}) ...", flush=True)
+        cached = try_load_cached_event(event.event_id, cache_root=args.cache_root)
+        progress = f"[pilot] {i + 1}/{len(candidates)} (bin {event.bin_id})"
+        if cached is not None:
+            print(f"{progress} RESUMED from cache", flush=True)
+            labeled.append(cached)
+            resumed += 1
+            continue
+        print(f"{progress} ...", flush=True)
         try:
             result = run_event_extraction(
                 event, model, tokenizer,
@@ -211,6 +220,11 @@ def main(argv: list[str] | None = None) -> int:
         labeled.append(result.event)
 
     elapsed = time.monotonic() - t0
+    if resumed > 0:
+        print(
+            f"[pilot] resume summary: {resumed}/{len(candidates)} events loaded from cache, "
+            f"{len(candidates) - resumed} ran extraction"
+        )
 
     # 5. CEM-match per bin to 50 fail + 50 ctrl.
     matched_events: list[DocQAEvent] = []
