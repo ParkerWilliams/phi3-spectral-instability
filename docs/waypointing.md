@@ -46,26 +46,29 @@ engine/engine/release/fteqw-gl -nohome -basedir . -game quakec \
 Open the console (`` ` ``) and drive the editor with `impulse` commands (or bind
 keys to them). The editor draws each waypoint as a floating bubble.
 
+> **Menu gotcha:** the on-screen `[0]` option is selected with **`impulse 10`**,
+> not `impulse 0` (`impulse 0` is Quake's "no impulse" and does nothing). You
+> don't need `[0]` for this flow — stay on the Waylist menu the whole time.
+
 ```
 impulse 104     enter the waypoint editor (shows the menu + bubbles)
 impulse 5       -> Waylist Management
 impulse 5       toggle Dynamic Mode  ON   (auto-drops a waypoint as you move)
 impulse 6       toggle Dynamic Link  ON   (auto-links consecutive waypoints)
 impulse 7       toggle WAY output    ON   (save format = .way console script)
-impulse 0       -> back to Main Menu
 ```
 
 Now **walk/run through the entire map** — every room and corridor, and
 especially toward where the monsters are. Stay on surfaces the agent can reach
 (don't noclip through walls; `impulse 6` on the main menu toggles noclip if you
 need to cross a gap, but ground-reachable points are what the bot needs). Dynamic
-Mode lays down a connected trail behind you.
+Mode lays down a connected trail behind you. Leave the menu on Waylist while you
+walk — do **not** `impulse 10` on the main menu, which exits the editor and stops
+recording.
 
-When the map is covered:
+When the map is covered, still on the Waylist menu:
 
 ```
-impulse 104     re-open the editor menu
-impulse 5       -> Waylist Management
 impulse 3       Check For Errors   (fix any "links to itself"/orphan warnings)
 impulse 4       Save Waypoints     -> writes maps/lq_e1m1.way
 ```
