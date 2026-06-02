@@ -677,7 +677,7 @@ void() bot_menu_display =
 				
 				if (cvar("pr_checkextension"))
 				{
-					if (frik_checkextension("FRIK_FILE"))
+					if (checkextension("FRIK_FILE"))	// idledoom: use the globally-declared checkextension (defs.qc); frik_checkextension is declared later in this file (single-pass)
 					{
 						SaveWays();
 					}

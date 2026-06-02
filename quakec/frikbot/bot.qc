@@ -102,6 +102,12 @@ To remove these waypoints:
 Delete the code in bot_map_load, located below.
 */
 
+// idledoom: forward declarations for the per-map waypoint loaders, defined in
+// waypoints/map_dm{1..6}.qc — which compile *after* this file in progs.src.
+// fteqcc is single-pass, so bot_map_load() below needs them declared first.
+void() map_dm1; void() map_dm2; void() map_dm3;
+void() map_dm4; void() map_dm5; void() map_dm6;
+
 void() bot_map_load =
 {
 	// place your qc loaded waypoints here
