@@ -151,13 +151,28 @@ Single repo, two code surfaces (plan.md "Structure Decision"):
 
 **Independent Test**: Run the same map with `bot_accuracy=0.1` vs `0.9`; confirm both summaries record the clamped `bot_config` and a `config_hash` (equal for equal configs, differing otherwise), an out-of-range value (e.g. `5`) is clamped to `1.0` in `bot_config`, and higher `bot_accuracy` yields higher `stats.accuracy` (averaged over runs if needed).
 
-- [ ] T034 [US3] Extend `sims/idledoom_sim/config.py` — accept `--bot.<name> VAL` overrides and clamp each `bot_*` to its `botstats.py` range **before** use, so the clamped values populate `bot_config` (and therefore the `config_hash` already computed in T016/US1; C1). No silent out-of-range acceptance (FR-007, FR-008, R5).
-- [ ] T035 [US3] In `sims/idledoom_sim/launcher.py`, set the clamped `bot_*` values and `sim_seed` on the `+set` command line from the resolved config (contracts/cvars.md).
-- [ ] T036 [US3] In `sims/idledoom_sim/writer.py`, record the clamped `bot_config` and `config_hash` into the summary (replacing the US1 placeholders) (FR-007).
-- [ ] T037 [US3] Wire `bot_accuracy` → FrikBot aim error in `quakec/frikbot/bot_fight.qc` so higher accuracy produces measurably higher `stats.accuracy` — the SC-004 proof (R5).
-- [ ] T038 [P] [US3] `sims/tests/test_clamp.py` — out-of-range inputs are clamped and the clamped value appears in `bot_config`; identical configs produce equal `config_hash`, any difference produces a different hash (FR-008, US3 sc.2–3).
+- [X] T034 [US3] Extend `sims/idledoom_sim/config.py` — accept `--bot.<name> VAL` overrides and clamp each `bot_*` to its `botstats.py` range **before** use, so the clamped values populate `bot_config` (and therefore the `config_hash` already computed in T016/US1; C1). No silent out-of-range acceptance (FR-007, FR-008, R5).
+- [X] T035 [US3] In `sims/idledoom_sim/launcher.py`, set the clamped `bot_*` values and `sim_seed` on the `+set` command line from the resolved config (contracts/cvars.md).
+- [X] T036 [US3] In `sims/idledoom_sim/writer.py`, record the clamped `bot_config` and `config_hash` into the summary (replacing the US1 placeholders) (FR-007).
+- [X] T037 [US3] Wire `bot_accuracy` → FrikBot aim error in `quakec/frikbot/bot_fight.qc` so higher accuracy produces measurably higher `stats.accuracy` — the SC-004 proof (R5).
+- [X] T038 [P] [US3] `sims/tests/test_clamp.py` — out-of-range inputs are clamped and the clamped value appears in `bot_config`; identical configs produce equal `config_hash`, any difference produces a different hash (FR-008, US3 sc.2–3).
 
 **Checkpoint**: The harness is a tuning tool — results are tied to clamped inputs and a config change is visible in telemetry.
+
+> **Implementation status (US3, 2026-06-02):**
+> - ✅ **Verified here:** T034 `--bot.<name> VAL` (and `=VAL`) CLI extraction in
+>   `harness.py` → clamped into `bot_config`; bool-string coercion + a `BotInput`
+>   type so CLI strings type-check; T038 `test_clamp.py` (out-of-range → clamped,
+>   equal/different `config_hash`, unknown-stat `KeyError`). T035/T036 were already
+>   satisfied in US1 (launcher sets clamped `bot_*`+`sim_seed`; summary records
+>   `bot_config`+`config_hash`). `uv run pytest` 35/35, ruff + mypy clean.
+> - 📝 **Authored, compile-pending:** T037 — `bot_accuracy` aim error in
+>   `frikbot/bot_ai.qc` `bot_angle_set` (enemy aim): `err = (1-acc)*15°` random
+>   offset on `b_angle`, so higher accuracy → tighter aim → higher `stats.accuracy`
+>   (SC-004). Unset cvar falls back to the catalogue default 0.3 (non-sim play).
+>   The 15° max is tunable if the 0.1-vs-0.9 spread is too subtle/harsh.
+> - **SC-004 proof (local):** `--bot.bot_accuracy 0.1` vs `0.9` on a map with
+>   monsters; average `stats.accuracy` over a few runs should rise with accuracy.
 
 ---
 

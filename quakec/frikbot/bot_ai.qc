@@ -773,7 +773,7 @@ generally making the bot look good.
 
 void() bot_angle_set =
 {
-	local float h;
+	local float h, acc, err;
 	local vector view;
 	
 	if (self.enemy)
@@ -813,6 +813,20 @@ void() bot_angle_set =
 		view = vectoangles(view);
 		view_x = view_x * -1;
 		self.b_angle = view;
+
+		// idledoom (T037, R5): bot_accuracy injects aim error — lower accuracy
+		// gives a larger random angular offset, so fewer shots land and
+		// stats.accuracy drops (SC-004). Applied only to enemy aim (not nav
+		// targets). An unset cvar (non-sim play) falls back to the catalogue
+		// default 0.3 so the bot still aims sanely.
+		acc = cvar("bot_accuracy");
+		if (acc <= 0)
+			acc = 0.3;
+		if (acc > 1)
+			acc = 1;
+		err = (1 - acc) * 15;   // up to 15 deg of aim error at accuracy 0
+		self.b_angle_x = self.b_angle_x + (random() * 2 - 1) * err;
+		self.b_angle_y = self.b_angle_y + (random() * 2 - 1) * err;
 	}
 	else if (self.target1)
 	{

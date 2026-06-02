@@ -14,6 +14,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 BotValue = float | int | bool
+# Override inputs may arrive as strings (CLI --bot.<name> VALUE); clamp() coerces
+# them to the stat's BotValue type.
+BotInput = BotValue | str
 
 
 @dataclass(frozen=True)
@@ -26,9 +29,16 @@ class BotStat:
     minimum: float | None = None  # None for bool
     maximum: float | None = None  # None for bool
 
-    def clamp(self, value: BotValue) -> BotValue:
-        """Coerce ``value`` to this stat's type and clamp it to range (FR-008)."""
+    def clamp(self, value: BotInput) -> BotValue:
+        """Coerce ``value`` to this stat's type and clamp it to range (FR-008).
+
+        Accepts CLI string values: for bool stats "false"/"0"/"no"/"off" are
+        False (a plain ``bool("false")`` would wrongly be True); numeric strings
+        parse for int/float.
+        """
         if self.type == "bool":
+            if isinstance(value, str):
+                return value.strip().lower() in ("1", "true", "yes", "on")
             return bool(value)
         if self.type == "int":
             ivalue = int(round(float(value)))
@@ -81,7 +91,7 @@ def default_bot_config() -> dict[str, BotValue]:
     return {s.name: s.default for s in _STATS}
 
 
-def clamp_bot_value(name: str, value: BotValue) -> BotValue:
+def clamp_bot_value(name: str, value: BotInput) -> BotValue:
     """Clamp a single ``bot_*`` value to its documented range (FR-008).
 
     Raises ``KeyError`` for an unknown stat name so typos in configs/CLI fail

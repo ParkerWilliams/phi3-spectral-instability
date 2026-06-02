@@ -20,7 +20,7 @@ import tomllib
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from .botstats import BotValue, clamp_bot_value, default_bot_config
+from .botstats import BotInput, BotValue, clamp_bot_value, default_bot_config
 
 DEFAULT_TIME_LIMIT_SEC = 120.0
 
@@ -48,7 +48,7 @@ def compute_config_hash(bot_config: dict[str, BotValue]) -> str:
 
 
 def build_bot_config(
-    overrides: dict[str, BotValue] | None = None,
+    overrides: dict[str, BotInput] | None = None,
 ) -> dict[str, BotValue]:
     """Full bot_config: catalogue defaults overlaid with clamped overrides.
 
@@ -70,7 +70,7 @@ def load_run_config(
     time_limit_override: float | None = None,
     batch_id: str | None = None,
     out_dir: Path | None = None,
-    bot_overrides: dict[str, BotValue] | None = None,
+    bot_overrides: dict[str, BotInput] | None = None,
 ) -> RunConfig:
     """Resolve a :class:`RunConfig` from a TOML file plus CLI overrides.
 
@@ -93,7 +93,7 @@ def load_run_config(
     )
 
     # Merge TOML [bot] table with any CLI bot overrides (CLI wins).
-    merged_overrides: dict[str, BotValue] = {}
+    merged_overrides: dict[str, BotInput] = {}
     toml_bot = raw.get("bot", {})
     if isinstance(toml_bot, dict):
         merged_overrides.update(toml_bot)

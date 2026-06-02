@@ -34,19 +34,55 @@ def _now_iso() -> str:
     return datetime.now(UTC).isoformat()
 
 
+def extract_bot_overrides(argv: list[str]) -> tuple[dict[str, str], list[str]]:
+    """Pull ``--bot.<name> <value>`` (and ``--bot.<name>=<value>``) pairs out of
+    argv before argparse sees them (argparse can't model dynamic option names).
+
+    Returns ``(overrides, remaining_argv)``. Raises ``ValueError`` if a
+    ``--bot.<name>`` flag is missing its value. (US3 / T034, contracts/harness-cli.md.)
+    """
+    overrides: dict[str, str] = {}
+    rest: list[str] = []
+    i, n = 0, len(argv)
+    while i < n:
+        arg = argv[i]
+        if arg.startswith("--bot."):
+            name = arg[len("--bot.") :]
+            if "=" in name:
+                name, _, value = name.partition("=")
+                overrides[name] = value
+                i += 1
+                continue
+            if i + 1 >= n:
+                raise ValueError(f"{arg} requires a value (e.g. {arg} 0.9)")
+            overrides[name] = argv[i + 1]
+            i += 2
+            continue
+        rest.append(arg)
+        i += 1
+    return overrides, rest
+
+
 def _cmd_run(args: argparse.Namespace) -> int:
     config_path = Path(args.config)
     if not config_path.is_absolute():
         config_path = Path.cwd() / config_path
 
-    config = load_run_config(
-        config_path,
-        map_override=args.map,
-        seed_override=args.seed,
-        time_limit_override=args.time_limit,
-        batch_id=args.batch_id,
-        out_dir=Path(args.out) if args.out else None,
-    )
+    try:
+        config = load_run_config(
+            config_path,
+            map_override=args.map,
+            seed_override=args.seed,
+            time_limit_override=args.time_limit,
+            batch_id=args.batch_id,
+            out_dir=Path(args.out) if args.out else None,
+            bot_overrides=getattr(args, "bot_overrides", None) or None,
+        )
+    except (KeyError, ValueError) as exc:
+        # Unknown bot_* name, unparseable value, or missing map: fail loudly,
+        # never silently (FR-008). No summary on a broken config.
+        print(f"error: bad config/override: {exc}", file=sys.stderr)
+        return EXIT_BROKEN_CHAIN
 
     run_id = writer.new_run_id()
     batch_id = writer.resolve_batch_id(config.batch_id)
@@ -125,7 +161,14 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: list[str] | None = None) -> int:
-    args = build_parser().parse_args(argv)
+    raw = list(sys.argv[1:]) if argv is None else list(argv)
+    try:
+        bot_overrides, rest = extract_bot_overrides(raw)  # US3: --bot.<name> VAL
+    except ValueError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return EXIT_BROKEN_CHAIN
+    args = build_parser().parse_args(rest)
+    args.bot_overrides = bot_overrides
     return int(args.func(args))
 
 

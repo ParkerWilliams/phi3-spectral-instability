@@ -3,6 +3,28 @@
 Rolling state summary so work survives session/crash loss (CLAUDE.md convention).
 Newest entry on top. Keep entries short: what's true now, what's next, gotchas.
 
+## 2026-06-02 — US3 implemented (config tuning + bot_accuracy aim)
+
+**Status: feature `001-headless-sim-telemetry` — US3 (Phase 5, per-run cvar config).**
+
+The harness is now a tuning tool: `bot_*` overrides are clamped, recorded with a
+stable `config_hash`, and `bot_accuracy` is wired into FrikBot aim.
+
+- ✅ **Harness (verified):** `--bot.<name> VAL`/`=VAL` CLI extraction (T034) →
+  clamped into `bot_config`; bool-string coercion + `BotInput` type. `test_clamp.py`
+  (T038): clamp ranges, hash equal/differ, unknown-stat KeyError. T035/T036 were
+  already done in US1. `uv run pytest` **35/35**, ruff + mypy clean.
+- 📝 **QuakeC (compile-pending):** T037 — `bot_accuracy` aim error in
+  `frikbot/bot_ai.qc` `bot_angle_set`: `err=(1-acc)*15°` random offset on the
+  enemy-aim `b_angle`. Higher accuracy → tighter aim → higher `stats.accuracy`
+  (SC-004). Unset cvar → default 0.3. The 15° max is tunable.
+- **Open earlier loop:** US2 live re-run (post the parser/level_start fix) wasn't
+  pasted back — worth confirming `level_start` now appears + events reconcile.
+
+**Next (local):** rebuild, then SC-004 check — `--bot.bot_accuracy 0.1` vs `0.9`
+on a monster-bearing map, average `stats.accuracy` over a few runs. Then US4
+(`smoke` subcommand + CI gate, T039-T041).
+
 ## 2026-06-02 — US2 implemented (Python verified, QuakeC compile-pending)
 
 **Status: feature `001-headless-sim-telemetry` — US2 (Phase 4, per-event stream).**
