@@ -81,12 +81,24 @@ def _cmd_run(args: argparse.Namespace) -> int:
         stats=stats,
     )
 
-    summary_path, _events_path = writer.output_paths(config.out_dir, batch_id, run_id)
+    summary_path, events_path = writer.output_paths(config.out_dir, batch_id, run_id)
+    records = telemetry.to_records(events, run_id)
     try:
         writer.write_summary(summary, summary_path)
+        writer.write_events(records, events_path)
     except Exception as exc:  # jsonschema.ValidationError or IO error
-        print(f"error: produced summary failed validation/write: {exc}", file=sys.stderr)
+        print(f"error: produced output failed validation/write: {exc}", file=sys.stderr)
         return EXIT_INVALID_OUTPUT
+
+    # US2 sc.1: a clean stream opens with level_start and closes with level_end.
+    # A violation is a partial/interrupted run — warn, but let the outcome machine
+    # (which already refuses a false `completed`) own the exit status.
+    if events and not telemetry.stream_invariant_ok(events):
+        print(
+            "warning: event stream is not bracketed by level_start/level_end "
+            "(partial or interrupted run)",
+            file=sys.stderr,
+        )
 
     print(f"{outcome}  {summary_path}")
     # A run that started but did not terminate cleanly is reported as error and

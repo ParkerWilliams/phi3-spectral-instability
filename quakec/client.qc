@@ -1534,6 +1534,11 @@ void(entity targ, entity attacker) ClientObituary =
 	attackerteam = attacker.team;
 	targteam = targ.team;
 
+	// idledoom telemetry (T025): the agent died. ClientObituary also runs for
+	// monster deaths (from Killed) — gate on the victim being the agent.
+	if (Tel_IsAgent(targ))
+		Tel_Death(attacker);
+
 	rnum = random();
 
 	if (targ.classname == "player")

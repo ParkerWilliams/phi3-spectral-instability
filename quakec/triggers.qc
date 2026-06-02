@@ -58,6 +58,11 @@ void() multi_trigger =
 			return;
 		found_secrets = found_secrets + 1;
 		WriteByte (MSG_ALL, SVC_FOUNDSECRET);
+
+		// idledoom telemetry (T028): the agent found a secret; self.enemy is the
+		// activator (a client in a sim). secret_id = running found count.
+		if (Tel_IsAgent(self.enemy))
+			Tel_Secret(found_secrets);
 		
 		msg_entity = self.enemy;
 		WriteByte (MSG_ONE, SVC_ACHIEVEMENT);

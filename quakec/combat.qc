@@ -106,6 +106,10 @@ void(entity targ, entity attacker) Killed =
 	{
 		killed_monsters = killed_monsters + 1;
 		WriteByte (MSG_ALL, SVC_KILLEDMONSTER);
+
+		// idledoom telemetry (T024): the agent killed this monster (self==victim).
+		if (Tel_IsAgent(attacker))
+			Tel_Kill(self, attacker);
 		if (attacker.classname == "player")
 		{
 			attacker.frags = attacker.frags + 1;
@@ -225,6 +229,14 @@ void(entity targ, entity inflictor, entity attacker, float damage) T_Damage=
 
 	// do the damage
 	targ.health = targ.health - take;
+
+	// idledoom telemetry (T026/G1): accumulate the agent's outgoing applied
+	// damage for the open trigger-pull window; W_Attack flushes it as one `hit`.
+	if (tel_attack_active && (attacker.flags & FL_CLIENT) && targ != attacker)
+	{
+		tel_shot_damage = tel_shot_damage + take;
+		tel_shot_target = targ.classname;
+	}
 
 	if (targ.health <= 0)
 	{

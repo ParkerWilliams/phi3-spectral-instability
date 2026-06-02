@@ -3,6 +3,32 @@
 Rolling state summary so work survives session/crash loss (CLAUDE.md convention).
 Newest entry on top. Keep entries short: what's true now, what's next, gotchas.
 
+## 2026-06-02 — US2 implemented (Python verified, QuakeC compile-pending)
+
+**Status: feature `001-headless-sim-telemetry` — US2 (Phase 4, per-event stream).**
+
+The per-event JSONL stream + reconciled stats. Harness side fully done & verified;
+QuakeC emits authored, awaiting a local `just build-quakec` + `just sim`.
+
+- ✅ **Harness (verified, TDD):** `aggregate()` counts kill/death/shot/hit/pickup/
+  secret → kills/deaths/damage_dealt/accuracy/weapon_usage/deaths_by_cause;
+  `writer.write_events`/`validate_event` write+validate `*.events.jsonl`;
+  `stream_invariant_ok` + harness wiring. New tests `test_reconcile.py` (SC-003)
+  and events-schema cases in `test_schema.py` (SC-002). `uv run pytest` 23/23,
+  ruff + mypy clean. `damage_taken` stays 0 (G1); `secrets_total` from level_start (G2).
+- 📝 **QuakeC (compile-pending):** `telemetry.qc` gameplay emitters + hooks in
+  combat.qc (kill + outgoing-damage accumulator), weapons.qc (W_Attack shot/hit
+  window), client.qc (death), triggers.qc (secret), items.qc (7 pickups). Verified
+  every referenced symbol exists; can't compile on droplet.
+- ⚠️ **shot/hit scoping:** one shot + at most one hit per trigger-pull. Only
+  hitscan (shotgun/super-shotgun) damage that lands synchronously is counted as a
+  hit; projectile/animation-frame weapons record the shot but not the hit this
+  slice (under-count, never over-count). Full attribution = follow-up.
+
+**Next:** local `just build-quakec` → `just sim` on a map with monsters/items,
+then `jq` the `*.events.jsonl` to confirm kill/shot/hit/pickup events reconcile
+with the summary. After that: US3 (clamped cvars + `bot_accuracy` wiring).
+
 ## 2026-06-02 — US1 verified live end-to-end 🎯
 
 **Status: feature `001-headless-sim-telemetry` — US1 (Phase 3 / MVP) DONE & verified live.**

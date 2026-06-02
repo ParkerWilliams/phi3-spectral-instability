@@ -98,6 +98,16 @@ def to_records(events: list[ParsedEvent], run_id: str) -> list[dict[str, Any]]:
     ]
 
 
+def stream_invariant_ok(events: list[ParsedEvent]) -> bool:
+    """US2 sc.1: a well-formed stream is non-empty, starts ``level_start``,
+    ends ``level_end``. A violation means an interrupted/partial run."""
+    return (
+        bool(events)
+        and events[0].type == "level_start"
+        and events[-1].type == "level_end"
+    )
+
+
 def _empty_stats() -> dict[str, Any]:
     """A complete, schema-shaped StatsBlock with every field present (zeros)."""
     return {
@@ -117,20 +127,62 @@ def _empty_stats() -> dict[str, Any]:
     }
 
 
-def aggregate(events: list[ParsedEvent]) -> dict[str, Any]:
-    """Fold events into the summary ``stats`` block.
+def _as_int(value: Any) -> int:
+    """Coerce a payload number to int (damage/value), treating None as 0."""
+    return int(value) if value is not None else 0
 
-    US1 skeleton: counts default to 0; ``secrets_total`` is read from the
-    ``level_start`` payload (G2) and ``time_to_exit_sec`` from a ``completed``
-    ``level_end`` (data-model). US2 (T029) extends this with the real per-type
-    counts, ``accuracy``, ``weapon_usage``, and ``deaths_by_cause``.
+
+def aggregate(events: list[ParsedEvent]) -> dict[str, Any]:
+    """Fold events into the summary ``stats`` block — a pure function of the stream.
+
+    Per-type counts, ``accuracy`` (``shots_hit/shots_fired`` to 4 dp, 0 on zero
+    shots), ``damage_dealt`` (Σ ``hit.damage``), ``weapon_usage`` and
+    ``deaths_by_cause``. Two fields are not event-counted this slice:
+    ``secrets_total`` comes from the ``level_start`` payload (G2) and
+    ``damage_taken`` is fixed at ``0`` (no incoming-damage event yet, G1).
+    ``time_to_exit_sec`` is the ``completed`` ``level_end`` time. (data-model
+    StatsBlock; FR-006/SC-003.)
     """
     stats = _empty_stats()
+    weapon_usage: dict[str, dict[str, int]] = {}
+    deaths_by_cause: dict[str, int] = {}
+
+    def _wu(weapon: str) -> dict[str, int]:
+        return weapon_usage.setdefault(weapon, {"shots": 0, "hits": 0, "damage": 0})
+
     for ev in events:
         if ev.type == "level_start":
-            total = ev.data.get("secrets_total", 0)
-            stats["secrets_total"] = int(total) if total is not None else 0
+            stats["secrets_total"] = _as_int(ev.data.get("secrets_total", 0))
         elif ev.type == "level_end":
             if ev.data.get("outcome") == "completed":
                 stats["time_to_exit_sec"] = ev.data.get("time_sec")
+        elif ev.type == "kill":
+            stats["kills"] += 1
+        elif ev.type == "death":
+            stats["deaths"] += 1
+            cause = str(ev.data.get("cause", "unknown"))
+            deaths_by_cause[cause] = deaths_by_cause.get(cause, 0) + 1
+        elif ev.type == "shot":
+            stats["shots_fired"] += 1
+            weapon = ev.data.get("weapon")
+            if weapon is not None:
+                _wu(str(weapon))["shots"] += 1
+        elif ev.type == "hit":
+            stats["shots_hit"] += 1
+            dmg = _as_int(ev.data.get("damage"))
+            stats["damage_dealt"] += dmg
+            weapon = ev.data.get("weapon")
+            if weapon is not None:
+                wu = _wu(str(weapon))
+                wu["hits"] += 1
+                wu["damage"] += dmg
+        elif ev.type == "pickup":
+            stats["items_collected"] += 1
+        elif ev.type == "secret":
+            stats["secrets_found"] += 1
+
+    shots = stats["shots_fired"]
+    stats["accuracy"] = round(stats["shots_hit"] / shots, 4) if shots else 0.0
+    stats["weapon_usage"] = weapon_usage
+    stats["deaths_by_cause"] = deaths_by_cause
     return stats

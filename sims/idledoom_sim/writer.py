@@ -92,3 +92,21 @@ def write_summary(summary: dict[str, Any], path: Path) -> None:
     with path.open("w") as fh:
         json.dump(summary, fh, indent=2, sort_keys=True)
         fh.write("\n")
+
+
+def validate_event(record: dict[str, Any]) -> None:
+    """Raise ``jsonschema.ValidationError`` if an event record is non-conforming."""
+    jsonschema.validate(record, _load_schema("event.schema.json"))
+
+
+def write_events(records: list[dict[str, Any]], path: Path) -> None:
+    """Validate every record (SC-002) then write the events JSONL — one JSON
+    object per line. Validation runs first so a bad record never leaves a
+    half-written stream on disk (FR-005, FR-012)."""
+    for record in records:
+        validate_event(record)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w") as fh:
+        for record in records:
+            fh.write(json.dumps(record, sort_keys=True))
+            fh.write("\n")

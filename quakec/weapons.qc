@@ -914,7 +914,17 @@ void() W_Attack =
 	if ( W_HasNoAmmo() ) {
 		return;
 	}
-	
+
+	// idledoom telemetry (T026): open a trigger-pull window. T_Damage sums this
+	// attack's outgoing damage; the flush at the end emits one shot + (if hitscan
+	// damage landed) one hit, keeping shots_hit <= shots_fired.
+	if (Tel_IsAgent(self))
+	{
+		tel_attack_active = TRUE;
+		tel_shot_damage = 0;
+		tel_shot_target = "world";
+	}
+
 	makevectors	(self.v_angle);		// calculate forward angle for velocity
 	self.show_hostile = time + 1;	// wake monsters up
 	
@@ -977,6 +987,19 @@ void() W_Attack =
 		self.attack_finished = time + 0.1;
 		sound (self, CHAN_AUTO, "weapons/lstart.wav", 1, ATTN_NORM);
 		//stuffcmd (self, "vibrate tactile/weapons/lstart.bnvib");
+	}
+
+	// idledoom telemetry (T026): close the window. One shot per trigger-pull;
+	// one hit if hitscan damage landed synchronously (shotgun/super-shotgun).
+	// Projectile / animation-frame damage (rocket, grenade, nailgun, lightning)
+	// lands later and is not attributed to a hit this slice — a documented
+	// under-count, never an over-count (so accuracy stays <= 1).
+	if (tel_attack_active)
+	{
+		Tel_Shot(self);
+		if (tel_shot_damage > 0)
+			Tel_Hit(self, tel_shot_target, tel_shot_damage);
+		tel_attack_active = FALSE;
 	}
 };
 

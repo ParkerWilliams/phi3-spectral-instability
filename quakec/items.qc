@@ -196,6 +196,8 @@ void() health_touch =
 	}
 	
 	sprint(other, "$qc_item_health", ftos(self.healamount));
+
+	Tel_Pickup(self, other, self.healamount);   // idledoom telemetry (T027)
 	
 	// health touch sound
 	sound(other, CHAN_ITEM, self.noise, 1, ATTN_NORM);
@@ -283,6 +285,7 @@ void() armor_touch =
 	self.think = SUB_regen;
 
 	sprint(other, "$qc_item_armor");
+	Tel_Pickup(self, other, value);   // idledoom telemetry (T027)
 	// armor touch sound
 	sound(other, CHAN_ITEM, "items/armor1.wav", 1, ATTN_NORM);
 	stuffcmd (other, "bf\n");
@@ -521,6 +524,7 @@ void() weapon_touch =
 
 	sprint(other, "$qc_got_item", self.netname);
 
+	Tel_Pickup(self, other, 1);   // idledoom telemetry (T027): one weapon
 	// weapon touch sound
 	sound (other, CHAN_ITEM, "weapons/pkup.wav", 1, ATTN_NORM);
 	stuffcmd (other, "bf\n");
@@ -714,6 +718,7 @@ void() ammo_touch =
 	
 	sprint(other, "$qc_got_item", self.netname);
 
+	Tel_Pickup(self, other, self.aflag);   // idledoom telemetry (T027)
 	// ammo touch sound
 	sound (other, CHAN_ITEM, "weapons/lock4.wav", 1, ATTN_NORM);
 	stuffcmd (other, "bf\n");
@@ -952,6 +957,8 @@ void() key_touch =
 
 	sprint(other, "$qc_got_item", self.netname);
 
+	Tel_Pickup(self, other, 1);   // idledoom telemetry (T027): one key
+
 	sound (other, CHAN_ITEM, self.noise, 1, ATTN_NORM);
 	stuffcmd (other, "bf\n");
 	other.items = other.items | self.items;
@@ -1182,6 +1189,8 @@ void() powerup_touch =
 	other.items = other.items | self.items;
 	self.model = string_null;
 
+	Tel_Pickup(self, other, 1);   // idledoom telemetry (T027): one powerup
+
 	// do the apropriate action
 	if (self.classname == "item_artifact_envirosuit")
 	{
@@ -1382,6 +1391,7 @@ void() BackpackTouch =
 	
 	sprint (other, "\n");
 
+	Tel_Pickup(self, other, 1);   // idledoom telemetry (T027): one backpack
 	// backpack touch sound
 	sound (other, CHAN_ITEM, "weapons/lock4.wav", 1, ATTN_NORM);
 	stuffcmd (other, "bf\n");

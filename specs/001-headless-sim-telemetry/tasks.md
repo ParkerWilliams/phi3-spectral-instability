@@ -106,24 +106,42 @@ Single repo, two code surfaces (plan.md "Structure Decision"):
 
 ### QuakeC: gameplay event emits
 
-- [ ] T024 [P] [US2] Emit `kill{victim, weapon, distance}` in `quakec/combat.qc` (the `Killed`/`T_Damage` death path); `victim` = monster classname, `weapon` = `IT_*` stem (FR-005, FR-011).
-- [ ] T025 [P] [US2] Emit `death{cause, killer}` for agent death in `quakec/client.qc` `ClientObituary` (drives the `died` edge case) (FR-005).
-- [ ] T026 [P] [US2] Emit `shot{weapon, target}` when the agent fires and `hit{weapon, target, damage}` when the agent's attack lands — the agent's **outgoing** damage only, feeding `shots_fired`/`shots_hit`/`damage_dealt` — in `quakec/weapons.qc`. Incoming damage *to* the agent is **not** emitted this slice (see T029/G1) (FR-005).
-- [ ] T027 [P] [US2] Emit `pickup{item, value}` on item touch in `quakec/items.qc` (FR-005).
-- [ ] T028 [P] [US2] Emit `secret{secret_id}` when a `trigger_secret` is activated in `quakec/triggers.qc` (drives `secrets_found`). `secrets_total` is carried by `level_start` (T014/G2), not here (FR-005, data-model).
+- [X] T024 [P] [US2] Emit `kill{victim, weapon, distance}` in `quakec/combat.qc` (the `Killed`/`T_Damage` death path); `victim` = monster classname, `weapon` = `IT_*` stem (FR-005, FR-011).
+- [X] T025 [P] [US2] Emit `death{cause, killer}` for agent death in `quakec/client.qc` `ClientObituary` (drives the `died` edge case) (FR-005).
+- [X] T026 [P] [US2] Emit `shot{weapon, target}` when the agent fires and `hit{weapon, target, damage}` when the agent's attack lands — the agent's **outgoing** damage only, feeding `shots_fired`/`shots_hit`/`damage_dealt` — in `quakec/weapons.qc`. Incoming damage *to* the agent is **not** emitted this slice (see T029/G1) (FR-005).
+- [X] T027 [P] [US2] Emit `pickup{item, value}` on item touch in `quakec/items.qc` (FR-005).
+- [X] T028 [P] [US2] Emit `secret{secret_id}` when a `trigger_secret` is activated in `quakec/triggers.qc` (drives `secrets_found`). `secrets_total` is carried by `level_start` (T014/G2), not here (FR-005, data-model).
 
 ### Harness: aggregation & JSONL output
 
-- [ ] T029 [US2] Extend `aggregate()` in `sims/idledoom_sim/telemetry.py` to count `kill`/`death`/`shot`/`hit`/`pickup`/`secret`, build `weapon_usage` and `deaths_by_cause`, and compute `accuracy` (`shots_hit/shots_fired`, 4 dp, `0` on zero), `damage_dealt` (Σ `hit.damage`), `secrets_found`, and `time_to_exit_sec`. **`damage_taken` is scoped to `0` this slice (G1)** — no incoming-damage event is emitted, so it is recorded as `0` and excluded from FR-006/SC-003 reconciliation; full incoming-damage telemetry is a follow-up (data-model StatsBlock, FR-006).
-- [ ] T030 [US2] In `sims/idledoom_sim/writer.py`, write `<run_id>.events.jsonl` (one event object per line, each carrying `schema_version:1`) (FR-005, FR-012).
-- [ ] T031 [US2] In `sims/harness.py`, write the events JSONL alongside the summary and assert the stream invariant (first `level_start`, last `level_end`) (US2 sc.1).
+- [X] T029 [US2] Extend `aggregate()` in `sims/idledoom_sim/telemetry.py` to count `kill`/`death`/`shot`/`hit`/`pickup`/`secret`, build `weapon_usage` and `deaths_by_cause`, and compute `accuracy` (`shots_hit/shots_fired`, 4 dp, `0` on zero), `damage_dealt` (Σ `hit.damage`), `secrets_found`, and `time_to_exit_sec`. **`damage_taken` is scoped to `0` this slice (G1)** — no incoming-damage event is emitted, so it is recorded as `0` and excluded from FR-006/SC-003 reconciliation; full incoming-damage telemetry is a follow-up (data-model StatsBlock, FR-006).
+- [X] T030 [US2] In `sims/idledoom_sim/writer.py`, write `<run_id>.events.jsonl` (one event object per line, each carrying `schema_version:1`) (FR-005, FR-012).
+- [X] T031 [US2] In `sims/harness.py`, write the events JSONL alongside the summary and assert the stream invariant (first `level_start`, last `level_end`) (US2 sc.1).
 
 ### Tests for User Story 2
 
-- [ ] T032 [P] [US2] `sims/tests/test_reconcile.py` — aggregates computed from a sample event stream reconcile with the summary `stats` with zero discrepancy beyond documented rounding (SC-003).
-- [ ] T033 [US2] Extend `sims/tests/test_schema.py` — assert every line of a produced `*.events.jsonl` validates against `sims/schema/event.schema.json` (SC-002).
+- [X] T032 [P] [US2] `sims/tests/test_reconcile.py` — aggregates computed from a sample event stream reconcile with the summary `stats` with zero discrepancy beyond documented rounding (SC-003).
+- [X] T033 [US2] Extend `sims/tests/test_schema.py` — assert every line of a produced `*.events.jsonl` validates against `sims/schema/event.schema.json` (SC-002).
 
 **Checkpoint**: Behavior is fully reconstructable from events and the summary is a verified pure aggregate of them.
+
+> **Implementation status (US2, 2026-06-02):**
+> - ✅ **Verified here:** harness Python T029–T033 — `aggregate()` real counting,
+>   `write_events`/`validate_event` JSONL, `stream_invariant_ok` + harness wiring.
+>   `uv run pytest` 23/23, ruff + mypy clean. Reconciliation (SC-003) and per-line
+>   event-schema validation (SC-002) authored test-first.
+> - 📝 **Authored, compile-pending (droplet can't run fteqcc):** QuakeC emits
+>   T024–T028 — `telemetry.qc` gameplay helpers (Tel_Kill/Death/Shot/Hit/Pickup/
+>   Secret + Tel_IsAgent/Tel_WeaponStem) and hooks in `combat.qc` (kill + outgoing-
+>   damage accumulator), `weapons.qc` (W_Attack shot/hit window), `client.qc`
+>   (ClientObituary death), `triggers.qc` (secret), `items.qc` (7 pickup sites).
+>   `just build-quakec` locally to compile-verify, then `just sim` to see events.
+> - ⚠️ **This-slice scoping:** `shot`/`hit` are one-per-trigger-pull; only
+>   **hitscan** damage landing synchronously (shotgun/super-shotgun) is attributed
+>   to a `hit`. Projectile/animation-frame damage (rocket, grenade, nailgun,
+>   lightning) lands later and is **not** counted as a hit this slice — a documented
+>   under-count that never over-counts (accuracy stays ≤ 1). Full per-projectile
+>   hit attribution is a follow-up.
 
 ---
 
