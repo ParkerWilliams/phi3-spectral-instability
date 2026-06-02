@@ -24,9 +24,13 @@ All four user stories implemented. One open issue: SC-004 not live-proven yet.**
   a LibreQuake map, (c) a small combat arena. This is the bot-navigation gap, a
   known future-work dependency — same root as the `couldn't exec *.way` note.
 
-**Next:** decide how to exercise combat (above) to prove SC-004, then Phase 7
-polish (docs reconciliation, quickstart run-through). T006 proper (licensing) and
-the CI first-run also still open.
+**Decision (Parker):** author waypoints (option b) to make the single agent
+engage. Workflow written up in **`docs/waypointing.md`** — build the GL client
+(needs audio dev libs), record a `.way` for `lq_e1m1` via FrikBot's editor
+(`impulse 104`, Dynamic Mode), drop it at `quakec/maps/lq_e1m1.way` (both GL
+client + sim `exec` it), then the SC-004 0.1-vs-0.9 check works. Hands-on local
+work (needs a display / WSLg). Then Phase 7 polish; T006 licensing + CI first-run
+still open.
 
 ## 2026-06-02 — US3 implemented (config tuning + bot_accuracy aim)
 
