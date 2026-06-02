@@ -187,6 +187,10 @@ via tmux. Conventions:
 - Frontend framework: Svelte vs React vs something else?
 - Window embedding strategy for the dual viewport: reparent native window,
   or render engine output to a texture the host displays?
+- Automatic navigation for procedurally generated maps: nav competence is a
+  progression axis (decided); generation mechanism — DynamicWaypoint auto-record
+  vs BSP-derived nav-mesh — is open. Hand-recorded `.way` files are temporary
+  scaffolding only (see `docs/design.md` §3/§7, `docs/waypointing.md`).
 
 ## Infrastructure
 

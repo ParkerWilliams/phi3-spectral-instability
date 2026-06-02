@@ -10,6 +10,12 @@ map (starting with `lq_e1m1`) using FrikBot's built-in editor.
 > client + a display). It cannot be done on the droplet. On Windows use WSL2 with
 > **WSLg** (Windows 11, or Win10 + recent updates) so the GL window can open.
 
+> ⚠️ **Temporary scaffolding.** Hand-recorded `.way` files are a bootstrap to
+> unblock combat/telemetry on a fixed test map. The shipping design needs
+> **automatic** navigation (procedurally generated maps can't be hand-waypointed)
+> — see `docs/design.md` §3 "Navigation & traversal". Don't waypoint the whole
+> game by hand; do one map to make progress, and expect this to be replaced.
+
 ## How loading works
 
 At level start the gamecode runs `exec maps/<map>.way` (that's the

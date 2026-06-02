@@ -3,6 +3,19 @@
 Rolling state summary so work survives session/crash loss (CLAUDE.md convention).
 Newest entry on top. Keep entries short: what's true now, what's next, gotchas.
 
+## 2026-06-02 — Design decision: automatic navigation as a progression axis
+
+Parker set direction: maps will be **procedurally generated**, so navigation
+**must be automatic** (hand-waypointing can't scale); nav competence **improves
+over progression** (the core idle "friend getting better" fantasy); and imperfect
+/ "silly" pathing is **acceptable** (idle game). Captured in `docs/design.md` §3
+(new "Navigation & traversal"), §6 (procedural maps), §7 + §11 (open: generation
+mechanism), glossary; mirrored in `CLAUDE.md`. Hand-recorded `.way` files
+(`docs/waypointing.md`) are now explicitly **temporary scaffolding** to unblock
+SC-004 on one fixed map — not the shipping approach. Mechanism (FrikBot
+`DynamicWaypoint` auto-record pass vs BSP-derived nav-mesh vs learned) is a future
+ADR. Doesn't change feature 001; it reframes the waypointing detour as a bootstrap.
+
 ## 2026-06-02 — US4 implemented + SC-004 blocked on no-combat
 
 **Status: feature `001-headless-sim-telemetry` — US4 (Phase 6, smoke CI gate) done.

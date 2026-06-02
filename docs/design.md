@@ -125,6 +125,35 @@ recoil settling over a burst, clean kiting/strafing, well-timed abilities. Nail
 this and players read their own intent into the system they built. This is a
 presentation requirement, not just an AI one.
 
+### Navigation & traversal (a first-class progression axis)
+
+How the agent *gets around* a level — pathing, door/lift use, jumps, shortcuts,
+secret routes — is part of its skill and **improves over progression** just like
+accuracy or targeting. Early on it may path crudely (backtrack, stall at a ledge,
+miss an obvious shortcut). Because this is an idle game, that clumsiness is
+**acceptable — even charming**; watching it smooth out *is* the "friend getting
+better" fantasy. So navigation upgrades must be as legible as combat ones ("now
+it takes the lift instead of circling," "now it routes through the secret").
+
+**Navigation must be automatic.** We are heading toward **procedurally generated
+maps** (§6), so hand-authored waypoints are a non-starter as the shipping
+solution — the agent has to handle maps no human ever waypointed. The nav data
+(graph or mesh) must be *generated*, not hand-placed.
+
+- **Now (bootstrap only):** FrikBot waypoints recorded by hand into a `.way` per
+  map (`docs/waypointing.md`). This is **temporary scaffolding** to unblock
+  combat/telemetry on a fixed test map (SC-004) — explicitly *not* the shipping
+  approach.
+- **Next:** automatic generation — e.g. FrikBot's `DynamicWaypoint` laid down by
+  a roaming pass and saved/cleaned, or a nav graph/mesh derived from the BSP at
+  load.
+- **Target:** generation runs at map-gen/load time so procedural maps just work,
+  and navigation *competence* (route quality, tech use, secret-awareness) is a
+  tunable that scales with upgrades under the same visible-progression rule.
+
+Mechanism is an open architectural question (§7/§11); the *direction* — automatic,
+progression-scaled, idle-tolerant — is decided.
+
 ## 4. Weapons, abilities, enemies
 
 ### Weapons as behavior (behavior > stats)
@@ -198,6 +227,11 @@ Original/libre levels with a PS1 aesthetic — LibreQuake-derived or hand-made;
 curated libre community maps later if licensing checks out (`docs/licenses.md`).
 [Difficulty curve, gating criteria.]
 
+**Procedurally generated maps are a planned direction** — generated levels for
+effectively endless content. This is the hard reason navigation must be automatic
+(§3): the agent must path maps no human waypointed. Map generation must therefore
+emit (or pair with) whatever the nav system consumes.
+
 ### Weapons and behaviors
 
 [Unlock order — classic-FPS-flavored but original. Even early weapons should
@@ -222,6 +256,10 @@ See ADRs for individual decisions. Summary:
 - Window embedding: native reparenting vs render-to-texture in the host?
 - Sim engine: same binary as the game, or a separate headless build?
 - Save versioning: evolve the schema without breaking saves?
+- **Automatic navigation** (required for procedural maps, §3/§6): `DynamicWaypoint`
+  auto-record pass vs nav graph/mesh generated from the BSP vs a learned approach.
+  Must expose tunable route quality so nav can scale as a progression axis. Likely
+  an ADR once a mechanism is chosen.
 
 ## 8. Headless simulation
 
@@ -260,6 +298,9 @@ random; movement/positioning doesn't matter.
 
 - Idle pacing: true offline progression vs active-watch only? (early lean: pure idle)
 - Stat-improvement vs behavior-unlock ratio in progression?
+- Automatic-navigation mechanism for procedural maps (see §3/§7). Direction is
+  decided (automatic, progression-scaled, idle-tolerant); the generation
+  mechanism is open.
 - How much behavior config to expose *before* the rule engine exists?
 - PS1-aesthetic target: how far to push it (resolution, dithering, affine warp, palette)?
 - Save format versioning; host↔engine binary discovery; sim approach; frontend
@@ -277,3 +318,8 @@ random; movement/positioning doesn't matter.
 - **Ability:** an activatable strategic override (AOE, control, survivability, utility)
 - **Cvar:** engine console variable; how we pass config into the running game
 - **QuakeC:** the scripting language compiled into `progs.dat`
+- **Waypoint / nav graph:** navigation data the agent follows to traverse a map;
+  hand-recorded today (temporary, `docs/waypointing.md`), automatically generated
+  in the target design (§3)
+- **Navigation competence:** how well the agent paths/traverses a level; a
+  progression axis that scales with upgrades (§3)
