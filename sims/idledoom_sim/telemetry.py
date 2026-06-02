@@ -50,11 +50,17 @@ def _coerce(value: str) -> Any:
 
 
 def parse_event_line(line: str) -> ParsedEvent | None:
-    """Parse one stdout line. Returns ``None`` for any non-telemetry line (R4)."""
+    """Parse one stdout line. Returns ``None`` for any non-telemetry line (R4).
+
+    The ``@EVT|`` tag is located anywhere in the line, not only at column 0: an
+    un-terminated engine ``bprint`` (e.g. the client-"entered" message) can share
+    a stdout line with our emit, leaving leading noise before the tag.
+    """
     line = line.rstrip("\r\n")
-    if not line.startswith(EVENT_PREFIX):
+    idx = line.find(EVENT_PREFIX)
+    if idx == -1:
         return None
-    parts = line[len(EVENT_PREFIX) :].split("|")
+    parts = line[idx + len(EVENT_PREFIX) :].split("|")
     if len(parts) < 2:
         return None
     try:

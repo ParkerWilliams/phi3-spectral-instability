@@ -47,7 +47,9 @@ string tel_shot_target;      // classname of the last entity damaged this pull
 
 void(string etype) Tel_Begin =
 {
-	bprint("@EVT|");
+	// Leading newline: a preceding un-terminated bprint (e.g. "$qc_entered") must
+	// not share this line — each @EVT must stand alone for the parser (R4).
+	bprint("\n@EVT|");
 	bprint(ftos(time - telemetry_origin));
 	bprint("|");
 	bprint(etype);
