@@ -22,7 +22,9 @@ Spec-Kit artifact under `specs/001-phi3-attention-geometry-v1/`. Implementation 
 
 See `specs/001-phi3-attention-geometry-v1/quickstart.md`.
 
-See **[RUNPOD.md](RUNPOD.md)** for the full fresh-GPU-box runbook. Short version:
+See **[GPU_RUNBOOK.md](GPU_RUNBOOK.md)** for the full fresh-GPU-box runbook (works on
+any cloud — RunPod, DigitalOcean, Lambda, Vast, etc.; includes a resilient
+checkpoint+resume flow for long runs on scarce/interruptible boxes). Short version:
 
 ```bash
 git clone https://github.com/ParkerWilliams/phi3-spectral-instability.git
