@@ -3,6 +3,21 @@
 Rolling state summary so work survives session/crash loss (CLAUDE.md convention).
 Newest entry on top. Keep entries short: what's true now, what's next, gotchas.
 
+## 2026-06-02 — Feature 001 wrapped (Phase 7 polish; SC-004 deferred)
+
+Per Parker: defer SC-004 (skip throwaway manual waypointing) and close out 001.
+Phase 7 polish done (T042–T045): `docs/bot-stats.md` (bot_accuracy **WIRED**,
+others recorded-only, `sim_*` cvars), `docs/telemetry.md` (G1/G2 conformance,
+schema_version 1), `docs/design.md` §11 (sampling, RNG-seed open Qs),
+`sims/README.md` (build-local/`uv` workflow). Harness still green (pytest 39/39,
+ruff + mypy clean).
+
+**Feature 001 code is complete (US1–US4).** The only remaining items all need a
+running agent that actually fights: SC-004 live proof, T046 end-to-end, T006
+(LibreQuake licensing), and the CI workflow's first real run. All of those are
+gated on the agent reaching combat → **next feature = automatic navigation**
+(`docs/design.md` §3). Hand-waypointing intentionally skipped as throwaway.
+
 ## 2026-06-02 — Design decision: automatic navigation as a progression axis
 
 Parker set direction: maps will be **procedurally generated**, so navigation

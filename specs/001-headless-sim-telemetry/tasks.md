@@ -210,11 +210,22 @@ Single repo, two code surfaces (plan.md "Structure Decision"):
 
 **Purpose**: Documentation reconciliation and end-to-end validation across all stories.
 
-- [ ] T042 [P] Update `docs/bot-stats.md` — add the `sim_*` control-cvar notes and mark `bot_accuracy` **Wired** vs the other `bot_*` **recorded-only** for this slice (contracts/cvars.md, R5).
-- [ ] T043 [P] Reconcile `docs/telemetry.md` and `data-model.md` with the implementation, including the this-slice scoping decisions — `secrets_total` carried by `level_start` (G2) and `damage_taken` fixed at `0`/not-reconciled (G1); bump `schema_version` only if implementation forced a schema change, otherwise note conformance to version `1` (FR-012, Assumptions).
-- [ ] T044 [P] Record the four bounded open questions from `research.md` ("Remaining open questions": waypoints, event-volume/sampling, `sim_*` naming, engine RNG seeding) under `docs/design.md` Open Questions (§8/§11) per CLAUDE.md convention.
-- [ ] T045 [P] Document the build-locally-not-on-droplet + `uv` workflow in `SETUP.md` (or a `sims/README.md`), matching quickstart.md step 0.
+- [X] T042 [P] Update `docs/bot-stats.md` — add the `sim_*` control-cvar notes and mark `bot_accuracy` **Wired** vs the other `bot_*` **recorded-only** for this slice (contracts/cvars.md, R5).
+- [X] T043 [P] Reconcile `docs/telemetry.md` and `data-model.md` with the implementation, including the this-slice scoping decisions — `secrets_total` carried by `level_start` (G2) and `damage_taken` fixed at `0`/not-reconciled (G1); bump `schema_version` only if implementation forced a schema change, otherwise note conformance to version `1` (FR-012, Assumptions).
+- [X] T044 [P] Record the four bounded open questions from `research.md` ("Remaining open questions": waypoints, event-volume/sampling, `sim_*` naming, engine RNG seeding) under `docs/design.md` Open Questions (§8/§11) per CLAUDE.md convention.
+- [X] T045 [P] Document the build-locally-not-on-droplet + `uv` workflow in `SETUP.md` (or a `sims/README.md`), matching quickstart.md step 0.
 - [ ] T046 Run `quickstart.md` end-to-end (`just sim`, reconcile via `jq`, vary `--bot.bot_accuracy`, `just sim-smoke`, `uv run pytest`) and confirm every acceptance/SC holds.
+
+> **Status (Phase 7, 2026-06-02):** T042–T045 done (docs reconciled — bot-stats
+> status + `sim_*`, telemetry G1/G2 conformance, design open questions, `sims/README.md`).
+> **T046 partially blocked / deferred:** the no-map-combat path runs and the harness
+> tests pass (`uv run pytest` 39/39, ruff + mypy clean), but the **SC-004** step
+> (higher `bot_accuracy` → higher `stats.accuracy`) can't be shown until the agent
+> reaches combat — deferred pending **automatic navigation** (the agent has no nav
+> graph on un-waypointed maps; `docs/design.md` §3). T006 (LibreQuake licensing
+> resolution) and the CI workflow's first real run also remain open. Net: feature
+> 001's code is complete (US1–US4); the only open items need a running agent that
+> fights, which is the next feature.
 
 ---
 

@@ -104,6 +104,22 @@ or clearly marked unmigrated. Don't break old data silently.
 
 Current version: `1`
 
+## Implementation status (feature 001)
+
+The harness emits and validates against `schema_version: 1` — no schema change was
+forced. Two `stats` fields are scoped this slice and are **not** reconciled from
+per-event counts:
+
+- `secrets_total` is sourced from the `level_start` payload (map-static count),
+  not aggregated from `secret` events (G2).
+- `damage_taken` is fixed at `0` — no incoming-damage event is emitted yet (G1);
+  full incoming-damage telemetry is a follow-up.
+
+`shot`/`hit` are one-per-trigger-pull; only **hitscan** damage landing
+synchronously is counted as a `hit` this slice (projectile / animation-frame
+weapons under-count — never over-count, so `accuracy` stays ≤ 1). Everything else
+in `stats` is a pure aggregate of the event stream (FR-006 / SC-003).
+
 ## Open questions
 
 - Do we log every shot, or sample? Per-shot logging at high tick rates

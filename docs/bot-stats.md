@@ -76,3 +76,25 @@ code and the upgrade tree in `progression.md`.
   visibly improvable
 - Maxed-out across the board should look like a high-level FPS player
   (intentional ceiling: human-plausible expert, not aimbot-perfect)
+
+## Control cvars (`sim_*`, dev-only)
+
+Harness-set run controls, **not** player-facing tunables and **not** clamped like
+`bot_*` (see `specs/001-headless-sim-telemetry/contracts/cvars.md`):
+
+| Name | Type | Purpose |
+|------|------|---------|
+| `sim_mode` | int | `1` = headless sim: autostart one FrikBot agent, emit `@EVT` telemetry, enforce the time limit |
+| `sim_seed` | int | per-run seed, surfaced in `level_start` (wiring it to the engine RNG is an open question — research R6) |
+| `sim_time_limit` | float | in-engine session cap (seconds) → `timeout` outcome |
+
+## Implementation status (feature 001)
+
+- **`bot_accuracy` — WIRED.** Injects aim error in `frikbot/bot_ai.qc`
+  `bot_angle_set` (`err = (1 - accuracy) * 15°`); higher accuracy → higher
+  `stats.accuracy`. *Live SC-004 proof is deferred pending automatic navigation* —
+  the agent needs a nav graph to reach combat (`docs/design.md` §3).
+- **All other `bot_*` — RECORDED-ONLY this slice.** Clamped and written into the
+  summary's `bot_config` (so config hashing / reproducibility works), but not yet
+  wired into behavior. Wire them incrementally under the "adding a bot stat"
+  convention (CLAUDE.md).

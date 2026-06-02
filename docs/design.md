@@ -301,6 +301,10 @@ random; movement/positioning doesn't matter.
 - Automatic-navigation mechanism for procedural maps (see §3/§7). Direction is
   decided (automatic, progression-scaled, idle-tolerant); the generation
   mechanism is open.
+- Telemetry event-volume / sampling: log-all for now; revisit sampling only if a
+  long run measurably bloats files (`telemetry.md`).
+- Engine RNG seeding: does FTEQW expose a settable RNG seed to wire `sim_seed` for
+  stronger batch reproducibility? (research R6)
 - How much behavior config to expose *before* the rule engine exists?
 - PS1-aesthetic target: how far to push it (resolution, dithering, affine warp, palette)?
 - Save format versioning; host↔engine binary discovery; sim approach; frontend
