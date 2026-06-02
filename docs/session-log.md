@@ -3,6 +3,31 @@
 Rolling state summary so work survives session/crash loss (CLAUDE.md convention).
 Newest entry on top. Keep entries short: what's true now, what's next, gotchas.
 
+## 2026-06-02 — US4 implemented + SC-004 blocked on no-combat
+
+**Status: feature `001-headless-sim-telemetry` — US4 (Phase 6, smoke CI gate) done.
+All four user stories implemented. One open issue: SC-004 not live-proven yet.**
+
+- ✅ **US4 (verified):** `configs/smoke.toml` (15 s), `smoke` subcommand sharing
+  the `run` pipeline (`_run_to_summary`) with a strict `smoke_chain_healthy` gate
+  (bracketed stream + non-error → exit 0, else non-zero + diagnostic).
+  `.github/workflows/ci.yml`: `harness` (ruff/mypy/pytest) + `smoke` (build +
+  `just sim-smoke`). `uv run pytest` **39/39**, ruff + mypy clean. CI workflow
+  itself is first-run-pending (smoke job must be GH-hosted; droplet can't build).
+
+- ⚠️ **SC-004 BLOCKED (not a code defect):** ran `--bot.bot_accuracy 0.1` vs `0.9`
+  ×3 on `lq_e1m1` → **all runs `shots_fired: 0`, `accuracy: 0.0`**. The bot never
+  enters combat: no waypoints for `lq_*` maps → it wanders aimlessly and never
+  reaches/fights monsters, so the `bot_accuracy`→aim wiring (T037) has nothing to
+  act on. The wiring is in and correct; proving it needs actual combat. Options:
+  (a) deathmatch with 2 bots on `lqdm*` so they hunt each other, (b) waypoints for
+  a LibreQuake map, (c) a small combat arena. This is the bot-navigation gap, a
+  known future-work dependency — same root as the `couldn't exec *.way` note.
+
+**Next:** decide how to exercise combat (above) to prove SC-004, then Phase 7
+polish (docs reconciliation, quickstart run-through). T006 proper (licensing) and
+the CI first-run also still open.
+
 ## 2026-06-02 — US3 implemented (config tuning + bot_accuracy aim)
 
 **Status: feature `001-headless-sim-telemetry` — US3 (Phase 5, per-run cvar config).**

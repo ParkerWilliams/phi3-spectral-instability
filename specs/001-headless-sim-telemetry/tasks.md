@@ -182,11 +182,27 @@ Single repo, two code surfaces (plan.md "Structure Decision"):
 
 **Independent Test**: `just sim-smoke` finishes under the budget (target <60 s, SC-005) and exits `0` with a valid summary on a healthy build; a broken chain exits non-zero with a diagnostic and no `completed` summary.
 
-- [ ] T039 [P] [US4] Create `sims/configs/smoke.toml` — minimal map + short `time_limit` targeting an under-60 s end-to-end run (SC-005).
-- [ ] T040 [US4] Add the `smoke` subcommand to `sims/harness.py` — runs against `smoke.toml`, exits `0` only on a healthy chain with a schema-valid summary, non-zero on any break (FR-013, SC-006).
-- [ ] T041 [US4] Wire `just sim-smoke` (`uv run harness.py smoke --config configs/smoke.toml`) as the CI gate — add/confirm a CI job (GitHub Actions or self-hosted runner) that runs it and fails the build on non-zero (FR-013; "main is buildable / CI must pass").
+- [X] T039 [P] [US4] Create `sims/configs/smoke.toml` — minimal map + short `time_limit` targeting an under-60 s end-to-end run (SC-005).
+- [X] T040 [US4] Add the `smoke` subcommand to `sims/harness.py` — runs against `smoke.toml`, exits `0` only on a healthy chain with a schema-valid summary, non-zero on any break (FR-013, SC-006).
+- [X] T041 [US4] Wire `just sim-smoke` (`uv run harness.py smoke --config configs/smoke.toml`) as the CI gate — add/confirm a CI job (GitHub Actions or self-hosted runner) that runs it and fails the build on non-zero (FR-013; "main is buildable / CI must pass").
 
 **Checkpoint**: The foundation is protected against silent rot; CI fails loudly when the chain breaks.
+
+> **Implementation status (US4, 2026-06-02):**
+> - ✅ **Verified here:** T039 `configs/smoke.toml` (lq_e1m1, time_limit 15 → well
+>   under the 60 s SC-005 budget); T040 `smoke` subcommand in `harness.py` —
+>   shares the `run` pipeline (`_run_to_summary` + `_ChainError`) and applies a
+>   strict gate `smoke_chain_healthy(events, outcome)` (bracketed stream + non-error
+>   terminal), exit 0 only when healthy, non-zero + diagnostic on any break.
+>   `tests/test_smoke.py` covers the gate + parser. `uv run pytest` 39/39, ruff +
+>   mypy clean.
+> - 📝 **First-CI-validation pending:** T041 `.github/workflows/ci.yml` — `harness`
+>   job (ruff/mypy/pytest, reliable) + `smoke` job (build server+gamecode, vendor
+>   LibreQuake paks, `just sim-smoke`). The smoke job **must** run on a
+>   GitHub-hosted runner (the 1 GB droplet OOMs on the engine build, so a
+>   self-hosted droplet runner can't host it). Like the QuakeC, this build recipe
+>   hasn't been exercised in Actions yet — expect to tweak the LibreQuake fetch /
+>   apt deps on first run.
 
 ---
 

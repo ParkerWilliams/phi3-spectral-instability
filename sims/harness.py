@@ -63,7 +63,26 @@ def extract_bot_overrides(argv: list[str]) -> tuple[dict[str, str], list[str]]:
     return overrides, rest
 
 
-def _cmd_run(args: argparse.Namespace) -> int:
+class _ChainError(Exception):
+    """A hard break up to/at output (missing binary, bad config, invalid write).
+
+    Carries the process exit code the CLI should return.
+    """
+
+    def __init__(self, message: str, code: int) -> None:
+        super().__init__(message)
+        self.code = code
+
+
+def _run_to_summary(
+    args: argparse.Namespace,
+) -> tuple[str, list[telemetry.ParsedEvent], Path]:
+    """Shared ``run``/``smoke`` pipeline: config -> launch -> parse -> write.
+
+    Returns ``(outcome, events, summary_path)``. Raises :class:`_ChainError` on any
+    break up to and including output (missing binary, bad config/override, output
+    that fails schema validation) — never a silent partial success (FR-010).
+    """
     config_path = Path(args.config)
     if not config_path.is_absolute():
         config_path = Path.cwd() / config_path
@@ -79,10 +98,8 @@ def _cmd_run(args: argparse.Namespace) -> int:
             bot_overrides=getattr(args, "bot_overrides", None) or None,
         )
     except (KeyError, ValueError) as exc:
-        # Unknown bot_* name, unparseable value, or missing map: fail loudly,
-        # never silently (FR-008). No summary on a broken config.
-        print(f"error: bad config/override: {exc}", file=sys.stderr)
-        return EXIT_BROKEN_CHAIN
+        # Unknown bot_* name, unparseable value, or missing map: fail loudly (FR-008).
+        raise _ChainError(f"bad config/override: {exc}", EXIT_BROKEN_CHAIN) from exc
 
     run_id = writer.new_run_id()
     batch_id = writer.resolve_batch_id(config.batch_id)
@@ -93,9 +110,7 @@ def _cmd_run(args: argparse.Namespace) -> int:
     try:
         result = launcher.run(config)
     except launcher.BinaryNotFoundError as exc:
-        # Chain cannot start: non-zero exit + diagnostic, no summary (FR-010).
-        print(f"error: {exc}", file=sys.stderr)
-        return EXIT_BROKEN_CHAIN
+        raise _ChainError(str(exc), EXIT_BROKEN_CHAIN) from exc
     ended_at = _now_iso()
     duration = (
         datetime.fromisoformat(ended_at) - datetime.fromisoformat(started_at)
@@ -123,8 +138,26 @@ def _cmd_run(args: argparse.Namespace) -> int:
         writer.write_summary(summary, summary_path)
         writer.write_events(records, events_path)
     except Exception as exc:  # jsonschema.ValidationError or IO error
-        print(f"error: produced output failed validation/write: {exc}", file=sys.stderr)
-        return EXIT_INVALID_OUTPUT
+        raise _ChainError(
+            f"produced output failed validation/write: {exc}", EXIT_INVALID_OUTPUT
+        ) from exc
+
+    return outcome, events, summary_path
+
+
+def smoke_chain_healthy(events: list[telemetry.ParsedEvent], outcome: str) -> bool:
+    """A smoke run is healthy iff the whole pipeline ran: a bracketed event stream
+    (level_start ... level_end) and a non-error terminal (FR-013, SC-006). The
+    game outcome (timeout/completed/died) doesn't matter — only chain health."""
+    return outcome != "error" and telemetry.stream_invariant_ok(events)
+
+
+def _cmd_run(args: argparse.Namespace) -> int:
+    try:
+        outcome, events, summary_path = _run_to_summary(args)
+    except _ChainError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return exc.code
 
     # US2 sc.1: a clean stream opens with level_start and closes with level_end.
     # A violation is a partial/interrupted run — warn, but let the outcome machine
@@ -142,21 +175,51 @@ def _cmd_run(args: argparse.Namespace) -> int:
     return EXIT_OK if outcome != "error" else EXIT_BROKEN_CHAIN
 
 
+def _cmd_smoke(args: argparse.Namespace) -> int:
+    """Fast CI gate: run the whole chain on a short budget; exit 0 only if it is
+    healthy, non-zero with a diagnostic on any break (FR-013, SC-006)."""
+    try:
+        outcome, events, summary_path = _run_to_summary(args)
+    except _ChainError as exc:
+        print(f"error: smoke failed: {exc}", file=sys.stderr)
+        return exc.code
+
+    if not smoke_chain_healthy(events, outcome):
+        print(
+            f"error: smoke chain unhealthy (outcome={outcome}, {len(events)} events) "
+            f"— stream not bracketed or run errored; see {summary_path}",
+            file=sys.stderr,
+        )
+        return EXIT_BROKEN_CHAIN
+
+    print(f"smoke OK: {outcome}  {summary_path}")
+    return EXIT_OK
+
+
+def _add_run_args(parser: argparse.ArgumentParser, *, default_config: str) -> None:
+    parser.add_argument("--config", default=default_config)
+    parser.add_argument("--map", default=None, help="override map (BSP stem)")
+    parser.add_argument("--seed", type=int, default=None, help="override map seed")
+    parser.add_argument(
+        "--time-limit", type=float, default=None, dest="time_limit",
+        help="override session time limit (sec)",
+    )
+    parser.add_argument("--batch-id", default=None, dest="batch_id")
+    parser.add_argument("--out", default=None, help="output root (default: results/)")
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="harness.py", description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
 
     run_p = sub.add_parser("run", help="one autonomous headless session")
-    run_p.add_argument("--config", default="configs/current.toml")
-    run_p.add_argument("--map", default=None, help="override map (BSP stem)")
-    run_p.add_argument("--seed", type=int, default=None, help="override map seed")
-    run_p.add_argument(
-        "--time-limit", type=float, default=None, dest="time_limit",
-        help="override session time limit (sec)",
-    )
-    run_p.add_argument("--batch-id", default=None, dest="batch_id")
-    run_p.add_argument("--out", default=None, help="output root (default: results/)")
+    _add_run_args(run_p, default_config="configs/current.toml")
     run_p.set_defaults(func=_cmd_run)
+
+    smoke_p = sub.add_parser("smoke", help="fast CI smoke run (chain-health gate)")
+    _add_run_args(smoke_p, default_config="configs/smoke.toml")
+    smoke_p.set_defaults(func=_cmd_smoke)
+
     return parser
 
 
