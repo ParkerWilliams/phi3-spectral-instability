@@ -15,9 +15,12 @@ import pytest
 from phi3geom.checkpointing import (
     ARTIFACT_DIR_NAME,
     CheckpointConfig,
+    branch_exists_on_remote,
     checkpoint,
     git_checkpoint,
     mirror_log,
+    restore_artifacts_to_cache,
+    restore_from_branch,
     stage_event_summary,
     write_progress,
 )
@@ -203,3 +206,114 @@ def test_checkpoint_orchestrator_stages_and_pushes(tmp_path):
     assert (art / "log" / "pilot_run.log").read_text() == "first checkpoint\n"
     assert (art / "reports" / "pooled_auroc.json").read_text() == '{"auroc": 0.7}'
     assert json.loads((art / "progress.json").read_text()) == {"events_done": 1}
+
+
+# ---------------------------------------------------------------------------
+# Restore from an existing experiment branch
+# ---------------------------------------------------------------------------
+
+def test_branch_exists_on_remote_reports_true_for_pushed_branch(tmp_path):
+    work, remote = _init_repos(tmp_path)
+    subprocess.run(
+        ["git", "-C", str(work), "push", remote, "main"],
+        check=True, capture_output=True,
+    )
+    assert branch_exists_on_remote(remote, "main") is True
+
+
+def test_branch_exists_on_remote_reports_false_for_missing(tmp_path):
+    _, remote = _init_repos(tmp_path)
+    assert branch_exists_on_remote(remote, "experiment/never-pushed") is False
+
+
+def test_restore_artifacts_to_cache_copies_and_counts(tmp_path):
+    art = tmp_path / ARTIFACT_DIR_NAME
+    e1 = "aa" + "a" * 62
+    e2 = "bb" + "b" * 62
+    for eid in (e1, e2):
+        d = art / "cache" / eid[:2] / eid
+        d.mkdir(parents=True)
+        (d / "F_summary.npy").write_bytes(b"sum:" + eid.encode())
+        (d / "event.json").write_text("{}")
+    cache = tmp_path / "cache"
+    n = restore_artifacts_to_cache(artifact_root=art, cache_root=cache)
+    assert n == 2
+    assert (cache / e1[:2] / e1 / "F_summary.npy").read_bytes() == b"sum:" + e1.encode()
+    assert (cache / e2[:2] / e2 / "event.json").read_text() == "{}"
+
+
+def test_restore_artifacts_to_cache_no_op_when_artifact_dir_missing(tmp_path):
+    n = restore_artifacts_to_cache(
+        artifact_root=tmp_path / "nope", cache_root=tmp_path / "cache",
+    )
+    assert n == 0
+
+
+def test_restore_from_branch_noop_when_branch_missing(tmp_path):
+    work, remote = _init_repos(tmp_path)
+    cfg = CheckpointConfig(
+        branch="experiment/never-pushed",
+        token="ignored",
+        remote_url="https://github.com/owner/repo.git",
+        cache_root=tmp_path / "cache",
+        artifact_root=work / ARTIFACT_DIR_NAME,
+        repo_root=work,
+    )
+    result = restore_from_branch(cfg, push_url_override=remote)
+    assert result == {"branch_existed": False, "events_restored": 0}
+
+
+def test_restore_from_branch_end_to_end(tmp_path):
+    """A checkpoint pushed from one repo restores cleanly into a fresh one."""
+    # 1. First "pod": init + checkpoint a single event to experiment/foo.
+    work_a, remote = _init_repos(tmp_path)
+    cache_a = tmp_path / "cache_a"
+    _seed_cache(
+        cache_a, EVENT_ID,
+        ("F_summary.npy", "F_summary.header.json", "event.json"),
+    )
+    cfg_a = CheckpointConfig(
+        branch="experiment/foo",
+        token="ignored",
+        remote_url="https://github.com/owner/repo.git",
+        cache_root=cache_a,
+        artifact_root=work_a / ARTIFACT_DIR_NAME,
+        repo_root=work_a,
+    )
+    pushed = checkpoint(
+        cfg_a, event_ids=[EVENT_ID], progress={"events_done": 1},
+        log_path=None, extra_report_dir=None, message="ckpt",
+        push_url_override=remote,
+    )
+    assert pushed is True
+
+    # 2. Fresh "second pod": empty cache, fresh clone.
+    work_b = tmp_path / "work_b"
+    subprocess.run(
+        ["git", "clone", remote, str(work_b)], check=True, capture_output=True
+    )
+    for k, v in (("user.email", "b@b"), ("user.name", "B")):
+        subprocess.run(["git", "-C", str(work_b), "config", k, v], check=True)
+    cache_b = tmp_path / "cache_b"  # empty
+    cfg_b = CheckpointConfig(
+        branch="experiment/foo",
+        token="ignored",
+        remote_url="https://github.com/owner/repo.git",
+        cache_root=cache_b,
+        artifact_root=work_b / ARTIFACT_DIR_NAME,
+        repo_root=work_b,
+    )
+    result = restore_from_branch(cfg_b, push_url_override=remote)
+    assert result["branch_existed"] is True
+    assert result["events_restored"] == 1
+
+    # 3. cache_b now has the restored summary + event.json (resume contract).
+    assert (cache_b / EVENT_ID[:2] / EVENT_ID / "F_summary.npy").is_file()
+    assert (cache_b / EVENT_ID[:2] / EVENT_ID / "event.json").is_file()
+
+    # 4. work_b's HEAD is now on the experiment branch.
+    head = subprocess.run(
+        ["git", "-C", str(work_b), "rev-parse", "--abbrev-ref", "HEAD"],
+        check=True, capture_output=True, text=True,
+    ).stdout.strip()
+    assert head == "experiment/foo"

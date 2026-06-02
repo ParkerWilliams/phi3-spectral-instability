@@ -157,6 +157,86 @@ def git_checkpoint(
     return True
 
 
+def branch_exists_on_remote(push_url: str, branch: str) -> bool:
+    """Return ``True`` iff ``branch`` is published at ``push_url``.
+
+    Cheap probe via ``git ls-remote --heads``; no fetch, no working-tree
+    side effects. Used by :func:`restore_from_branch` to decide whether
+    this is a first-pod or resume-pod startup.
+    """
+    result = subprocess.run(
+        ["git", "ls-remote", "--heads", push_url, branch],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    return bool(result.stdout.strip())
+
+
+def fetch_and_checkout_branch(
+    *, push_url: str, branch: str, repo_root: Path
+) -> None:
+    """Fetch ``branch`` from ``push_url`` and switch the local working tree to it.
+
+    The local branch is created or hard-reset to match the remote tip (``-B``).
+    Caller is responsible for a clean working tree — restore happens at
+    startup, before extraction work begins.
+    """
+    fetch_ref = f"refs/remotes/checkpoint-restore/{branch}"
+    subprocess.run(
+        ["git", "-C", str(repo_root), "fetch", push_url, f"{branch}:{fetch_ref}"],
+        check=True,
+    )
+    subprocess.run(
+        ["git", "-C", str(repo_root), "checkout", "-B", branch, fetch_ref],
+        check=True,
+        capture_output=True,
+    )
+
+
+def restore_artifacts_to_cache(
+    *, artifact_root: Path, cache_root: Path
+) -> int:
+    """Copy ``artifact_root/cache/`` → ``cache_root/``. Returns events restored.
+
+    Same per-event layout in both directions, so the resume-from-cache
+    skip in ``pilot_main`` finds the restored summaries automatically.
+    Existing files in ``cache_root`` are overwritten by same-named restored
+    files; unrelated local cache entries are left untouched.
+    """
+    src = artifact_root / "cache"
+    if not src.is_dir():
+        return 0
+    cache_root.mkdir(parents=True, exist_ok=True)
+    n = sum(1 for _ in src.rglob("F_summary.npy"))
+    shutil.copytree(src, cache_root, dirs_exist_ok=True)
+    return n
+
+
+def restore_from_branch(
+    config: CheckpointConfig,
+    *,
+    push_url_override: str | None = None,
+) -> dict:
+    """One-call startup restore: fetch + checkout + populate cache.
+
+    Returns ``{"branch_existed": bool, "events_restored": int}``. A
+    first-pod run (no prior experiment branch on remote) returns
+    ``{"branch_existed": False, "events_restored": 0}`` and leaves the
+    working tree alone — the caller then runs extraction from scratch.
+    """
+    url = push_url_override if push_url_override is not None else config.push_url
+    if not branch_exists_on_remote(url, config.branch):
+        return {"branch_existed": False, "events_restored": 0}
+    fetch_and_checkout_branch(
+        push_url=url, branch=config.branch, repo_root=config.repo_root,
+    )
+    n = restore_artifacts_to_cache(
+        artifact_root=config.artifact_root, cache_root=config.cache_root,
+    )
+    return {"branch_existed": True, "events_restored": n}
+
+
 def checkpoint(
     config: CheckpointConfig,
     *,
