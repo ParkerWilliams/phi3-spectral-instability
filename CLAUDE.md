@@ -208,7 +208,10 @@ before first release. See `docs/licenses.md` for per-asset attribution and
 the one outstanding question (FrikBot's exact license).
 
 <!-- SPECKIT START -->
-Active feature plan: `specs/001-headless-sim-telemetry/plan.md` (headless sim run
-with telemetry). For technologies, project structure, shell commands, and design
-decisions, read that plan and its `research.md` / `data-model.md` / `contracts/`.
+Active feature plan: `specs/002-auto-navigation/plan.md` (automatic agent
+navigation — QuakeC `DynamicWaypoint` auto-generation, no engine-C patches;
+navigation competence as a progression axis; verified via the feature-001 sim).
+For technologies, structure, and decisions read that plan and its `research.md` /
+`data-model.md` / `contracts/`. Feature 001 (headless sim + telemetry,
+`specs/001-headless-sim-telemetry/`) is in review (PR #2) and is 002's harness.
 <!-- SPECKIT END -->
