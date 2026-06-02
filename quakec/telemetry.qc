@@ -134,7 +134,11 @@ void() Tel_Frame =
 
 float(entity e) Tel_IsAgent =
 {
-	return cvar("sim_mode") && (e.flags & FL_CLIENT);
+	// Gate every gameplay emit: only during sims, only the agent (the sole client
+	// in a headless run), and NEVER after the terminal level_end — otherwise a
+	// gameplay event later in the final frame (before `quit` takes effect) lands
+	// after level_end and breaks the first/last stream invariant (US2 sc.1).
+	return cvar("sim_mode") && !telemetry_ended && (e.flags & FL_CLIENT);
 };
 
 // IT_* weapon flag -> contract weapon stem (engine-event-line.md / FR-011).
