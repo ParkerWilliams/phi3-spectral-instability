@@ -3,6 +3,25 @@
 Rolling state summary so work survives session/crash loss (CLAUDE.md convention).
 Newest entry on top. Keep entries short: what's true now, what's next, gotchas.
 
+## 2026-06-02 — ⏸️ PAUSED: 001 in review, 002 fully planned
+
+**State:**
+- **Feature 001** (headless sim + telemetry): code complete (US1–US4 + Phase 7),
+  open as **PR #2** (`001-headless-sim-telemetry` → `main`) awaiting Taber's review.
+- **Feature 002** (automatic navigation): full Spec Kit chain done on branch
+  **`002-auto-navigation`** (stacked on 001) — spec.md, plan.md, research.md,
+  data-model.md, contracts/nav.md, quickstart.md, tasks.md (22 tasks). NOT
+  implemented. Decision: QuakeC `DynamicWaypoint` auto-gen, no engine-C; mechanism
+  ADR is task T001.
+
+**Resume recipe (after PR #2 merges):**
+1. `git checkout main && git pull`
+2. `git checkout 002-auto-navigation && git rebase main` (un-stack onto merged 001)
+3. `/speckit-implement` for 002 — or start with T001 (ADR) → US1 (exploration
+   driver + auto-save → agent reaches combat on an un-waypointed map). US1 is the
+   MVP and unblocks feature-001 SC-004.
+- Build QuakeC locally (droplet OOMs); US1 nav AI needs live build-and-watch tuning.
+
 ## 2026-06-02 — Feature 001 wrapped (Phase 7 polish; SC-004 deferred)
 
 Per Parker: defer SC-004 (skip throwaway manual waypointing) and close out 001.
