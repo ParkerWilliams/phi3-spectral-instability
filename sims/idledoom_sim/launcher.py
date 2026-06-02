@@ -59,15 +59,21 @@ def locate_binary() -> Path:
         raise BinaryNotFoundError(
             f"${ENV_BINARY}={override} is not an executable file"
         )
+    # `make sv-rel` writes the binary to engine/engine/release/ (not directly in
+    # engine/engine/), so search both — no symlink needed. Skip the .db debug build.
+    search_dirs = [_ENGINE_DIR, _ENGINE_DIR / "release"]
     candidates = sorted(
-        c for c in _ENGINE_DIR.glob(_WELL_KNOWN_GLOB)
-        if c.is_file() and os.access(c, os.X_OK)
+        c
+        for d in search_dirs
+        for c in d.glob(_WELL_KNOWN_GLOB)
+        if c.is_file() and os.access(c, os.X_OK) and c.suffix != ".db"
     )
     if candidates:
         return candidates[0]
+    searched = ", ".join(f"{d}/{_WELL_KNOWN_GLOB}" for d in search_dirs)
     raise BinaryNotFoundError(
         f"no fteqw-sv binary found (set ${ENV_BINARY} or run `just build-engine-sv` "
-        f"locally; searched {_ENGINE_DIR}/{_WELL_KNOWN_GLOB})"
+        f"locally; searched {searched})"
     )
 
 
@@ -98,6 +104,9 @@ def build_command(
         "+set", "deathmatch", "0",
         "+set", "skill", str(skill),
         "+set", "sv_cheats", "1",
+        # Headless sims must not advertise to public Quake masters (the server
+        # does by default — observed heartbeats on the first live run).
+        "+set", "sv_public", "0",
         # sim_* control cvars.
         "+set", "sim_mode", "1",
         "+set", "sim_seed", str(config.seed),

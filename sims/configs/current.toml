@@ -1,10 +1,11 @@
 # Default run config for `just sim` (feature 001-headless-sim-telemetry).
 #
-# map: PLACEHOLDER. The real LibreQuake BSP stem is confirmed at vendor/first-load
-# time (T006 / research.md R8) — vendor the submodule locally, pick the smallest
-# map exercising movement/combat/pickup/(ideally) >=1 secret, then set it here and
-# record provenance in docs/licenses.md.
-map = "lq1m1"
+# map: LibreQuake BSP stem (confirmed live 2026-06-02, feature 001 US1). lq_e1m1
+# is the first SP level — it has info_player_start, required since the launcher
+# runs deathmatch 0. NOTE: no trigger_secret (secrets_total=0); pick a
+# secret-bearing map for US2 secret tests. Provenance in docs/licenses.md; the
+# LibreQuake paks live in id1/ (gitignored runtime data).
+map = "lq_e1m1"
 seed = 1
 time_limit = 120
 
