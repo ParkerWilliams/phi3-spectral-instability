@@ -293,6 +293,10 @@ void(float tpic) bot_start_topic;
 
 void()				bot_way_edit;
 void()				bot_menu_display;
+// idledoom: forward decls so BotImpulses' 106/107 (breadcrumb waypointing) can
+// reach these — both are defined later (bot_way.qc / bot_ed.qc), single-pass.
+float(entity e1, entity e2)	LinkWays;
+void()				SaveWays;
 
 
 // ----------Commands---------
@@ -1257,6 +1261,7 @@ related functions.
 void() BotImpulses =
 {
 	local float f;
+	local entity w;
 
 	if (self.impulse == 100)
 	{
@@ -1274,6 +1279,23 @@ void() BotImpulses =
 		botcam_u();
 	else if (self.impulse == 104)
 		bot_way_edit();
+	else if (self.impulse == 106)
+	{
+		// idledoom: drop a waypoint at the player and chain it both ways to the
+		// previous drop — a "breadcrumb". Bind a key to `impulse 106`, walk, and
+		// tap to lay a connected trail with NO editor menu (docs/waypointing.md).
+		w = make_waypoint(self.origin + self.view_ofs);
+		setmodel(w, "progs/s_bubble.spr");   // visible marker (precached in BotInit)
+		if (self.current_way)
+		{
+			LinkWays(self.current_way, w);
+			LinkWays(w, self.current_way);
+		}
+		self.current_way = w;
+		sprint(self, "waypoint dropped\n");
+	}
+	else if (self.impulse == 107)
+		SaveWays();   // -> maps/<mapname>.way (needs FRIK_FILE / pr_checkextension 1)
 	else
 		return;
 

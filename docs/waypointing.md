@@ -41,56 +41,34 @@ engine/engine/release/fteqw-gl -nohome -basedir . -game quakec \
 
 `pr_checkextension 1` enables FRIK_FILE so the editor can write the `.way`.
 
-## 3. Record waypoints
+## 3. Record waypoints (breadcrumb method)
 
-Open the console (`` ` ``) and drive the editor with `impulse` commands (or bind
-keys to them). The editor draws each waypoint as a floating bubble.
+The stock FrikBot menu editor (`impulse 104`) is fiddly — its on-screen menu
+overlays the view and the impulses are menu-context-sensitive. So idledoom adds
+two **dedicated, menu-free** impulses (see `frikbot/bot.qc` `BotImpulses`):
 
-> **Menu gotcha:** the on-screen `[0]` option is selected with **`impulse 10`**,
-> not `impulse 0` (`impulse 0` is Quake's "no impulse" and does nothing). You
-> don't need `[0]` for this flow — stay on the Waylist menu the whole time.
+- **`impulse 106`** — drop a waypoint at your feet, auto-linked both ways to the
+  previous drop, shown as a bubble. (Rebuild progs after pulling: `just build-quakec`.)
+- **`impulse 107`** — save every waypoint to `maps/<map>.way`.
 
-```
-impulse 104     enter the waypoint editor (shows the menu + bubbles)
-impulse 5       -> Waylist Management
-impulse 5       toggle Dynamic Mode  ON   (auto-drops a waypoint as you move)
-impulse 6       toggle Dynamic Link  ON   (auto-links consecutive waypoints)
-impulse 7       toggle WAY output    ON   (save format = .way console script)
-```
-
-Now **walk/run through the entire map** — every room and corridor, and
-especially toward where the monsters are. Stay on surfaces the agent can reach
-(don't noclip through walls; `impulse 6` on the main menu toggles noclip if you
-need to cross a gap, but ground-reachable points are what the bot needs). Dynamic
-Mode lays down a connected trail behind you. Leave the menu on Waylist while you
-walk — do **not** `impulse 10` on the main menu, which exits the editor and stops
-recording.
-
-When the map is covered, still on the Waylist menu:
+Bind them to keys and record by walking:
 
 ```
-impulse 3       Check For Errors   (fix any "links to itself"/orphan warnings)
-impulse 4       Save Waypoints     -> writes maps/lq_e1m1.way
+(open console with `, type:)
+bind f "impulse 106"
+bind g "impulse 107"
 ```
 
-### Menu reference
+Close the console, then **walk the map on foot and tap `F` every second or two**
+— at every doorway, junction, and room, and especially along the route to the
+monsters. Each tap drops a linked bubble; you're laying a connected trail. Stay
+on surfaces the agent can actually walk (don't fly/noclip — ground-reachable
+points are what it needs). When you've covered the map, press **`G`** once — the
+console prints `waypoints saved.` and writes `maps/lq_e1m1.way`.
 
-```
-Main Menu                 Waypoint Mgmt (1)        Waylist Mgmt (5)
- 1 Waypoint Management      1 Move Waypoint          1 Delete ALL Waypoints
- 2 Link Management          2 Delete Waypoint        2 Dump Waypoints
- 3 AI Flag Management       3 Make Waypoint          3 Check For Errors
- 4 Bot Management           4 Make Way + Link        4 Save Waypoints
- 5 Waylist Management       5 Make Way + Link X2     5 [ ] Dynamic Mode
- 6 [ ] Noclip               6 Make Way + Telelink    6 [ ] Dynamic Link
- 7 [ ] Godmode              7 Show waypoint info     7 [ ] WAY output
- 8 [ ] Hold Select          0 Main Menu              8 [ ] QC output
- 9 Teleport to Way #                                 9 [ ] BSP ents output
- 0 Close Menu                                        0 Main Menu
-```
-
-(Prefer Dynamic Mode for bulk coverage; use Waypoint Mgmt 3/4 to hand-place a
-few extra points in tricky spots.)
+That's it — no menus. (The full FrikBot menu editor is still there under
+`impulse 104` if you ever need fine link editing; its `[0]` option is selected
+with `impulse 10`, not `impulse 0`.)
 
 ## 4. Place + verify
 
