@@ -33,7 +33,10 @@
         "kills", "deaths", "damage_dealt", "damage_taken",
         "secrets_found", "secrets_total", "items_collected",
         "shots_fired", "shots_hit", "accuracy",
-        "time_to_exit_sec", "weapon_usage", "deaths_by_cause"
+        "time_to_exit_sec",
+        "waypoints_visited", "waypoints_total", "map_coverage",
+        "distance_traveled", "reached_exit",
+        "weapon_usage", "deaths_by_cause"
       ],
       "properties": {
         "kills": { "type": "integer", "minimum": 0 },
@@ -47,6 +50,11 @@
         "shots_hit": { "type": "integer", "minimum": 0 },
         "accuracy": { "type": "number", "minimum": 0, "maximum": 1 },
         "time_to_exit_sec": { "type": ["number", "null"], "minimum": 0 },
+        "waypoints_visited": { "type": "integer", "minimum": 0 },
+        "waypoints_total": { "type": "integer", "minimum": 0 },
+        "map_coverage": { "type": "number", "minimum": 0, "maximum": 1 },
+        "distance_traveled": { "type": "number", "minimum": 0 },
+        "reached_exit": { "type": "boolean" },
         "weapon_usage": {
           "type": "object",
           "additionalProperties": {

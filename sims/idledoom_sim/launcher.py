@@ -107,6 +107,11 @@ def build_command(
         # Headless sims must not advertise to public Quake masters (the server
         # does by default — observed heartbeats on the first live run).
         "+set", "sv_public", "0",
+        # INVARIANT (feature 002): fteqw-sv runs with max_clients >= 2, which
+        # FrikBot's DynamicWaypoint requires to generate navigation at all
+        # (bot_way.qc: `if (max_clients < 2) return;`). The dedicated-server
+        # default satisfies this (confirmed: the level-start `exec maps/*.way`
+        # path runs) — do not force it to 1.
         # sim_* control cvars.
         "+set", "sim_mode", "1",
         "+set", "sim_seed", str(config.seed),

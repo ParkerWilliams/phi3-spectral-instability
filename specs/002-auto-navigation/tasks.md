@@ -34,8 +34,8 @@ Two surfaces (reused from feature 001):
 
 ## Phase 1: Setup
 
-- [ ] T001 [P] Write `docs/adr/0003-navigation-generation.md` (next free number): decision = QuakeC `DynamicWaypoint` auto-generation; BSP nav-mesh deferred. Rationale = constitution "minimize engine-C patches"; reuse FrikBot baseline (research R1). Link from `docs/design.md` §7.
-- [ ] T002 [P] Add `sims/configs/nav.toml` — an un-waypointed LibreQuake map with reachable enemies + items, `time_limit ≈ 60`, default `bot_map_awareness`. Note in a comment that no `maps/<stem>.way` may exist for the US1/US2 test (US1 test bed).
+- [X] T001 [P] Write `docs/adr/0003-navigation-generation.md` (next free number): decision = QuakeC `DynamicWaypoint` auto-generation; BSP nav-mesh deferred. Rationale = constitution "minimize engine-C patches"; reuse FrikBot baseline (research R1). Link from `docs/design.md` §7.
+- [X] T002 [P] Add `sims/configs/nav.toml` — an un-waypointed LibreQuake map with reachable enemies + items, `time_limit ≈ 60`, default `bot_map_awareness`. Note in a comment that no `maps/<stem>.way` may exist for the US1/US2 test (US1 test bed).
 
 ---
 
@@ -45,9 +45,9 @@ Two surfaces (reused from feature 001):
 
 - [ ] T003 Track per-agent traversal in `quakec/frikbot/bot_phys.qc` — accumulate `distance_traveled` and a distinct-waypoint-visited count as the agent moves (data-model coverage fields).
 - [ ] T004 Emit nav coverage in `quakec/telemetry.qc` — add `Tel_Nav` (waypoints_visited, distance) and carry `waypoints_total` + `reached_exit` on the `level_end` payload (contracts/nav.md, data-model; gated on `Tel_IsAgent`, suppressed after terminal like other gameplay events).
-- [ ] T005 In `sims/idledoom_sim/launcher.py`, document + assert the `max_clients ≥ 2` invariant and ensure the autostart path leaves `waypoint_mode == WM_DYNAMIC` so `DynamicWaypoint` runs (research R4, contracts/nav.md).
-- [ ] T006 [P] Extend `sims/schema/summary.schema.json` (and `event.schema.json` for any new `nav`/`level_end` keys) with `map_coverage`, `waypoints_visited`, `distance_traveled`, `reached_exit`, `waypoints_total` — additive/optional to stay `schema_version: 1` (contracts/nav.md).
-- [ ] T007 Extend `aggregate()` in `sims/idledoom_sim/telemetry.py` — compute `waypoints_visited`, `map_coverage` (`visited/total`, 4 dp, `0` on zero), `distance_traveled`, `reached_exit`; read `waypoints_total` from `level_end` (G2 pattern) (data-model StatsBlock).
+- [X] T005 In `sims/idledoom_sim/launcher.py`, document + assert the `max_clients ≥ 2` invariant and ensure the autostart path leaves `waypoint_mode == WM_DYNAMIC` so `DynamicWaypoint` runs (research R4, contracts/nav.md).
+- [X] T006 [P] Extend `sims/schema/summary.schema.json` (and `event.schema.json` for any new `nav`/`level_end` keys) with `map_coverage`, `waypoints_visited`, `distance_traveled`, `reached_exit`, `waypoints_total` — additive/optional to stay `schema_version: 1` (contracts/nav.md).
+- [X] T007 Extend `aggregate()` in `sims/idledoom_sim/telemetry.py` — compute `waypoints_visited`, `map_coverage` (`visited/total`, 4 dp, `0` on zero), `distance_traveled`, `reached_exit`; read `waypoints_total` from `level_end` (G2 pattern) (data-model StatsBlock).
 
 **Checkpoint**: coverage telemetry flows end-to-end and aggregates; dynamic
 generation is active in the sim. Story work can begin.
@@ -62,7 +62,7 @@ generation is active in the sim. Story work can begin.
 
 - [ ] T008 [US1] Exploration driver in `quakec/frikbot/bot_ai.qc` — when no enemy/goal is in sight, steer roaming toward the nearest **unvisited frontier** (space with no nearby waypoint) so `DynamicWaypoint` covers the map and brings enemies into view (research R2).
 - [ ] T009 [US1] Auto-save / reuse in `quakec/frikbot/bot_way.qc` + `bot.qc` — `SaveWays()` the generated graph at level end / coverage-stable; load an existing `maps/<stem>.way` if present (reuse the level-start `exec` path); add `sim_nav_regen` cvar to force regeneration (research R3).
-- [ ] T010 [P] [US1] `sims/tests/test_coverage.py` — `aggregate()` coverage math (`visited/total`, `0` on zero, distance sum, `reached_exit`) reconciles from a sample event stream (unit; droplet-verifiable).
+- [X] T010 [P] [US1] `sims/tests/test_coverage.py` — `aggregate()` coverage math (`visited/total`, `0` on zero, distance sum, `reached_exit`) reconciles from a sample event stream (unit; droplet-verifiable).
 - [ ] T011 [US1] Live (local) verify: run `nav.toml` → assert `shots_fired > 0`, `kills ≥ 1`, `map_coverage` above baseline (quickstart §1; integration, local-only).
 
 **Checkpoint**: the agent plays an un-waypointed map and produces real combat

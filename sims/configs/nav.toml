@@ -1,0 +1,14 @@
+# Feature 002 navigation test bed (US1/US2).
+#
+# An un-waypointed LibreQuake map with reachable enemies + items. The point of
+# US1: with automatic navigation the agent should leave spawn, cover the level,
+# and reach combat here (shots_fired > 0, kills >= 1, map_coverage above the
+# spawn-only baseline). REQUIREMENT: no maps/<stem>.way may be hand-authored for
+# this map — navigation must be generated automatically.
+map = "lq_e1m1"
+seed = 1
+time_limit = 60
+
+# Default competence; US3 varies bot_map_awareness 0.1 vs 0.9 to show the axis.
+[bot]
+bot_map_awareness = 0.3

@@ -258,8 +258,9 @@ See ADRs for individual decisions. Summary:
 - Save versioning: evolve the schema without breaking saves?
 - **Automatic navigation** (required for procedural maps, §3/§6): `DynamicWaypoint`
   auto-record pass vs nav graph/mesh generated from the BSP vs a learned approach.
-  Must expose tunable route quality so nav can scale as a progression axis. Likely
-  an ADR once a mechanism is chosen.
+  Must expose tunable route quality so nav can scale as a progression axis.
+  **Decided in ADR-0003** (QuakeC `DynamicWaypoint` auto-generation; nav-mesh
+  deferred); implemented in feature 002 (`specs/002-auto-navigation/`).
 
 ## 8. Headless simulation
 

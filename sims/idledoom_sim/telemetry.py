@@ -128,6 +128,12 @@ def _empty_stats() -> dict[str, Any]:
         "shots_hit": 0,
         "accuracy": 0.0,
         "time_to_exit_sec": None,
+        # Navigation coverage (feature 002) — sourced from level_end, not counted.
+        "waypoints_visited": 0,
+        "waypoints_total": 0,
+        "map_coverage": 0.0,
+        "distance_traveled": 0,
+        "reached_exit": False,
         "weapon_usage": {},
         "deaths_by_cause": {},
     }
@@ -162,6 +168,12 @@ def aggregate(events: list[ParsedEvent]) -> dict[str, Any]:
         elif ev.type == "level_end":
             if ev.data.get("outcome") == "completed":
                 stats["time_to_exit_sec"] = ev.data.get("time_sec")
+            # Navigation coverage rides on level_end (feature 002) — sourced here,
+            # not aggregated from per-event counts (G2-style exception).
+            stats["waypoints_total"] = _as_int(ev.data.get("waypoints_total", 0))
+            stats["waypoints_visited"] = _as_int(ev.data.get("waypoints_visited", 0))
+            stats["distance_traveled"] = _as_int(ev.data.get("distance_traveled", 0))
+            stats["reached_exit"] = bool(_as_int(ev.data.get("reached_exit", 0)))
         elif ev.type == "kill":
             stats["kills"] += 1
         elif ev.type == "death":
@@ -189,6 +201,10 @@ def aggregate(events: list[ParsedEvent]) -> dict[str, Any]:
 
     shots = stats["shots_fired"]
     stats["accuracy"] = round(stats["shots_hit"] / shots, 4) if shots else 0.0
+    total = stats["waypoints_total"]
+    stats["map_coverage"] = (
+        round(stats["waypoints_visited"] / total, 4) if total else 0.0
+    )
     stats["weapon_usage"] = weapon_usage
     stats["deaths_by_cause"] = deaths_by_cause
     return stats
