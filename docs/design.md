@@ -140,19 +140,21 @@ maps** (§6), so hand-authored waypoints are a non-starter as the shipping
 solution — the agent has to handle maps no human ever waypointed. The nav data
 (graph or mesh) must be *generated*, not hand-placed.
 
-- **Now (bootstrap only):** FrikBot waypoints recorded by hand into a `.way` per
-  map (`docs/waypointing.md`). This is **temporary scaffolding** to unblock
-  combat/telemetry on a fixed test map (SC-004) — explicitly *not* the shipping
-  approach.
-- **Next:** automatic generation — e.g. FrikBot's `DynamicWaypoint` laid down by
-  a roaming pass and saved/cleaned, or a nav graph/mesh derived from the BSP at
-  load.
-- **Target:** generation runs at map-gen/load time so procedural maps just work,
-  and navigation *competence* (route quality, tech use, secret-awareness) is a
-  tunable that scales with upgrades under the same visible-progression rule.
+- **Mechanism (decided — ADR-0003):** generate the nav graph **in QuakeC** on
+  FrikBot's `DynamicWaypoint` — a frontier-seeking roam lays waypoints down as the
+  agent explores, and the graph auto-saves to `maps/<map>.way` for reuse (a
+  BSP-derived nav-mesh was the considered alternative, deferred to engine-C work).
+  See `specs/002-auto-navigation/` (feature 002).
+- **Legacy fallback only:** FrikBot waypoints recorded by hand into a `.way`
+  (`docs/waypointing.md`). This was bootstrap scaffolding (SC-004) and is now
+  **superseded** by the automatic process — kept only for one-off manual debugging.
+- **Competence is a tunable:** `bot_map_awareness` scales exploration thoroughness
+  and route directness (more `map_coverage` / faster routing), a progression axis
+  under the visible-progression rule. Stuck-recovery keeps idle runs softlock-free.
+- **Target:** generation runs at map-gen/load time so procedural maps just work.
 
-Mechanism is an open architectural question (§7/§11); the *direction* — automatic,
-progression-scaled, idle-tolerant — is decided.
+The *direction* — automatic, progression-scaled, idle-tolerant — and now the
+*mechanism* (QuakeC `DynamicWaypoint`, ADR-0003) are decided.
 
 ## 4. Weapons, abilities, enemies
 

@@ -512,6 +512,47 @@ void(vector dir) BruteForceStep =
 		setorigin(self, currentorigin);
 };
 
+// idledoom (T017 / research R7): stuck detection + recovery (idle-tolerance).
+// Idle runs have no human to free a wedged agent. If the agent barely moves over
+// STUCK_WINDOW while NOT in combat, turn it ~90-270 deg, hop, drop its current
+// goal and force a fresh frontier roam, and flag the spot so routing treats it
+// carefully. The hard sim_time_limit -> quit (telemetry.qc) is the terminal-outcome
+// backstop (SC-004); this just keeps the agent productive instead of frozen.
+// Sim-scoped + bots-only (the verified context); combat standing is left alone.
+void() bot_stuck_check =
+{
+	local vector d;
+	if (!cvar("sim_mode"))
+		return;
+	if (self.ishuman)
+		return;
+	if (self.health < 1)
+		return;
+	if (waypoint_mode >= WM_EDITOR)
+		return;                       // don't fight the editor
+	if (self.enemy != world)
+		return;                       // fighting: standing still is intentional
+	if (time < self.stuck_time)
+		return;                       // evaluate once per window
+
+	if (self.stuck_org != '0 0 0')
+	{
+		d = self.origin - self.stuck_org;
+		d_z = 0;
+		if (vlen(d) < STUCK_MIN_DIST)
+		{
+			self.b_angle_y = frik_anglemod(self.b_angle_y + 90 + random() * 180);
+			bot_jump();
+			self.target1 = self.target2 = self.target3 = self.target4 = world;
+			self.route_failed = 1;    // BotAI -> frik_bot_roam picks a new frontier
+			if (self.current_way)
+				self.current_way.b_aiflags = self.current_way.b_aiflags | AI_PRECISION;
+		}
+	}
+	self.stuck_org = self.origin;
+	self.stuck_time = time + STUCK_WINDOW;
+};
+
 void() PostPhysics =
 {
 	local vector obstr, org;
@@ -576,6 +617,7 @@ void() PostPhysics =
 	SV_CheckOnGround();
 
 	PlayerPostThink();
+	bot_stuck_check();   // T017: un-wedge before the AI picks this frame's move
 	BotAI();
 	self.dmg_take = self.dmg_save = 0;
 

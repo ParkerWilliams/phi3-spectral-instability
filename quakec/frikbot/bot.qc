@@ -153,6 +153,8 @@ for all variables in the bot...
 .vector	b_angle, b_dest, mouse_emu, obs_dir;
 .vector	movevect, b_dir;
 .vector dyn_dest;
+.vector stuck_org;   // T017: agent origin sampled at the last stuck-check
+.float  stuck_time;  // T017: next sim-time to evaluate the stuck window
 
 // --------defines-----
 float SVC_UPDATENAME	= 13;
@@ -241,6 +243,10 @@ float NAV_SAVE_MIN_WAYS    = 8;  // don't persist a near-empty graph
 float nav_autosaved;             // one-shot: maps/<map>.way written this level
 float nav_lastcount;             // `waypoints` at the last coverage-stable check
 float nav_lastgrow;              // sim-time the waypoint count last increased
+
+// idledoom (T017 / research R7): stuck detection + recovery (idle-tolerance).
+float STUCK_WINDOW   = 1.5;      // seconds between stuck-checks
+float STUCK_MIN_DIST = 40;       // min horizontal travel per window, else "stuck"
 
 // -------ProtoTypes------
 // external

@@ -3,6 +3,34 @@
 Rolling state summary so work survives session/crash loss (CLAUDE.md convention).
 Newest entry on top. Keep entries short: what's true now, what's next, gotchas.
 
+## 2026-06-03 — 002 FULL slice code-complete (US1–US4 + polish); build-then-merge
+
+**Decision (Parker):** drop the stacked-PR ceremony, push hard for a full-002 MVP,
+**build-then-merge** (finish code here → local build verifies → fast-merge 002→main).
+
+**All droplet-doable 002 work is now done & harness-verified (pytest 57/57, ruff +
+mypy clean). QuakeC is compile-pending (droplet OOMs) — hand-verified single-pass.**
+- **US3 (T014/T015/T016):** `bot_map_awareness` WIRED in `bot_move.qc` `frik_bot_roam`
+  — candidate count 8→32 (thoroughness) + heading noise ∝ (1−awareness) (directness),
+  clamped [0,1]. Docs (bot-stats WIRED row + `sim_nav_regen` + progression). Test
+  `test_nav_competence.py` (metric direction).
+- **US4 (T017/T018):** `bot_stuck_check()` in `bot_phys.qc` (called from `PostPhysics`
+  pre-`BotAI`): sim+bot-scoped, skips combat, on <40u/1.5s turns+jumps+clears route
+  (→re-roam) + flags `current_way` AI_PRECISION. Watchdog `quit` is the terminal
+  backstop. Test `test_no_softlock.py` (outcome always terminal; detours ≠ failure).
+- **Polish (T019/T020):** telemetry.md coverage fields + schema_version stays `1`;
+  waypointing.md relabeled LEGACY (superseded by ADR-0003); design.md §3 mechanism
+  decided.
+
+**STILL OPEN — all local-build only (the hand-off; can't run engine on droplet):**
+- **T011** US1 live (agent reaches combat on `nav.toml`), **T013** US2 (second map),
+  **T021** re-run 001 SC-004, **T022** quickstart end-to-end.
+- **First step locally:** `just build-quakec` — this is the FIRST compile of all the
+  002 QuakeC (T008/T009/T014/T017). Watch fteqcc for errors; the nav AI (frontier
+  roam, stuck-recovery) will need build-and-watch tuning. Then run the live checks.
+- **Then:** `git checkout main && git pull && git checkout 002-auto-navigation &&
+  git rebase main` once 001 (PR #2) merges, and fast-merge 002→main.
+
 ## 2026-06-03 — 002 US1 code-complete (T009 done); live verify (T011) is the hand-off
 
 **Correction to the entry below:** 002 is no longer "planned, not implemented" —

@@ -505,10 +505,10 @@ void() frik_bot_roam =
 	// from any existing waypoint (the least-explored frontier), so dynamic
 	// waypointing pushes outward and brings enemies into view. The candidate count
 	// scales with bot_map_awareness (the navigation-competence axis, T014).
-	acc = cvar("bot_map_awareness");
-	if (acc < 0)
-		acc = 0.3;                       // unset cvar -> catalogue default
-	loopcount = 8 + floor(acc * 24);     // 8..32 candidates
+	acc = cvar("bot_map_awareness");     // launcher always sets it (default 0.3)
+	if (acc < 0) acc = 0;                // clamp to the catalogue range [0,1]
+	if (acc > 1) acc = 1;
+	loopcount = 8 + floor(acc * 24);     // 8..32 candidates (exploration thoroughness)
 	bestscore = -1;
 	bestorg = '0 0 0';
 
@@ -554,7 +554,12 @@ void() frik_bot_roam =
 	{
 		SpawnTempWaypoint(bestorg);          // a frontier waypoint to path toward
 		org1 = vectoangles(bestorg - (self.origin + self.view_ofs));
-		self.b_angle_y = org1_y;             // face the frontier
+		// idledoom (T014/R6): route directness also scales with bot_map_awareness.
+		// High competence heads straight at the frontier; low competence adds
+		// heading noise so the agent wanders and backtracks (less coverage, slower)
+		// — so higher awareness yields measurably better traversal (SC-003).
+		// Deviation: up to +-50 deg at acc=0, 0 deg at acc=1.
+		self.b_angle_y = frik_anglemod(org1_y + (1 - acc) * (random() - 0.5) * 100);
 	}
 	else
 		self.b_angle_y = self.v_angle_y + 10;  // fallback: stock nudge

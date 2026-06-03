@@ -39,6 +39,11 @@ inconsistent telemetry is painful to clean up later.
     "shots_hit": 31,
     "accuracy": 0.369,
     "time_to_exit_sec": 118.2,
+    "waypoints_visited": 42,
+    "waypoints_total": 60,
+    "map_coverage": 0.7,
+    "distance_traveled": 18450,
+    "reached_exit": true,
     "weapon_usage": {
       "shotgun": {"shots": 22, "hits": 11, "damage": 220},
       "super_shotgun": {"shots": 18, "hits": 12, "damage": 600}
@@ -64,7 +69,9 @@ inconsistent telemetry is painful to clean up later.
 ### Event types
 
 - `level_start` — `{ "map": "e1m1", "seed": 12345 }`
-- `level_end` — `{ "outcome": "completed", "time_sec": 118.2 }`
+- `level_end` — `{ "outcome": "completed", "time_sec": 118.2, "waypoints_total": 60, "waypoints_visited": 42, "distance_traveled": 18450, "reached_exit": 1 }`
+  (the navigation-coverage fields are carried here, analogous to `secrets_total`
+  on `level_start`; the harness folds them into the summary `stats` — feature 002)
 - `kill` — `{ "victim": "monster_army", "weapon": "super_shotgun", "distance": 320 }`
 - `death` — `{ "cause": "rocket_splash_self", "killer": "self" }`
 - `shot` — `{ "weapon": "shotgun", "target": "monster_army | null" }`
@@ -119,6 +126,16 @@ per-event counts:
 synchronously is counted as a `hit` this slice (projectile / animation-frame
 weapons under-count — never over-count, so `accuracy` stays ≤ 1). Everything else
 in `stats` is a pure aggregate of the event stream (FR-006 / SC-003).
+
+## Implementation status (feature 002)
+
+Navigation coverage adds five `stats` fields — `waypoints_visited`,
+`waypoints_total`, `map_coverage` (`visited/total`, 4 dp, `0` on zero),
+`distance_traveled`, `reached_exit`. They were added **additively/optional**, so
+`schema_version` stays **`1`** (no incompatible change). Like `secrets_total`,
+`waypoints_total`/`visited`/`distance`/`reached_exit` are carried on `level_end`
+and sourced there rather than counted from per-event types — the rest of the
+reconciliation invariant is unchanged. `data-model.md` (002) is the entity source.
 
 ## Open questions
 

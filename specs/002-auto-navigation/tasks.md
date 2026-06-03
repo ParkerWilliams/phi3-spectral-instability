@@ -89,9 +89,9 @@ telemetry. MVP demoable; feature-001 telemetry is no longer all-zero.
 
 **Independent Test**: same map at `bot_map_awareness` 0.1 vs 0.9 → higher value yields higher average `map_coverage` and/or lower `time_to_exit_sec`.
 
-- [ ] T014 [US3] Wire `bot_map_awareness` in `quakec/frikbot/bot_ai.qc` — scale exploration thoroughness + route directness by the cvar (was recorded-only → behavior) (research R6, data-model).
-- [ ] T015 [P] [US3] Docs: mark `bot_map_awareness` **WIRED (navigation)** in `docs/bot-stats.md`; add it as a player-facing nav upgrade in `docs/progression.md`.
-- [ ] T016 [P] [US3] `sims/tests/test_nav_competence.py` — assert `map_coverage` (and/or `time_to_exit_sec`) improves from low→high `bot_map_awareness` (synthetic-stream unit assertion of the metric direction + a local averaged-run check) (SC-003).
+- [X] T014 [US3] Wire `bot_map_awareness` — scale exploration thoroughness + route directness by the cvar (was recorded-only → behavior) (research R6, data-model). **Done (compile-pending):** landed in `quakec/frikbot/bot_move.qc` `frik_bot_roam` (where T008's exploration lives, not bot_ai.qc) — candidate count 8→32 (thoroughness) + heading noise inversely to awareness (directness); clamped [0,1].
+- [X] T015 [P] [US3] Docs: mark `bot_map_awareness` **WIRED (navigation)** in `docs/bot-stats.md`; add it as a player-facing nav upgrade in `docs/progression.md`. **Done** (+`sim_nav_regen` row, feature-002 status block).
+- [X] T016 [P] [US3] `sims/tests/test_nav_competence.py` — assert `map_coverage` (and/or `time_to_exit_sec`) improves from low→high `bot_map_awareness` (synthetic-stream unit assertion of the metric direction + a local averaged-run check) (SC-003). **Done:** synthetic-stream unit assertions (metric direction, monotonicity, faster-exit) verified droplet-side; the averaged real-run check is the local hand-off (quickstart §3).
 
 **Checkpoint**: navigation is a tunable progression axis, visible and sim-measurable.
 
@@ -103,8 +103,8 @@ telemetry. MVP demoable; feature-001 telemetry is no longer all-zero.
 
 **Independent Test**: many runs across maps → 100% reach a terminal outcome within `time_limit`; no permanent stalls.
 
-- [ ] T017 [US4] Stuck detection + unstick in `quakec/frikbot/bot_phys.qc` — detect minimal movement while intending to move; recover (turn/jump/new frontier) and mark the spot so routing avoids it (research R7).
-- [ ] T018 [P] [US4] `sims/tests/test_no_softlock.py` + local batch — assert every run reaches a terminal outcome within the limit, and detours/backtracking are never failures (SC-004).
+- [X] T017 [US4] Stuck detection + unstick in `quakec/frikbot/bot_phys.qc` — detect minimal movement while intending to move; recover (turn/jump/new frontier) and mark the spot so routing avoids it (research R7). **Done (compile-pending):** `bot_stuck_check()` in bot_phys.qc, called from `PostPhysics` before `BotAI`; sim+bot-scoped, skips combat; turns/jumps/clears route (→ re-roam) and flags `current_way` with `AI_PRECISION`. The `sim_time_limit`→`quit` watchdog remains the terminal-outcome backstop.
+- [X] T018 [P] [US4] `sims/tests/test_no_softlock.py` + local batch — assert every run reaches a terminal outcome within the limit, and detours/backtracking are never failures (SC-004). **Done:** unit assertions that `determine_outcome` is always terminal for every (events, exit, watchdog) combo + backtracking-not-a-failure verified droplet-side; the real local batch across maps is the hand-off (quickstart §4).
 
 **Checkpoint**: unattended runs always terminate; the chain is idle-safe.
 
@@ -112,8 +112,8 @@ telemetry. MVP demoable; feature-001 telemetry is no longer all-zero.
 
 ## Phase 7: Polish & Cross-Cutting
 
-- [ ] T019 [P] Reconcile `docs/telemetry.md` + `data-model.md` with the shipped coverage fields; confirm `schema_version` conformance (bump only if forced).
-- [ ] T020 [P] Relabel `docs/waypointing.md` as a legacy/manual fallback (superseded by automatic generation); update `docs/design.md` §3 to point at the ADR.
+- [X] T019 [P] Reconcile `docs/telemetry.md` + `data-model.md` with the shipped coverage fields; confirm `schema_version` conformance (bump only if forced). **Done:** added the five coverage fields to the summary `stats` + `level_end` examples in `docs/telemetry.md` and a feature-002 status block; additive → `schema_version` stays `1`.
+- [X] T020 [P] Relabel `docs/waypointing.md` as a legacy/manual fallback (superseded by automatic generation); update `docs/design.md` §3 to point at the ADR. **Done:** waypointing.md banner now "LEGACY / superseded by feature 002 (ADR-0003)"; design.md §3 records the decided mechanism + competence tunable + stuck-recovery.
 - [ ] T021 Re-run feature-001 **SC-004** (`--bot.bot_accuracy 0.1` vs `0.9`) now that the agent fights; confirm accuracy rises (unblocks the 001 deferral).
 - [ ] T022 Run `quickstart.md` end-to-end; confirm SC-001…SC-006 hold; `uv run pytest` green, `ruff` + `mypy` clean.
 
