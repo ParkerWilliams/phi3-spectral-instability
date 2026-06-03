@@ -40,11 +40,13 @@ uv run harness.py run --config configs/current.toml --map <some_other_lq_map> --
 for a in 0.1 0.9; do for i in 1 2 3; do
   uv run harness.py run --config configs/current.toml --time-limit 60 --bot.bot_map_awareness $a >/dev/null
 done; done
-grep -o '"bot_map_awareness": [0-9.]*\|"map_coverage": [0-9.]*\|"time_to_exit_sec": [0-9.null]*' results/*/*.summary.json
+# grouped means in one command (analyze helper):
+uv run harness.py compare --metric stats.map_coverage --by bot_config.bot_map_awareness results/*/*.summary.json
 ```
 
 **Expected:** higher `bot_map_awareness` → higher average `map_coverage` and/or
-lower `time_to_exit_sec` (SC-003).
+lower `time_to_exit_sec` (SC-003). The same `compare` command proves feature-001
+SC-004: `--metric stats.accuracy --by bot_config.bot_accuracy`.
 
 ## 4. No softlocks (US4 — P3)
 

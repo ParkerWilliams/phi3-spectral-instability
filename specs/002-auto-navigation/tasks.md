@@ -76,7 +76,7 @@ telemetry. MVP demoable; feature-001 telemetry is no longer all-zero.
 
 **Independent Test**: run a second, previously-unused un-waypointed map → navigates + reaches combat; 0 manual nav-authoring steps.
 
-- [ ] T012 [P] [US2] Add `sims/configs/nav2.toml` for a second LibreQuake map not used in US1 dev (US2 independent test).
+- [X] T012 [P] [US2] Add `sims/configs/nav2.toml` for a second LibreQuake map not used in US1 dev (US2 independent test).
 - [ ] T013 [US2] Live (local) verify on the second map: navigation + combat with zero per-map steps; confirm no `maps/*.way` was hand-authored (quickstart §2, SC-002).
 
 **Checkpoint**: "automatic" is shown to generalize — the procedural-maps precondition.

@@ -1,0 +1,10 @@
+# Feature 002 second navigation map (US2 / SC-002) — a LibreQuake map NOT used
+# while developing the exploration driver, to prove navigation generalizes to a
+# never-seen map with zero per-map setup (the procedural-maps precondition).
+# REQUIREMENT: no maps/<stem>.way may be hand-authored for this map.
+map = "lq_e1m2"
+seed = 1
+time_limit = 60
+
+[bot]
+bot_map_awareness = 0.3

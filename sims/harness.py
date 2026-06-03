@@ -21,7 +21,7 @@ import sys
 from datetime import UTC, datetime
 from pathlib import Path
 
-from idledoom_sim import launcher, telemetry, writer
+from idledoom_sim import analyze, launcher, telemetry, writer
 from idledoom_sim.config import load_run_config
 from idledoom_sim.outcome import determine_outcome
 
@@ -208,6 +208,25 @@ def _add_run_args(parser: argparse.ArgumentParser, *, default_config: str) -> No
     parser.add_argument("--out", default=None, help="output root (default: results/)")
 
 
+def _cmd_compare(args: argparse.Namespace) -> int:
+    """Average a metric across summaries, optionally grouped by a config key —
+    the SC-003/SC-004 check (e.g. coverage by bot_map_awareness, accuracy by
+    bot_accuracy) over many runs. Reads `*.summary.json` paths from argv."""
+    summaries = analyze.load_summaries([Path(p) for p in args.paths])
+    if not summaries:
+        print("error: no summaries given", file=sys.stderr)
+        return EXIT_BROKEN_CHAIN
+    if args.by:
+        groups = analyze.group_by(summaries, args.by)
+        for key in sorted(groups, key=lambda k: (k is None, k)):
+            mean = analyze.mean_metric(groups[key], args.metric)
+            print(f"{args.by}={key}: {args.metric} mean={mean:.4f} (n={len(groups[key])})")
+    else:
+        mean = analyze.mean_metric(summaries, args.metric)
+        print(f"{args.metric} mean={mean:.4f} (n={len(summaries)})")
+    return EXIT_OK
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="harness.py", description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
@@ -219,6 +238,12 @@ def build_parser() -> argparse.ArgumentParser:
     smoke_p = sub.add_parser("smoke", help="fast CI smoke run (chain-health gate)")
     _add_run_args(smoke_p, default_config="configs/smoke.toml")
     smoke_p.set_defaults(func=_cmd_smoke)
+
+    cmp_p = sub.add_parser("compare", help="average/compare a metric across summaries")
+    cmp_p.add_argument("--metric", default="stats.map_coverage", help="dotted metric key")
+    cmp_p.add_argument("--by", default=None, help="dotted config key to group by")
+    cmp_p.add_argument("paths", nargs="+", help="*.summary.json paths")
+    cmp_p.set_defaults(func=_cmd_compare)
 
     return parser
 
