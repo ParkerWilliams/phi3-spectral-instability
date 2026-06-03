@@ -475,14 +475,44 @@ own waypoints.
 -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 */
 
+// idledoom (002): distance from p to the nearest existing waypoint — used to
+// score "how unexplored" a candidate spot is (frontier-seeking). O(N) over the
+// graph; roam is gated (not every frame), acceptable for the first cut.
+float(vector p) nearest_way_dist =
+{
+	local entity w;
+	local float best, d;
+	best = 1000000;
+	w = way_head;
+	while (w)
+	{
+		d = vlen(w.origin - p);
+		if (d < best)
+			best = d;
+		w = w._next;
+	}
+	return best;
+};
+
 void() frik_bot_roam =
 {
-	local vector org, ang, org1;
-	local float loopcount, flag, dist;
+	local vector org, ang, org1, bestorg;
+	local float loopcount, dist, score, bestscore, acc;
 
-	loopcount = 26;
-	flag = FALSE;
-	while((loopcount > 0) && !flag)
+	// idledoom (002, T008/R2): frontier-biased exploration. The stock roam takes
+	// the FIRST valid random spot, so the agent loiters near spawn and never
+	// reaches combat. Instead sample several candidates and pick the one FARTHEST
+	// from any existing waypoint (the least-explored frontier), so dynamic
+	// waypointing pushes outward and brings enemies into view. The candidate count
+	// scales with bot_map_awareness (the navigation-competence axis, T014).
+	acc = cvar("bot_map_awareness");
+	if (acc < 0)
+		acc = 0.3;                       // unset cvar -> catalogue default
+	loopcount = 8 + floor(acc * 24);     // 8..32 candidates
+	bestscore = -1;
+	bestorg = '0 0 0';
+
+	while (loopcount > 0)
 	{
 		loopcount = loopcount - 1;
 		org = self.origin + self.view_ofs;
@@ -508,13 +538,27 @@ void() frik_bot_roam =
 					traceline(org, org - '0 0 48', TRUE, self);
 					if (trace_fraction != 1)
 					{
-						SpawnTempWaypoint(org);
-						flag = TRUE;
+						score = nearest_way_dist(org);
+						if (score > bestscore)
+						{
+							bestscore = score;
+							bestorg = org;
+						}
 					}
 				}
 			}
 		}
 	}
-	self.b_angle_y = self.v_angle_y + 10;
+
+	if (bestscore >= 0)
+	{
+		SpawnTempWaypoint(bestorg);          // a frontier waypoint to path toward
+		org1 = vectoangles(bestorg - (self.origin + self.view_ofs));
+		self.b_angle_y = org1_y;             // face the frontier
+	}
+	else
+		self.b_angle_y = self.v_angle_y + 10;  // fallback: stock nudge
+
+	makevectors(self.v_angle);
 	frik_walkmove(v_forward);
 };

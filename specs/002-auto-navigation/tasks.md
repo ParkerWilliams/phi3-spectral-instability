@@ -43,8 +43,8 @@ Two surfaces (reused from feature 001):
 
 **⚠️ The coverage/telemetry plumbing + dynamic-mode wiring every story rides on.**
 
-- [ ] T003 Track per-agent traversal in `quakec/frikbot/bot_phys.qc` — accumulate `distance_traveled` and a distinct-waypoint-visited count as the agent moves (data-model coverage fields).
-- [ ] T004 Emit nav coverage in `quakec/telemetry.qc` — add `Tel_Nav` (waypoints_visited, distance) and carry `waypoints_total` + `reached_exit` on the `level_end` payload (contracts/nav.md, data-model; gated on `Tel_IsAgent`, suppressed after terminal like other gameplay events).
+- [X] T003 Track per-agent traversal in `quakec/frikbot/bot_phys.qc` — accumulate `distance_traveled` and a distinct-waypoint-visited count as the agent moves (data-model coverage fields).
+- [X] T004 Emit nav coverage in `quakec/telemetry.qc` — add `Tel_Nav` (waypoints_visited, distance) and carry `waypoints_total` + `reached_exit` on the `level_end` payload (contracts/nav.md, data-model; gated on `Tel_IsAgent`, suppressed after terminal like other gameplay events).
 - [X] T005 In `sims/idledoom_sim/launcher.py`, document + assert the `max_clients ≥ 2` invariant and ensure the autostart path leaves `waypoint_mode == WM_DYNAMIC` so `DynamicWaypoint` runs (research R4, contracts/nav.md).
 - [X] T006 [P] Extend `sims/schema/summary.schema.json` (and `event.schema.json` for any new `nav`/`level_end` keys) with `map_coverage`, `waypoints_visited`, `distance_traveled`, `reached_exit`, `waypoints_total` — additive/optional to stay `schema_version: 1` (contracts/nav.md).
 - [X] T007 Extend `aggregate()` in `sims/idledoom_sim/telemetry.py` — compute `waypoints_visited`, `map_coverage` (`visited/total`, 4 dp, `0` on zero), `distance_traveled`, `reached_exit`; read `waypoints_total` from `level_end` (G2 pattern) (data-model StatsBlock).
@@ -60,7 +60,7 @@ generation is active in the sim. Story work can begin.
 
 **Independent Test**: run `nav.toml` (un-waypointed map, default config) → `shots_fired > 0`, `kills ≥ 1`, `map_coverage` well above the spawn-only baseline, zero per-map authoring.
 
-- [ ] T008 [US1] Exploration driver in `quakec/frikbot/bot_ai.qc` — when no enemy/goal is in sight, steer roaming toward the nearest **unvisited frontier** (space with no nearby waypoint) so `DynamicWaypoint` covers the map and brings enemies into view (research R2).
+- [X] T008 [US1] Exploration driver in `quakec/frikbot/bot_ai.qc` — when no enemy/goal is in sight, steer roaming toward the nearest **unvisited frontier** (space with no nearby waypoint) so `DynamicWaypoint` covers the map and brings enemies into view (research R2).
 - [ ] T009 [US1] Auto-save / reuse in `quakec/frikbot/bot_way.qc` + `bot.qc` — `SaveWays()` the generated graph at level end / coverage-stable; load an existing `maps/<stem>.way` if present (reuse the level-start `exec` path); add `sim_nav_regen` cvar to force regeneration (research R3).
 - [X] T010 [P] [US1] `sims/tests/test_coverage.py` — `aggregate()` coverage math (`visited/total`, `0` on zero, distance sum, `reached_exit`) reconciles from a sample event stream (unit; droplet-verifiable).
 - [ ] T011 [US1] Live (local) verify: run `nav.toml` → assert `shots_fired > 0`, `kills ≥ 1`, `map_coverage` above baseline (quickstart §1; integration, local-only).

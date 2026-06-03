@@ -40,6 +40,14 @@ float tel_attack_active;     // inside an agent's W_Attack this frame
 float tel_shot_damage;       // applied damage accumulated this trigger-pull
 string tel_shot_target;      // classname of the last entity damaged this pull
 
+// US002 navigation coverage accumulators — bot_nav_track() (bot_ai.qc) updates
+// these each frame for the agent; Tel_LevelStart resets them; Tel_LevelEnd emits.
+float tel_nav_distance;      // total horizontal distance the agent has moved
+float tel_nav_visited;       // distinct waypoints the agent has reached
+float tel_nav_total;         // total waypoints in the graph (FrikBot `waypoints`)
+vector tel_nav_lastorg;      // previous agent origin (for distance deltas)
+.float wp_visited;           // per-waypoint flag: already counted toward visited
+
 // --- line builders -------------------------------------------------------
 // bprint takes one string per call in this codebase; we build a line with a
 // run of calls and terminate it with Tel_End. QuakeC is single-threaded within
@@ -86,6 +94,11 @@ void() Tel_LevelStart =
 {
 	telemetry_origin = time;
 	telemetry_started = TRUE;
+	// US002: reset nav coverage accumulators for this level.
+	tel_nav_distance = 0;
+	tel_nav_visited = 0;
+	tel_nav_total = 0;
+	tel_nav_lastorg = '0 0 0';
 	Tel_Begin("level_start");
 	Tel_Str("map", mapname);
 	Tel_Num("seed", cvar("sim_seed"));
@@ -104,6 +117,11 @@ void(string outcome) Tel_LevelEnd =
 	Tel_Begin("level_end");
 	Tel_Str("outcome", outcome);
 	Tel_Num("time_sec", time - telemetry_origin);
+	// US002 navigation coverage (carried on level_end; aggregated by the harness).
+	Tel_Num("waypoints_total", tel_nav_total);
+	Tel_Num("waypoints_visited", tel_nav_visited);
+	Tel_Num("distance_traveled", tel_nav_distance);
+	Tel_Num("reached_exit", outcome == "completed");
 	Tel_End();
 };
 

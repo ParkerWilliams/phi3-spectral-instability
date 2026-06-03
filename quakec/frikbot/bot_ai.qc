@@ -891,8 +891,35 @@ frame, the ai_time limits it's actual updating
 */
 float stagger_think;
 
+// idledoom (002, T003): per-frame navigation coverage tracker for the agent —
+// distance moved + distinct waypoints reached + total graph size, read by
+// Tel_LevelEnd. Globals/field declared in telemetry.qc; `waypoints`/`current_way`
+// are FrikBot's own.
+void() bot_nav_track =
+{
+	local vector d;
+	if (tel_nav_lastorg != '0 0 0')
+	{
+		d = self.origin - tel_nav_lastorg;
+		d_z = 0;   // horizontal distance only
+		tel_nav_distance = tel_nav_distance + vlen(d);
+	}
+	tel_nav_lastorg = self.origin;
+	if (self.current_way != world && !self.current_way.wp_visited)
+	{
+		self.current_way.wp_visited = TRUE;
+		tel_nav_visited = tel_nav_visited + 1;
+	}
+	tel_nav_total = waypoints;
+};
+
 void() BotAI =
 {
+	// idledoom (002): track the agent's nav coverage every frame, before the
+	// ai_time stagger early-return below.
+	if (cvar("sim_mode") && (self.flags & FL_CLIENT))
+		bot_nav_track();
+
 	// am I dead? Fire randomly until I respawn
 	// health < 1 is used because fractional healths show up as 0 on normal player
 	// status bars, and the mod probably already compensated for that
