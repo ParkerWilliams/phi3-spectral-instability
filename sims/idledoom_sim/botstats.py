@@ -83,7 +83,12 @@ BOT_STATS: dict[str, BotStat] = {s.name: s for s in _STATS}
 
 # sim_* control cvars (dev-only knobs; documented in cvars.md and bot-stats.md
 # notes). Not clamped like bot_* — they are harness-set run controls.
-SIM_CVARS: tuple[str, ...] = ("sim_mode", "sim_seed", "sim_time_limit")
+SIM_CVARS: tuple[str, ...] = (
+    "sim_mode",
+    "sim_seed",
+    "sim_time_limit",
+    "sim_nav_regen",  # feature 002 (T009): force nav-graph regeneration
+)
 
 
 def default_bot_config() -> dict[str, BotValue]:

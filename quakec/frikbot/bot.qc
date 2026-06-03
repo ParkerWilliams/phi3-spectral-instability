@@ -232,6 +232,16 @@ entity 	player_head, phys_head, way_head;
 float		busy_waypoints;
 float		saved_bots, saved_skills1, saved_skills2, current_bots;
 
+// idledoom (T009 / research R3): auto-save of dynamically-generated nav graphs.
+// When the sim generates a graph (WM_DYNAMIC) and coverage stops growing, the
+// graph is written to maps/<map>.way so later runs of the same map load it
+// (WM_LOADED) instead of regenerating. See NavAutoSave() in bot_way.qc.
+float NAV_SAVE_STABLE_SECS = 3;  // graph idle this long (no new waypoints) -> persist
+float NAV_SAVE_MIN_WAYS    = 8;  // don't persist a near-empty graph
+float nav_autosaved;             // one-shot: maps/<map>.way written this level
+float nav_lastcount;             // `waypoints` at the last coverage-stable check
+float nav_lastgrow;              // sim-time the waypoint count last increased
+
 // -------ProtoTypes------
 // external
 void()				ClientConnect;
@@ -255,6 +265,7 @@ float()				begin_route;
 void(entity this, float direct)			bot_get_path;
 void()				WaypointThink;
 entity(entity start)				FindWayPoint;
+void()				NavAutoSave;   // T009: persist a generated graph (bot_way.qc)
 
 // physics & movement
 float(entity e)			bot_can_rj;
@@ -1192,15 +1203,28 @@ void() WaypointWatch =
 		cvar_set ("saved4", "0");
 		if (max_clients > 1)
 		{
-			localcmd("exec maps/");
-			localcmd(mapname);
-			localcmd(".way\n");
+			// idledoom (T009/R3): load an existing maps/<map>.way unless regen
+			// is forced. `exec` of a missing file fails silently, so we stay
+			// WM_DYNAMIC and generate fresh; a present file's loader drives
+			// waypoint_mode to WM_LOADED over the next frames. sim_nav_regen 1
+			// skips the load so the graph is always regenerated (and the fresh
+			// graph then overwrites the stale file via NavAutoSave).
+			if (!cvar("sim_nav_regen"))
+			{
+				localcmd("exec maps/");
+				localcmd(mapname);
+				localcmd(".way\n");
+			}
 			waypoint_mode = WM_DYNAMIC;
+			nav_autosaved = FALSE;   // reset auto-save tracking for this level
+			nav_lastcount = 0;
+			nav_lastgrow = time;
 			bot_map_load();
 		}
 		else
 			waypoint_mode = WM_LOADED;
 	}
+	NavAutoSave();   // T009: persist a generated graph once coverage stabilises
 };
 void() BotFrame =
 {

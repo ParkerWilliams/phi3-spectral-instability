@@ -36,6 +36,11 @@ class RunConfig:
     out_dir: Path
     bot_config: dict[str, BotValue] = field(default_factory=dict)
     config_hash: str = ""
+    # Dev/sim control (feature 002, T009): force nav-graph regeneration even when
+    # a maps/<map>.way already exists (default False = load if present, else
+    # generate). Not a bot_* stat — a harness run control, so it stays out of
+    # bot_config/config_hash. See contracts/nav.md.
+    sim_nav_regen: bool = False
 
 
 def compute_config_hash(bot_config: dict[str, BotValue]) -> str:
@@ -110,4 +115,5 @@ def load_run_config(
         out_dir=out_dir if out_dir is not None else Path("results"),
         bot_config=bot_config,
         config_hash=compute_config_hash(bot_config),
+        sim_nav_regen=bool(raw.get("sim_nav_regen", False)),
     )

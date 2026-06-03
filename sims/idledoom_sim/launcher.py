@@ -116,6 +116,9 @@ def build_command(
         "+set", "sim_mode", "1",
         "+set", "sim_seed", str(config.seed),
         "+set", "sim_time_limit", str(config.time_limit_sec),
+        # feature 002 (T009): 1 = regenerate the nav graph even if maps/<map>.way
+        # exists; 0 = load it if present, else generate (NavAutoSave in bot_way.qc).
+        "+set", "sim_nav_regen", "1" if config.sim_nav_regen else "0",
     ]
     # bot_* — already clamped + recorded in config.bot_config (FR-008).
     for name, value in sorted(config.bot_config.items()):

@@ -3,6 +3,37 @@
 Rolling state summary so work survives session/crash loss (CLAUDE.md convention).
 Newest entry on top. Keep entries short: what's true now, what's next, gotchas.
 
+## 2026-06-03 — 002 US1 code-complete (T009 done); live verify (T011) is the hand-off
+
+**Correction to the entry below:** 002 is no longer "planned, not implemented" —
+commits `ef20d70`/`c6729ed`/`86066dc` landed the foundation + most of US1. Done:
+T001 ADR, T002 nav.toml, T003 traversal, T004 `Tel_Nav`, T005 max_clients
+invariant, T006 schema, T007 aggregate, **T008 frontier roam** (bot_move.qc),
+T010 test_coverage, T012 nav2.toml + `compare` subcommand.
+
+**This session — T009 (auto-save / reuse + `sim_nav_regen`):**
+- `NavAutoSave()` (`quakec/frikbot/bot_way.qc`): in a sim, once a WM_DYNAMIC graph
+  stops growing for `NAV_SAVE_STABLE_SECS` (3s), `SaveWays()` it to
+  `maps/<map>.way`. Fires mid-run (coverage-stable), NOT at the timeout `quit`,
+  because `SaveWays` writes async (one waypoint/frame) and would be truncated by an
+  immediate quit. One-shot per level; gated `sim_mode` + WM_DYNAMIC + `fixer` free.
+- Reuse already worked (FrikBot `WaypointWatch` always `exec`s the `.way`; present
+  → WM_LOADED, absent → stays WM_DYNAMIC). Now skipped when `sim_nav_regen` set.
+- `sim_nav_regen` cvar (default 0) plumbed: `config.py` field + TOML read,
+  `launcher.py` `+set`, `botstats.SIM_CVARS`. **Verified:** pytest 49/49, ruff+mypy
+  clean. **QuakeC compile-pending** (droplet OOMs) — hand-verified single-pass
+  (decls precede defs; symbol visibility OK).
+
+**Resume / hand-off (local build required):**
+1. `just build-quakec` (first 002 compile — watch for fteqcc errors in the nav code).
+2. **T011 (US1 live):** `cd sims && uv run harness.py run --config configs/nav.toml
+   --time-limit 60` → assert `shots_fired > 0`, `kills ≥ 1`, `map_coverage` above
+   spawn baseline. Confirm `maps/<stem>.way` gets written on first run, reused on
+   the second (and `sim_nav_regen=true` in the config forces regen / deleting the
+   `.way` does too). T008's frontier roam needs live build-and-watch tuning.
+3. Then US2 (T013), US3 (T014–T016), US4 (T017–T018), Polish (incl. T021 re-run of
+   001's SC-004 now that the agent fights). Was told to STOP after US1.
+
 ## 2026-06-02 — ⏸️ PAUSED: 001 in review, 002 fully planned
 
 **State:**
