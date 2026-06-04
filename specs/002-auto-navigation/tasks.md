@@ -63,7 +63,7 @@ generation is active in the sim. Story work can begin.
 - [X] T008 [US1] Exploration driver in `quakec/frikbot/bot_ai.qc` — when no enemy/goal is in sight, steer roaming toward the nearest **unvisited frontier** (space with no nearby waypoint) so `DynamicWaypoint` covers the map and brings enemies into view (research R2).
 - [X] T009 [US1] Auto-save / reuse in `quakec/frikbot/bot_way.qc` + `bot.qc` — `SaveWays()` the generated graph at level end / coverage-stable; load an existing `maps/<stem>.way` if present (reuse the level-start `exec` path); add `sim_nav_regen` cvar to force regeneration (research R3). **Done (compile-pending — droplet OOMs; live-unverified, see T011):** `NavAutoSave()` (bot_way.qc) persists a WM_DYNAMIC graph once waypoint coverage is stable for `NAV_SAVE_STABLE_SECS`, mid-run so the async writer finishes before the timeout `quit`; reuse path already existed (`WaypointWatch` exec) and is now skipped when `sim_nav_regen` is set; `sim_nav_regen` plumbed through `config.py`/`launcher.py`/`SIM_CVARS` (default 0). pytest 49/49, ruff+mypy clean.
 - [X] T010 [P] [US1] `sims/tests/test_coverage.py` — `aggregate()` coverage math (`visited/total`, `0` on zero, distance sum, `reached_exit`) reconciles from a sample event stream (unit; droplet-verifiable).
-- [ ] T011 [US1] Live (local) verify: run `nav.toml` → assert `shots_fired > 0`, `kills ≥ 1`, `map_coverage` above baseline (quickstart §1; integration, local-only).
+- [X] T011 [US1] Live (local) verify: run `nav.toml` → assert `shots_fired > 0`, `kills ≥ 1`, `map_coverage` above baseline (quickstart §1; integration, local-only). **PROVEN (2026-06-04, lq_e1m1, 60s):** shots_fired 9, kills 1, accuracy 0.3333, map_coverage 1.0 (38/38), clean `timeout` stream. Required fixing two live bugs first — combat acquisition (coop-gated) + death-terminal (commit 1d8bf90).
 
 **Checkpoint**: the agent plays an un-waypointed map and produces real combat
 telemetry. MVP demoable; feature-001 telemetry is no longer all-zero.
@@ -77,7 +77,7 @@ telemetry. MVP demoable; feature-001 telemetry is no longer all-zero.
 **Independent Test**: run a second, previously-unused un-waypointed map → navigates + reaches combat; 0 manual nav-authoring steps.
 
 - [X] T012 [P] [US2] Add `sims/configs/nav2.toml` for a second LibreQuake map not used in US1 dev (US2 independent test).
-- [ ] T013 [US2] Live (local) verify on the second map: navigation + combat with zero per-map steps; confirm no `maps/*.way` was hand-authored (quickstart §2, SC-002).
+- [X] T013 [US2] Live (local) verify on the second map: navigation + combat with zero per-map steps; confirm no `maps/*.way` was hand-authored (quickstart §2, SC-002). **PROVEN (2026-06-04, lq_e1m2):** 3× kill monster_army, shots/hits, auto-gen + auto-save, clean stream — zero per-map authoring.
 
 **Checkpoint**: "automatic" is shown to generalize — the procedural-maps precondition.
 
