@@ -918,7 +918,17 @@ void() BotAI =
 	// idledoom (002): track the agent's nav coverage every frame, before the
 	// ai_time stagger early-return below.
 	if (cvar("sim_mode") && (self.flags & FL_CLIENT))
+	{
 		bot_nav_track();
+		// boredom: climbs while wandering without a fight, resets the instant the
+		// agent has an enemy. frik_bot_roam reads it to switch from exploring to
+		// hunting the nearest monster (threshold scaled by bot_aggression).
+		if (self.enemy != world)
+			self.boredom = 0;
+		else
+			self.boredom = self.boredom + 1;
+		tel_boredom = self.boredom;   // mirror for the nav telemetry sample
+	}
 
 	// am I dead? Fire randomly until I respawn
 	// health < 1 is used because fractional healths show up as 0 on normal player

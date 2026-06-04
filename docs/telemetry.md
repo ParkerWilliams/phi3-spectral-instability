@@ -39,6 +39,7 @@ inconsistent telemetry is painful to clean up later.
     "shots_hit": 31,
     "accuracy": 0.369,
     "time_to_exit_sec": 118.2,
+    "time_to_combat_sec": 8.5,
     "waypoints_visited": 42,
     "waypoints_total": 60,
     "map_coverage": 0.7,
@@ -72,6 +73,10 @@ inconsistent telemetry is painful to clean up later.
 - `level_end` — `{ "outcome": "completed", "time_sec": 118.2, "waypoints_total": 60, "waypoints_visited": 42, "distance_traveled": 18450, "reached_exit": 1 }`
   (the navigation-coverage fields are carried here, analogous to `secrets_total`
   on `level_start`; the harness folds them into the summary `stats` — feature 002)
+- `nav` — `{ "x": 512, "y": -128, "waypoints": 7, "distance": 1840 }` — periodic
+  (~every 2s) agent position + cumulative coverage counters. The harness derives
+  **all** traversal metrics from this time series (`stats.traversal`), so metrics
+  can be added/swapped without rebuilding QuakeC. See `sims/idledoom_sim/traversal.py`.
 - `kill` — `{ "victim": "monster_army", "weapon": "super_shotgun", "distance": 320 }`
 - `death` — `{ "cause": "rocket_splash_self", "killer": "self" }`
 - `shot` — `{ "weapon": "shotgun", "target": "monster_army | null" }`
@@ -136,6 +141,27 @@ Navigation coverage adds five `stats` fields — `waypoints_visited`,
 `waypoints_total`/`visited`/`distance`/`reached_exit` are carried on `level_end`
 and sourced there rather than counted from per-event types — the rest of the
 reconciliation invariant is unchanged. `data-model.md` (002) is the entity source.
+
+### Traversal metrics (nav-competence follow-up)
+
+The end-of-run coverage fields above **saturate** (a small map is fully explored
+at any competence within the time limit, and `map_coverage` = `visited/total` is
+~always `1.0`), so they don't distinguish nav skill. The fix is a **pluggable
+metric layer**: QuakeC emits a cheap periodic `nav` sample (position + counters);
+the harness computes a registry of metrics from that stream into the additive
+`stats.traversal` object (still `schema_version 1`). Current metrics: `extent_area`,
+`visited_cells`, `waypoints_at_15s` / `distance_at_15s` (exploration *rate* — the
+ones that discriminate competence despite saturation), `final_waypoints`. Switch
+which one is authoritative in analysis via `compare --metric stats.traversal.<name>`;
+add one by registering a function in `traversal.py`. Picking the *primary*
+progression-driving metric is deliberately deferred — we expect to revisit this.
+
+**Coverage is a poor proxy for nav skill** (observed): higher `bot_map_awareness`
+routes *directly* (less distance, fewer cells, frontiers reached sooner), while low
+competence *wanders* and incidentally touches more cells — so coverage metrics
+reward aimlessness. The goal-oriented signal `time_to_combat_sec` (sim-time of the
+first shot; event-derived, not nav-sample-derived) sidesteps this: a skilled
+navigator reaches the fight *sooner*. Lower is better; `null` if no combat.
 
 ## Open questions
 

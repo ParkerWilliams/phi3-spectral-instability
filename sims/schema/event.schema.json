@@ -15,7 +15,7 @@
     },
     "run_id": { "type": "string", "format": "uuid" },
     "type": {
-      "enum": ["level_start", "level_end", "kill", "death", "shot", "hit", "pickup", "secret", "upgrade_applied"]
+      "enum": ["level_start", "level_end", "nav", "kill", "death", "shot", "hit", "pickup", "secret", "upgrade_applied"]
     },
     "data": { "type": "object" }
   },

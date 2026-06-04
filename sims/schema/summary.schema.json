@@ -50,11 +50,16 @@
         "shots_hit": { "type": "integer", "minimum": 0 },
         "accuracy": { "type": "number", "minimum": 0, "maximum": 1 },
         "time_to_exit_sec": { "type": ["number", "null"], "minimum": 0 },
+        "time_to_combat_sec": { "type": ["number", "null"], "minimum": 0 },
         "waypoints_visited": { "type": "integer", "minimum": 0 },
         "waypoints_total": { "type": "integer", "minimum": 0 },
         "map_coverage": { "type": "number", "minimum": 0, "maximum": 1 },
         "distance_traveled": { "type": "number", "minimum": 0 },
         "reached_exit": { "type": "boolean" },
+        "traversal": {
+          "type": "object",
+          "additionalProperties": { "type": "number" }
+        },
         "weapon_usage": {
           "type": "object",
           "additionalProperties": {

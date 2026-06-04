@@ -20,6 +20,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
+from .traversal import compute_traversal
+
 EVENT_PREFIX = "@EVT|"
 SCHEMA_VERSION = 1
 
@@ -128,12 +130,18 @@ def _empty_stats() -> dict[str, Any]:
         "shots_hit": 0,
         "accuracy": 0.0,
         "time_to_exit_sec": None,
+        # Goal-oriented nav-competence signal: sim-time of the agent's first shot
+        # (None if it never reached combat). Lower = nav got it to the fight faster.
+        "time_to_combat_sec": None,
         # Navigation coverage (feature 002) — sourced from level_end, not counted.
         "waypoints_visited": 0,
         "waypoints_total": 0,
         "map_coverage": 0.0,
         "distance_traveled": 0,
         "reached_exit": False,
+        # Pluggable traversal-coverage metrics (computed from the `nav` sample
+        # stream by traversal.py); empty when no nav samples were emitted.
+        "traversal": {},
         "weapon_usage": {},
         "deaths_by_cause": {},
     }
@@ -182,6 +190,11 @@ def aggregate(events: list[ParsedEvent]) -> dict[str, Any]:
             deaths_by_cause[cause] = deaths_by_cause.get(cause, 0) + 1
         elif ev.type == "shot":
             stats["shots_fired"] += 1
+            if stats["time_to_combat_sec"] is None:
+                # Goal-oriented nav-competence signal: how fast navigation got the
+                # agent into a fight. Unlike coverage, this isn't inflated by aimless
+                # wandering — a skilled navigator reaches the action sooner.
+                stats["time_to_combat_sec"] = ev.t
             weapon = ev.data.get("weapon")
             if weapon is not None:
                 _wu(str(weapon))["shots"] += 1
@@ -207,4 +220,7 @@ def aggregate(events: list[ParsedEvent]) -> dict[str, Any]:
     )
     stats["weapon_usage"] = weapon_usage
     stats["deaths_by_cause"] = deaths_by_cause
+    # Traversal metrics: a pure function of the `nav` sample stream (registry in
+    # traversal.py). Computed in parallel so any one is selectable in `compare`.
+    stats["traversal"] = compute_traversal(events)
     return stats

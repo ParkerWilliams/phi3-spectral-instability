@@ -155,6 +155,7 @@ for all variables in the bot...
 .vector dyn_dest;
 .vector stuck_org;   // T017: agent origin sampled at the last stuck-check
 .float  stuck_time;  // T017: next sim-time to evaluate the stuck window
+.float  boredom;     // boredom: rises while wandering w/o a fight, resets in combat
 
 // --------defines-----
 float SVC_UPDATENAME	= 13;
@@ -247,6 +248,11 @@ float nav_lastgrow;              // sim-time the waypoint count last increased
 // idledoom (T017 / research R7): stuck detection + recovery (idle-tolerance).
 float STUCK_WINDOW   = 1.5;      // seconds between stuck-checks
 float STUCK_MIN_DIST = 40;       // min horizontal travel per window, else "stuck"
+
+// boredom: think-ticks of wandering (no enemy) before the agent stops exploring
+// and beelines to the nearest monster. The effective threshold scales with
+// bot_aggression (impatient bots seek combat sooner) — see frik_bot_roam.
+float BOREDOM_TICKS  = 40;
 
 // -------ProtoTypes------
 // external
