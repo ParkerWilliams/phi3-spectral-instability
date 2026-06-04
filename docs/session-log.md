@@ -3,6 +3,23 @@
 Rolling state summary so work survives session/crash loss (CLAUDE.md convention).
 Newest entry on top. Keep entries short: what's true now, what's next, gotchas.
 
+## 2026-06-04 — Watch-feel tuning: smooth aim (whiskers next) on feat/watch-feel
+
+Aim was too jerky to watch. CL_KeyMove (skill!=2) turned at a fixed 210 deg/s
+on/off via look-keys (snaps + stops dead at 10 deg); navigation did an instant
+v_angle=b_angle snap each think. Replaced with an **eased proportional turn**
+(bot_smooth_aim): rate = angle_error * bot_turn_gain, capped at bot_turn_max deg/s —
+a fast SWING when far off-target that slows as it lines up (calibration). Both knobs
+live-tunable in the ~ console. bot_angle_set skips its snaps under smooth-aim and
+lets CL_KeyMove own v_angle. **Watch-only opt-in** (watch launch sets bot_smooth_aim
+1); headless sim unchanged so SC-003/SC-004 metrics hold. Defaults gain 6 / max 300.
+
+Sequenced deliberately: ship + tune the aim FEEL first (isolate the variable), then
+do the **whiskers** (forward/side feeler traces to stop wall-face-scraping) as a
+separate pass. Ledge-fall risk from smooth nav-turning (the old instant-snap was an
+anti-walk-off hack) — mitigated by the turn cap; raise bot_turn_max if it walks off
+during turn-arounds. Needs build-quakec.
+
 ## 2026-06-04 — Watch mode (first-person bot-cam) on feat/watch-mode
 
 `just watch` — a lightweight GL-client observation path (no Tauri yet): listen

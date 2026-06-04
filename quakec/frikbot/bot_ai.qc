@@ -840,6 +840,14 @@ void() bot_angle_set =
 	}
 	else
 		self.b_angle_x = 0;
+	// idledoom (watch feel): with smooth aim, the eased turn in CL_KeyMove owns
+	// v_angle — just keep b_angle as the target and don't snap/look-key here.
+	if (cvar("bot_smooth_aim"))
+	{
+		if (self.b_angle_x > 180)
+			self.b_angle_x = self.b_angle_x - 360;
+		return;
+	}
 	// HACK HACK HACK HACK
 	// The bot falls off ledges a lot because of "turning around"
 	// so let the bot use instant turn around when not hunting a player

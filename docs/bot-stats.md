@@ -88,6 +88,10 @@ Harness-set run controls, **not** player-facing tunables and **not** clamped lik
 | `sim_seed` | int | per-run seed, surfaced in `level_start` (wiring it to the engine RNG is an open question — research R6) |
 | `sim_time_limit` | float | in-engine session cap (seconds) → `timeout` outcome |
 | `sim_nav_regen` | int | `1` = regenerate the nav graph even if `data/maps/<map>.way` exists; `0` (default) = load it if present, else generate (feature 002, T009) |
+| `sim_watch` | int | `1` = watch session: keep behaviors but suppress the death/timeout auto-quit, and make the human host a non-solid first-person bot-cam observer |
+| `bot_smooth_aim` | int | `1` = human-like eased view turning (big swing → slow calibration) instead of robotic fixed-rate/instant turns. Watch-feel; off in the headless sim so its metrics are unchanged |
+| `bot_turn_gain` | float | smooth-aim responsiveness (turn rate ≈ error × gain). Default 6. Higher = snappier. **Live-tunable** in the `~` console |
+| `bot_turn_max` | float | smooth-aim turn-rate cap, deg/sec (the max swing speed). Default 300. Lower = slower, more deliberate. **Live-tunable** |
 
 ## Implementation status (feature 001)
 
