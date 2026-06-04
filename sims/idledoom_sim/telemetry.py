@@ -130,6 +130,9 @@ def _empty_stats() -> dict[str, Any]:
         "shots_hit": 0,
         "accuracy": 0.0,
         "time_to_exit_sec": None,
+        # Goal-oriented nav-competence signal: sim-time of the agent's first shot
+        # (None if it never reached combat). Lower = nav got it to the fight faster.
+        "time_to_combat_sec": None,
         # Navigation coverage (feature 002) — sourced from level_end, not counted.
         "waypoints_visited": 0,
         "waypoints_total": 0,
@@ -187,6 +190,11 @@ def aggregate(events: list[ParsedEvent]) -> dict[str, Any]:
             deaths_by_cause[cause] = deaths_by_cause.get(cause, 0) + 1
         elif ev.type == "shot":
             stats["shots_fired"] += 1
+            if stats["time_to_combat_sec"] is None:
+                # Goal-oriented nav-competence signal: how fast navigation got the
+                # agent into a fight. Unlike coverage, this isn't inflated by aimless
+                # wandering — a skilled navigator reaches the action sooner.
+                stats["time_to_combat_sec"] = ev.t
             weapon = ev.data.get("weapon")
             if weapon is not None:
                 _wu(str(weapon))["shots"] += 1

@@ -85,6 +85,27 @@ def test_aggregate_populates_traversal_block() -> None:
     assert stats["traversal"]["final_waypoints"] == 9.0
 
 
+def test_time_to_combat_is_first_shot_timestamp() -> None:
+    # Goal-oriented competence signal: sim-time of the first shot (not wandering).
+    events = [
+        ParsedEvent(0.0, "level_start", {"map": "m", "seed": 1, "secrets_total": 0}),
+        _nav(2.0, 0, 0, 1, 50),
+        ParsedEvent(8.5, "shot", {"weapon": "shotgun", "target": "null"}),
+        ParsedEvent(9.0, "shot", {"weapon": "shotgun", "target": "null"}),
+        ParsedEvent(30.0, "level_end", {"outcome": "timeout", "time_sec": 30.0}),
+    ]
+    assert aggregate(events)["time_to_combat_sec"] == 8.5
+
+
+def test_time_to_combat_none_when_no_combat() -> None:
+    events = [
+        ParsedEvent(0.0, "level_start", {"map": "m", "seed": 1, "secrets_total": 0}),
+        _nav(2.0, 0, 0, 1, 50),
+        ParsedEvent(30.0, "level_end", {"outcome": "timeout", "time_sec": 30.0}),
+    ]
+    assert aggregate(events)["time_to_combat_sec"] is None
+
+
 def test_aggregate_traversal_empty_without_nav_events() -> None:
     # A pre-nav-event stream -> {} (unmeasured), not misleading zeros.
     events = [

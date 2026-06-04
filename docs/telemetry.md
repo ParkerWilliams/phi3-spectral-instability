@@ -39,6 +39,7 @@ inconsistent telemetry is painful to clean up later.
     "shots_hit": 31,
     "accuracy": 0.369,
     "time_to_exit_sec": 118.2,
+    "time_to_combat_sec": 8.5,
     "waypoints_visited": 42,
     "waypoints_total": 60,
     "map_coverage": 0.7,
@@ -154,6 +155,13 @@ ones that discriminate competence despite saturation), `final_waypoints`. Switch
 which one is authoritative in analysis via `compare --metric stats.traversal.<name>`;
 add one by registering a function in `traversal.py`. Picking the *primary*
 progression-driving metric is deliberately deferred — we expect to revisit this.
+
+**Coverage is a poor proxy for nav skill** (observed): higher `bot_map_awareness`
+routes *directly* (less distance, fewer cells, frontiers reached sooner), while low
+competence *wanders* and incidentally touches more cells — so coverage metrics
+reward aimlessness. The goal-oriented signal `time_to_combat_sec` (sim-time of the
+first shot; event-derived, not nav-sample-derived) sidesteps this: a skilled
+navigator reaches the fight *sooner*. Lower is better; `null` if no combat.
 
 ## Open questions
 
