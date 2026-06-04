@@ -142,7 +142,11 @@ void() bot_dodge_stuff =
 			}
 		}
 	}
-	if (coop)
+	// idledoom (debug Issue B): target MONSTERS, not just players. FrikBot only
+	// hunts monsters in coop; our sim runs deathmatch 0 / coop 0 (and coop would
+	// disable DynamicWaypoint — bot_way.qc), so without this the agent walks past
+	// monsters and never fires. In sim mode, run the monster-acquisition scan.
+	if (coop || cvar("sim_mode"))
 	{
 		if (!self.enemy)
 		{

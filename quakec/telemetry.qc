@@ -196,6 +196,17 @@ void(entity attacker) Tel_Death =
 	Tel_Str("cause", who);
 	Tel_Str("killer", who);
 	Tel_End();
+	// idledoom (debug Issue A): in a sim, the agent's death is a terminal outcome.
+	// Single-player restarts the level on death (the dead bot's random fire acts as
+	// a respawn input), which reinitialises QuakeC globals — resetting the telemetry
+	// clock and one-shot guards — so no level_end ever emits and the stream
+	// truncates (watchdog kill). Emit the terminal level_end{died} + quit so the run
+	// ends cleanly with outcome "died" instead of looping into a restart.
+	if (cvar("sim_mode") && (self.flags & FL_CLIENT))
+	{
+		Tel_LevelEnd("died");
+		localcmd("quit\n");
+	}
 };
 
 // shot: one per agent trigger-pull (T026). target is null at fire time; the hit
