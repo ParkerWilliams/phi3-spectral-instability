@@ -24,6 +24,15 @@ tuning: the fteqw-gl binary path, the `maxplayers` cvar name/effect (if the agen
 loiters, max_clients<2 → DynamicWaypoint off), and the bot-cam keypress/auto-attach.
 Expect a first-cut iteration pass. QuakeC compiles by inspection; pytest unaffected.
 
+**Iter 1 (1st live run): GL client built + ran ✓; Issue C reuse CONFIRMED**
+(`execing data/maps/lq_e1m2.way`, no "couldn't exec"). But hit a **telefrag death
+loop**: SP maps have one `info_player_start`, so the human host + the agent spawn on
+the same spot and `spawn_tdeath` (client.qc:807) telefrags them repeatedly → level
+restarts → spam. **Fix:** gate `spawn_tdeath` on `!sim_mode` (co-spawn alive; agent
+walks off, observer rides the cam). Caveat to watch next run: host+agent overlap at
+spawn briefly — the agent may be blocked until you press O (botcam → non-solid);
+if it's stuck at spawn, that's why. Rebuild + re-run `just watch`.
+
 ## 2026-06-04 — Fix Issue C (.way reuse path) on fix/way-reuse-path
 
 **Confirmed broken then fixed.** Two-run test: the file lands at

@@ -804,8 +804,15 @@ void() PutClientInServer =
 		spawn_tfog (self.origin + v_forward*20);
 	}
 
-	spawn_tdeath (self.origin, self);
-	
+	// idledoom (watch mode): don't telefrag-on-spawn in sim_mode. SP maps have a
+	// single info_player_start, so in a watch listen server the human host and the
+	// autostarted agent both spawn there and telefrag each other in a death/restart
+	// loop. Suppressing the spawn-telefrag lets them co-spawn alive; the agent walks
+	// off to explore and the observer rides the bot-cam. Harmless to the headless
+	// sim (the bot spawns alone, so spawn_tdeath already hits nothing).
+	if (!cvar("sim_mode"))
+		spawn_tdeath (self.origin, self);
+
 	stuffcmd(self, "-attack\n"); // prevent shooting after respawning
 };
 
