@@ -55,6 +55,16 @@ never blocks the agent — no O needed for movement, fly around or press O for
 first-person. (2) Switched the watch map to **lq_e1m1** (clean spawn; the agent
 already explored+fought there). Needs `build-quakec` (client.qc changed).
 
+**Iter 4: agent MOVES now** (lq_e1m1: distance 0→599, x/y changing) — the non-solid
+host fix worked. But the camera sat at the host's spawn while the agent ran off.
+**Design clarified (Parker):** "watch your friend get better" = sitting beside a
+friend watching HIS SCREEN — i.e. the agent's own **first-person FPS view**, NOT a
+third-person chase. The game is first-person FPS throughout. Fix: `PlayerPreThink`
+now **auto-attaches FrikBot's bot-cam** to the agent the moment it connects
+(`bot_count > 0`), one-shot — the window becomes the agent's first-person view with
+no keypress; BotPreFrame's `botcam()` follows each frame. (O still cycles/detaches.)
+Needs `build-quakec`.
+
 ## 2026-06-04 — Fix Issue C (.way reuse path) on fix/way-reuse-path
 
 **Confirmed broken then fixed.** Two-run test: the file lands at

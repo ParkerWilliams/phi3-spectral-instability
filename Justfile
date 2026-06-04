@@ -41,8 +41,8 @@ watch: build-engine build-quakec
        +set sim_nav_regen 1 \
        +bind o "impulse 103" \
        +map lq_e1m1
-    @echo "Your host is a non-solid fly-around observer (it won't block the agent)."
-    @echo "Press O to ride the agent first-person (bot-cam); press again to detach."
+    @echo "The view auto-attaches to the agent's first-person (like watching a"
+    @echo "friend's screen). Press O to cycle/detach the camera if you want."
 
 # Build all components
 build: build-engine build-quakec build-host
