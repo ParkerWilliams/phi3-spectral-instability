@@ -3,6 +3,41 @@
 Rolling state summary so work survives session/crash loss (CLAUDE.md convention).
 Newest entry on top. Keep entries short: what's true now, what's next, gotchas.
 
+## 2026-06-04 — 🎯 MVP WORKING: agent navigates + fights + kills (live, lq_e1m2)
+
+First local build of 002 QuakeC compiled clean (0 errors). Live runs surfaced — and
+we fixed — two root causes; the agent now plays for real.
+
+**Proven live (lq_e1m2, un-waypointed):** `@EVT` stream shows shot→hit→**3× kill
+monster_army** (shotgun) + backpack pickups + clean `level_end|timeout`,
+`waypoints 9/9`, distance 4572. Nav generation (T008/T009) + combat both working.
+
+**Two bugs found & fixed (commit 1d8bf90):**
+- **Issue B — agent never fired.** FrikBot acquires monsters only `if (coop)`
+  (`bot_fight.qc` `bot_dodge_stuff`); sim runs deathmatch 0 / coop 0 (coop would
+  disable DynamicWaypoint), so it hunted only players (none) → walked past
+  monsters. Fix: monster-scan when `coop || sim_mode`.
+- **Issue A — death truncated the stream.** SP restarts the level on death (dead
+  bot's random fire = respawn input) → QuakeC globals reinit → telemetry clock +
+  guards reset → no `level_end`, watchdog kill, "not bracketed". Fix: in sim, the
+  agent's death emits `Tel_LevelEnd("died")` + quit. (In place; not yet exercised
+  live since the agent now wins its fights.)
+
+**Still OPEN:**
+- **Issue C (T009 reuse broken):** `SaveWays` writes `data/maps/<map>.way` but load
+  does `exec maps/<map>.way` → `couldn't exec`; saved graphs never reused.
+  Generation-per-run still works (so not blocking). Save path ≠ exec search path —
+  needs a path fix.
+- **lq_e1m1 (T011/nav.toml):** nav works (15 wpts, dist 5845) but no combat in a
+  30s run — agent didn't reach a monster in time; needs a 60s+ run to confirm
+  combat there (lq_e1m2 already proves the wiring).
+- **Proof artifacts not yet captured via the real harness:** run `harness.py run`
+  (not rawrun) for proper summaries; then `compare` for SC-004 (accuracy, unblocks
+  001) and SC-003 (map_coverage vs bot_map_awareness).
+
+**rawrun.py** dev helper added (dumps raw engine stdout to /tmp/<cfg>.log) — how we
+caught A/C (the harness keeps only parsed @EVT, hiding runtime/console lines).
+
 ## 2026-06-03 — 002 FULL slice code-complete (US1–US4 + polish); build-then-merge
 
 **Decision (Parker):** drop the stacked-PR ceremony, push hard for a full-002 MVP,
