@@ -207,9 +207,15 @@ detects and escapes stuck states).
   standard time limit — with zero per-map navigation authoring.
 - **SC-002**: Adding a new map to the rotation requires **0 manual
   navigation-authoring steps**, and the agent still navigates it (US2).
-- **SC-003**: Higher navigation competence measurably improves traversal — the
-  chosen traversal metric (level coverage and/or time-to-exit) improves
-  monotonically from the low to the high setting, averaged over runs (US3/FR-005).
+- **SC-003**: Higher navigation competence measurably improves traversal,
+  averaged over runs (US3/FR-005). **DEMONSTRATED (2026-06-04, lq_e1m2, n=4):**
+  `bot_map_awareness` 0.1→0.9 cut `time_to_combat_sec` 14.33→8.86 (~38% faster to
+  the fight) and raised `traversal.waypoints_at_15s` 6.5→11.25 (~73% more
+  exploration by t=15s). **Metric note:** the original "level coverage" framing was
+  a poor proxy — coverage saturates on small maps and *rewards aimless wandering*
+  (low competence wanders → touches more cells). The competence signal is
+  **goal-reach + exploration-rate** (`time_to_combat_sec`, `*_at_15s`), not area
+  coverage. See `docs/telemetry.md` and `sims/idledoom_sim/traversal.py`.
 - **SC-004**: **100% of runs reach a terminal outcome within the time limit** — no
   run permanently stalls (US4/FR-006).
 - **SC-005**: With navigation in place, feature-001's SC-004 becomes

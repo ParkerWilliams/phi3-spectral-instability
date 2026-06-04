@@ -3,6 +3,25 @@
 Rolling state summary so work survives session/crash loss (CLAUDE.md convention).
 Newest entry on top. Keep entries short: what's true now, what's next, gotchas.
 
+## 2026-06-04 — 🎯 US3 DEMONSTRATED (+ Issue A confirmed live)
+
+Re-swept on lq_e1m2 (roomier; reliable combat) with the goal/rate metrics:
+`bot_map_awareness` 0.1→0.9 cut **time_to_combat_sec 14.33→8.86s (~38% faster)** and
+raised **waypoints_at_15s 6.5→11.25 (~73% more early exploration)**, n=4. Both
+strong + monotonic → **SC-003 met.** US3 (nav competence as a visible axis) is
+demonstrated. Updated spec.md SC-003 + tasks.md T016.
+
+**Two key findings:** (1) coverage is the WRONG proxy for nav skill — it saturates
+and rewards aimless wandering (low competence touches more cells); the real signal
+is goal-reach (`time_to_combat_sec`) + exploration-rate (`*_at_15s`). (2) The T014
+wiring was fine all along — the earlier "flat" lq_e1m1 result was wrong metric +
+too-small map. Also: a `died` run in the sweep **confirmed Issue A's
+`level_end{died}` terminal live** (last unexercised fix).
+
+All four user stories now demonstrated. `feat/nav-competence-metric` is ready to
+merge to main (pluggable metric layer + time_to_combat + US3 proof; QuakeC sampler
+built clean). The pluggable design held: 3 metric swaps, 0 gamecode rebuilds.
+
 ## 2026-06-04 — Pluggable traversal metrics (US3 follow-up) on feat/nav-competence-metric
 
 Addresses the US3 metric gap. Design (per Parker — "parallel implementation,
