@@ -3,6 +3,24 @@
 Rolling state summary so work survives session/crash loss (CLAUDE.md convention).
 Newest entry on top. Keep entries short: what's true now, what's next, gotchas.
 
+## 2026-06-04 — Verification scorecard: US1/US2/SC-004 ✅, US3 metric gap
+
+Ran the live sweeps. **SC-004 PROVEN** (unblocks feature 001): lq_e1m2, n=6 each,
+`bot_accuracy` 0.1→accuracy 0.2767, 0.9→0.3715 (monotonic ↑). Magnitude compressed
+(close-range shotgun → gentle 15° aim error) — tuning follow-up, not a wiring bug.
+
+**SC-003 (US3) NOT demonstrable with current metrics.** lq_e1m1, `bot_map_awareness`
+0.1 vs 0.9: waypoints_total 21.0 vs 20.3, distance 11232 vs 10403 (flat/slightly
+lower at 0.9). Cause: 60s saturates the reachable area at any awareness (metrics are
+time-bound, not skill-bound), distance is confounded by directness, map_coverage is
+degenerate (1.0). The R5 gap. US3 wiring (T014) ships but the axis is unproven —
+needs a spatial-coverage grid / exploration-rate metric / GL eyes. **Follow-up.**
+
+**Scorecard:** US1 ✅ (lq_e1m1: 9 shots,1 kill) · US2 ✅ (lq_e1m2: 3 kills) ·
+SC-004 ✅ · US3 ⚠️ metric gap · Issue A (death terminal) in code, unexercised
+(bot survives) · Issue C (reuse path) suspected, non-blocking. Core idle loop
+(navigate→fight) works. Merge-worthy for the MVP; US3-metric + C are follow-ups.
+
 ## 2026-06-04 — 🎯 MVP WORKING: agent navigates + fights + kills (live, lq_e1m2)
 
 First local build of 002 QuakeC compiled clean (0 errors). Live runs surfaced — and
