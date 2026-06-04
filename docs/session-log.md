@@ -3,6 +3,22 @@
 Rolling state summary so work survives session/crash loss (CLAUDE.md convention).
 Newest entry on top. Keep entries short: what's true now, what's next, gotchas.
 
+## 2026-06-04 — Fix Issue C (.way reuse path) on fix/way-reuse-path
+
+**Confirmed broken then fixed.** Two-run test: the file lands at
+`quakec/data/maps/<map>.way` (FTE's FS_WRITE sandbox), but `exec maps/<map>.way`
+searches `quakec/maps/` + paks — so run 2 still said `couldn't exec` with the file
+present → graphs never reused, every run regenerated. Fix (`bot.qc` WaypointWatch):
+load via **`exec data/maps/<map>.way`** (the write location); dropped the `maps/`
+exec to avoid a double-load if a map ever had a `.way` in both.
+
+**Verify (build-then-merge):** `just build-quakec`, then run lq_e1m2 TWICE — run 2
+should now show `waypoints detected` / NO `couldn't exec data/maps/...` (reuse
+works). **Risk to watch:** FTE may restrict `exec` from its `data/` write sandbox
+for security; if run 2 still says `couldn't exec data/maps/...` with the file
+present, the fallback is to load via FRIK_FILE read+parse, or relocate the write.
+QuakeC-only; pytest unaffected (68/68). Merge once run-2 reuse is confirmed.
+
 ## 2026-06-04 — Boredom mechanic (combat-seeking) on feat/nav-competence-metric
 
 New behavior: agent `.boredom` rises while wandering (no enemy), resets the instant

@@ -87,7 +87,7 @@ Harness-set run controls, **not** player-facing tunables and **not** clamped lik
 | `sim_mode` | int | `1` = headless sim: autostart one FrikBot agent, emit `@EVT` telemetry, enforce the time limit |
 | `sim_seed` | int | per-run seed, surfaced in `level_start` (wiring it to the engine RNG is an open question — research R6) |
 | `sim_time_limit` | float | in-engine session cap (seconds) → `timeout` outcome |
-| `sim_nav_regen` | int | `1` = regenerate the nav graph even if `maps/<map>.way` exists; `0` (default) = load it if present, else generate (feature 002, T009) |
+| `sim_nav_regen` | int | `1` = regenerate the nav graph even if `data/maps/<map>.way` exists; `0` (default) = load it if present, else generate (feature 002, T009) |
 
 ## Implementation status (feature 001)
 

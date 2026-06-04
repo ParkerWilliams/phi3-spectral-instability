@@ -1215,15 +1215,23 @@ void() WaypointWatch =
 		cvar_set ("saved4", "0");
 		if (max_clients > 1)
 		{
-			// idledoom (T009/R3): load an existing maps/<map>.way unless regen
+			// idledoom (T009/R3 + Issue C): load an existing <map>.way unless regen
 			// is forced. `exec` of a missing file fails silently, so we stay
 			// WM_DYNAMIC and generate fresh; a present file's loader drives
 			// waypoint_mode to WM_LOADED over the next frames. sim_nav_regen 1
 			// skips the load so the graph is always regenerated (and the fresh
 			// graph then overwrites the stale file via NavAutoSave).
+			//
+			// Issue C: FrikBot SaveWays writes through FTE's FS_WRITE sandbox, which
+			// lands the file at <gamedir>/data/maps/<map>.way — NOT <gamedir>/maps/,
+			// where `exec maps/...` searches. So auto-generated graphs were never
+			// reused (confirmed: file at quakec/data/maps/, load still said "couldn't
+			// exec maps/..."). Load from the write location instead. We exec only
+			// data/maps/ (not also maps/) so that if a map ever had a .way in both,
+			// we never double-load and corrupt the graph; auto-gen always writes here.
 			if (!cvar("sim_nav_regen"))
 			{
-				localcmd("exec maps/");
+				localcmd("exec data/maps/");
 				localcmd(mapname);
 				localcmd(".way\n");
 			}
