@@ -142,7 +142,7 @@ solution — the agent has to handle maps no human ever waypointed. The nav data
 
 - **Mechanism (decided — ADR-0003):** generate the nav graph **in QuakeC** on
   FrikBot's `DynamicWaypoint` — a frontier-seeking roam lays waypoints down as the
-  agent explores, and the graph auto-saves to `maps/<map>.way` for reuse (a
+  agent explores, and the graph auto-saves to `data/maps/<map>.way` for reuse (a
   BSP-derived nav-mesh was the considered alternative, deferred to engine-C work).
   See `specs/002-auto-navigation/` (feature 002).
 - **Legacy fallback only:** FrikBot waypoints recorded by hand into a `.way`

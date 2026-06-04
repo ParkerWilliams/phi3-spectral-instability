@@ -21,8 +21,9 @@ map (starting with `lq_e1m1`) using FrikBot's built-in editor.
 
 ## How loading works
 
-At level start the gamecode runs `exec maps/<map>.way` (that's the
-`couldn't exec maps/lq_e1m1.way` line you've seen). A `.way` file is just a
+At level start the gamecode runs `exec data/maps/<map>.way` (Issue C fix — FTE's
+`FS_WRITE` sandbox both writes and now loads under `data/maps/`; the old
+`exec maps/...` never found the saved file). A `.way` file is just a
 console script that recreates the waypoint graph. Put it in the game dir
 (`quakec/maps/`) and **both** the GL client and the headless sim load it.
 
