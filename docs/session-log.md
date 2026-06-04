@@ -33,6 +33,18 @@ walks off, observer rides the cam). Caveat to watch next run: host+agent overlap
 spawn briefly — the agent may be blocked until you press O (botcam → non-solid);
 if it's stuck at spawn, that's why. Rebuild + re-run `just watch`.
 
+**Iter 2: telefrag loop GONE ✓** but the agent froze at spawn (distance=0,
+waypoints=1, boredom climbing 56→1887). Cause: the Issue C fix made it LOAD the
+`.way` → WM_LOADED, and our explore + boredom-seek live in `frik_bot_roam` which
+only runs in **WM_DYNAMIC** — so a reused-graph run has NO movement drive (real
+gap: reuse silently disables the good behaviors). Fix (no rebuild — cvar already
+wired): `watch` now sets `sim_nav_regen 1` → forces fresh generation → WM_DYNAMIC →
+the proven explore/boredom/combat behavior. Plus press **O** to free the agent from
+the host co-spawn collision (host → non-solid bot-cam). **Follow-ups:** (a) make
+explore/boredom run in WM_LOADED too, else reuse degrades behavior everywhere, not
+just watch; (b) auto-free/auto-cam the host so O isn't required (needs reliable
+human-vs-bot detection — `ishuman` semantics unclear).
+
 ## 2026-06-04 — Fix Issue C (.way reuse path) on fix/way-reuse-path
 
 **Confirmed broken then fixed.** Two-run test: the file lands at
