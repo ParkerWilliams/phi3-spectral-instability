@@ -156,6 +156,8 @@ for all variables in the bot...
 .vector stuck_org;   // T017: agent origin sampled at the last stuck-check
 .float  stuck_time;  // T017: next sim-time to evaluate the stuck window
 .float  boredom;     // boredom: rises while wandering w/o a fight, resets in combat
+.float  scan_time;   // next time to re-pick a view glance offset (look-around scan)
+.float  scan_dir;    // current view glance offset (deg) around the move heading
 
 // --------defines-----
 float SVC_UPDATENAME	= 13;

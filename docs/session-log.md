@@ -3,6 +3,30 @@
 Rolling state summary so work survives session/crash loss (CLAUDE.md convention).
 Newest entry on top. Keep entries short: what's true now, what's next, gotchas.
 
+## 2026-06-04 — Radial-scan roam: walk toward open space, scan view (feat/watch-feel)
+
+Parker: bot still gets stuck (boredom not unsticking it); wants human-style nav —
+continuously scan the environment, and pick far-away points by throwing vectors,
+measuring lengths, walking toward the longest; boredom should make it EXIT a room
+rather than do laps. And: steer MOVEMENT independent of VIEW (how humans play).
+
+Rewrote frik_bot_roam (replaces the candidate-sampling frontier roam):
+- Radial scan: cast 12..24 rays (scales w/ bot_map_awareness) in a full circle from
+  the eye; score = ray length (openness) + away*nearest_way_dist(endpoint)
+  (unexplored bias). Walk toward the best -> heads to open space, never wall-scrapes.
+- Boredom amplifies the unexplored bias (bot_exit_bias) -> leaves the area / no laps.
+  Bored + a monster anywhere -> hunt it (kept).
+- MOVE decoupled from VIEW: frik_walkmove(bestdir) (frik_KeysForDir maps a world dir
+  to forward/strafe keys relative to v_angle), while the view scans independently —
+  a glance offset (bot_scan_amp) re-picked every 0.6s, swept smoothly by the eased
+  turn (bot_smooth_aim). Body goes to open space; eyes look around.
+- New fields scan_time/scan_dir. Live cvars: bot_scan_amp, bot_explore_bias,
+  bot_exit_bias (set in watch launch; tune in ~ console).
+
+Big untested behavior change — on feat/watch-feel, main keeps the working roam.
+Changes the headless sim roam too -> SC-003/SC-004 will need re-baselining. Needs
+build-quakec. Watch for: crabbing if scan_amp too high; walk-offs on slow turns.
+
 ## 2026-06-04 — Watch-feel tuning: smooth aim (whiskers next) on feat/watch-feel
 
 Aim was too jerky to watch. CL_KeyMove (skill!=2) turned at a fixed 210 deg/s

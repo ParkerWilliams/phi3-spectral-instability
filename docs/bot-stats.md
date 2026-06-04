@@ -92,6 +92,9 @@ Harness-set run controls, **not** player-facing tunables and **not** clamped lik
 | `bot_smooth_aim` | int | `1` = human-like eased view turning (big swing → slow calibration) instead of robotic fixed-rate/instant turns. Watch-feel; off in the headless sim so its metrics are unchanged |
 | `bot_turn_gain` | float | smooth-aim responsiveness (turn rate ≈ error × gain). Default 6. Higher = snappier. **Live-tunable** in the `~` console |
 | `bot_turn_max` | float | smooth-aim turn-rate cap, deg/sec (the max swing speed). Default 300. Lower = slower, more deliberate. **Live-tunable** |
+| `bot_scan_amp` | float | how far the view glances off the move heading while exploring (deg, default 35) — the "look around" scan. Movement is steered independently. **Live-tunable** |
+| `bot_explore_bias` | float | radial-scan weight on heading toward UNEXPLORED space vs just the most-open ray (default 1; scaled by `bot_map_awareness`). **Live-tunable** |
+| `bot_exit_bias` | float | extra unexplored-weight added when bored, so the agent leaves the area instead of doing laps (default 3). **Live-tunable** |
 
 ## Implementation status (feature 001)
 

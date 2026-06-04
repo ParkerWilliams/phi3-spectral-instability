@@ -521,101 +521,100 @@ entity() nearest_monster =
 	return best;
 };
 
+// idledoom: human-style exploration. Instead of scraping along walls, the agent
+// looks at the open space around it and walks toward the most open direction —
+// like a person playing an FPS. Movement is steered INDEPENDENTLY of the view:
+// the body heads to open space (frik_walkmove of a world direction) while the eyes
+// scan around (a glance offset on b_angle, eased by bot_smooth_aim).
+//
+// Radial scan: cast rays in a full circle from the eye; each ray's length is how
+// open that heading is. Score = openness + an "unexplored" bias (distance from
+// existing waypoints) so it prefers NEW space over re-treading; boredom amplifies
+// that bias so the agent stops doing laps and EXITS the area it's in. Ray count and
+// the bias scale with bot_map_awareness (US3). Tunable live: bot_explore_bias,
+// bot_exit_bias, bot_scan_amp (view look-around amplitude).
 void() frik_bot_roam =
 {
-	local vector org, ang, org1, bestorg;
-	local float loopcount, dist, score, bestscore, acc, aggr, bored_thresh;
+	local vector ang, eye, bestdir, bestorg, va;
+	local float i, n, len, score, best, acc, aggr, bored_thresh, away, amp;
 	local entity m;
 
-	// idledoom (boredom): if the agent has wandered too long without a fight, stop
-	// frontier-exploring and beeline to the nearest live monster — it "gets bored
-	// and seeks combat". Threshold scales with bot_aggression (impatient bots seek
-	// sooner: ~1.5x BOREDOM_TICKS at aggression 0, ~0.5x at 1). Once the monster is
-	// in view, normal acquisition (bot_dodge_stuff) takes over and it fights; the
-	// kill clears the enemy and boredom climbs again -> a restless hunt loop.
 	aggr = cvar("bot_aggression");
 	if (aggr < 0) aggr = 0;
 	if (aggr > 1) aggr = 1;
 	bored_thresh = BOREDOM_TICKS * (1.5 - aggr);
+
+	// Bored + a monster somewhere -> go hunt it. Head toward it (decoupled); normal
+	// acquisition lines up the shot once it's in sight, which resets boredom.
 	if (self.boredom > bored_thresh)
 	{
 		m = nearest_monster();
 		if (m != world)
 		{
-			SpawnTempWaypoint(m.origin);     // a goal waypoint at the monster
-			org1 = vectoangles(m.origin - (self.origin + self.view_ofs));
-			self.b_angle_y = org1_y;         // face the monster and head for it
-			makevectors(self.v_angle);
-			frik_walkmove(v_forward);
-			return;                          // skip frontier exploration this roam
+			va = vectoangles(m.origin - (self.origin + self.view_ofs));
+			self.b_angle_y = va_y;
+			frik_walkmove(normalize(m.origin - self.origin));
+			return;
 		}
 	}
 
-	// idledoom (002, T008/R2): frontier-biased exploration. The stock roam takes
-	// the FIRST valid random spot, so the agent loiters near spawn and never
-	// reaches combat. Instead sample several candidates and pick the one FARTHEST
-	// from any existing waypoint (the least-explored frontier), so dynamic
-	// waypointing pushes outward and brings enemies into view. The candidate count
-	// scales with bot_map_awareness (the navigation-competence axis, T014).
-	acc = cvar("bot_map_awareness");     // launcher always sets it (default 0.3)
-	if (acc < 0) acc = 0;                // clamp to the catalogue range [0,1]
+	acc = cvar("bot_map_awareness");
+	if (acc < 0) acc = 0;
 	if (acc > 1) acc = 1;
-	loopcount = 8 + floor(acc * 24);     // 8..32 candidates (exploration thoroughness)
-	bestscore = -1;
-	bestorg = '0 0 0';
+	n = 12 + floor(acc * 12);             // 12..24 rays (finer choice at high awareness)
 
-	while (loopcount > 0)
+	away = cvar("bot_explore_bias");
+	if (away <= 0) away = 1;
+	away = away * (0.5 + acc);            // higher awareness -> stronger pull to new space
+	if (self.boredom > bored_thresh)
 	{
-		loopcount = loopcount - 1;
-		org = self.origin + self.view_ofs;
-		ang = self.angles;
-		ang_y = frik_anglemod(ang_y - 90 + (random() * 180));
-		ang_x = 0; // avoid upward sloping
+		amp = cvar("bot_exit_bias");
+		if (amp <= 0) amp = 3;
+		away = away + amp;               // bored -> strongly prefer leaving the area
+	}
+
+	eye = self.origin + self.view_ofs;
+	best = -1;
+	bestdir = '0 0 0';
+	bestorg = eye;
+	i = 0;
+	while (i < n)
+	{
+		ang = '0 0 0';
+		ang_y = i * (360 / n);
 		makevectors(ang);
-		traceline(org, org + v_forward * 2300, TRUE, self);
-		if (trace_fraction != 1)
+		traceline(eye, eye + v_forward * 2300, TRUE, self);
+		len = vlen(trace_endpos - eye);
+		score = len + away * nearest_way_dist(trace_endpos);
+		if (score > best)
 		{
-			org1 = trace_endpos;
-			ang = normalize(trace_plane_normal);
-			ang_z = 0; // avoid upward sloping
-			traceline(org1, org1 + (ang * 2300), TRUE, self);
-			if ((trace_fraction != 1) && (vlen(trace_endpos - org1) >= 64))
-			{
-				org = trace_endpos;
-				traceline(org, self.origin + self.view_ofs, TRUE, self);
-				if (trace_fraction != 1)
-				{
-					dist = vlen(org1 - org) /2;
-					org = org1 + (ang * dist);
-					traceline(org, org - '0 0 48', TRUE, self);
-					if (trace_fraction != 1)
-					{
-						score = nearest_way_dist(org);
-						if (score > bestscore)
-						{
-							bestscore = score;
-							bestorg = org;
-						}
-					}
-				}
-			}
+			best = score;
+			bestdir = v_forward;
+			bestorg = trace_endpos;
 		}
+		i = i + 1;
 	}
 
-	if (bestscore >= 0)
+	// Drop a frontier waypoint partway toward the open space (coverage telemetry +
+	// the anti-lap "visited" memory the next scan reads via nearest_way_dist).
+	if (vlen(bestorg - eye) > 96)
+		SpawnTempWaypoint(eye + bestdir * (vlen(bestorg - eye) * 0.5));
+
+	// View: scan the environment independently of movement. Re-pick a glance offset
+	// around the heading periodically; the eased turn sweeps the view there for a
+	// continuous "surveying" look. amp 0 (unset) -> face the heading (no scan).
+	va = vectoangles(bestdir);
+	amp = cvar("bot_scan_amp");
+	if (amp <= 0) amp = 35;
+	if (time > self.scan_time)
 	{
-		SpawnTempWaypoint(bestorg);          // a frontier waypoint to path toward
-		org1 = vectoangles(bestorg - (self.origin + self.view_ofs));
-		// idledoom (T014/R6): route directness also scales with bot_map_awareness.
-		// High competence heads straight at the frontier; low competence adds
-		// heading noise so the agent wanders and backtracks (less coverage, slower)
-		// — so higher awareness yields measurably better traversal (SC-003).
-		// Deviation: up to +-50 deg at acc=0, 0 deg at acc=1.
-		self.b_angle_y = frik_anglemod(org1_y + (1 - acc) * (random() - 0.5) * 100);
+		self.scan_dir = (random() * 2 - 1) * amp;
+		self.scan_time = time + 0.6;
 	}
-	else
-		self.b_angle_y = self.v_angle_y + 10;  // fallback: stock nudge
+	self.b_angle_y = frik_anglemod(va_y + self.scan_dir);
 
-	makevectors(self.v_angle);
-	frik_walkmove(v_forward);
+	// Move toward the open direction, decoupled from the view (frik_KeysForDir
+	// presses forward/strafe relative to v_angle). Body heads to open space; eyes
+	// scan around — how a person actually plays.
+	frik_walkmove(bestdir);
 };

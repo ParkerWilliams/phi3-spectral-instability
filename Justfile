@@ -40,6 +40,7 @@ watch: build-engine build-quakec
        +set maxplayers 2 +set sim_mode 1 +set sim_watch 1 +set sim_time_limit 0 \
        +set sim_nav_regen 1 \
        +set bot_smooth_aim 1 \
+       +set bot_scan_amp 35 +set bot_explore_bias 1 +set bot_exit_bias 3 \
        +bind o "impulse 103" \
        +map lq_e1m1
     @echo "The view auto-attaches to the agent's first-person (like watching a"
