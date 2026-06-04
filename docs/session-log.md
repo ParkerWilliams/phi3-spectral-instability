@@ -3,6 +3,27 @@
 Rolling state summary so work survives session/crash loss (CLAUDE.md convention).
 Newest entry on top. Keep entries short: what's true now, what's next, gotchas.
 
+## 2026-06-04 — ✅ LANDED ON MAIN: 001 + 002 MVP (merge a4bccb5)
+
+Merged `002-auto-navigation` (incl. all of 001) → `main` (`445d4e5..a4bccb5`,
+`--no-ff`). `main` is green: pytest 57/57, QuakeC builds clean. PR #2 auto-closed
+as merged (001's commits are now in main); left a note for Taber. Stacked-PR
+ceremony dropped per Parker to land the MVP directly.
+
+**On main now:** headless sim+telemetry (001) + automatic navigation (002). Agent
+generates its own nav, explores un-waypointed maps, kills monsters, clean telemetry.
+
+**Tracked follow-ups (not blocking):**
+- **US3 metric** — `bot_map_awareness` wired but not demonstrable (R5 coverage-metric
+  gap); needs spatial-coverage/exploration-rate metric or GL eyes.
+- **Issue C** — generated `.way` reuse: save path (`data/maps/`) vs exec path
+  (`maps/`) mismatch; verify + fix.
+- **Issue A** — death→`level_end{died}` terminal in code, never fired live (agent
+  survives); confirm by provoking a death.
+- **SC-004 magnitude** — compressed (close-range shotgun); widen aim-error coeff or
+  test a hitscan weapon at range.
+- `002-auto-navigation` branch can be deleted (merged).
+
 ## 2026-06-04 — Verification scorecard: US1/US2/SC-004 ✅, US3 metric gap
 
 Ran the live sweeps. **SC-004 PROVEN** (unblocks feature 001): lq_e1m2, n=6 each,
