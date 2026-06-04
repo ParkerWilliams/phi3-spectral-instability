@@ -804,8 +804,15 @@ void() PutClientInServer =
 		spawn_tfog (self.origin + v_forward*20);
 	}
 
-	spawn_tdeath (self.origin, self);
-	
+	// idledoom (watch mode): don't telefrag-on-spawn in sim_mode. SP maps have a
+	// single info_player_start, so in a watch listen server the human host and the
+	// autostarted agent both spawn there and telefrag each other in a death/restart
+	// loop. Suppressing the spawn-telefrag lets them co-spawn alive; the agent walks
+	// off to explore and the observer rides the bot-cam. Harmless to the headless
+	// sim (the bot spawns alone, so spawn_tdeath already hits nothing).
+	if (!cvar("sim_mode"))
+		spawn_tdeath (self.origin, self);
+
 	stuffcmd(self, "-attack\n"); // prevent shooting after respawning
 };
 
@@ -1201,6 +1208,21 @@ void() PlayerPreThink =
 {
 	if (BotPreFrame()) // FrikBot
 		return;
+	// idledoom (watch): "sitting next to your friend watching him play Quake" — the
+	// window should BE the agent's own first-person FPS view. Until the cam attaches,
+	// keep the human host a non-solid ghost so it never blocks the co-spawned agent
+	// (SP maps have one info_player_start). Then, the moment the agent is connected,
+	// auto-attach FrikBot's bot-cam so the view rides the agent first-person — no
+	// keypress. Called once (the classname guard skips it afterward); BotPreFrame's
+	// botcam() keeps the view on the agent every frame thereafter. Bots are ishuman 2.
+	if (cvar("sim_watch") && self.ishuman == 1 && self.classname != "botcam")
+	{
+		self.solid = SOLID_NOT;
+		self.movetype = MOVETYPE_NOCLIP;
+		self.takedamage = DAMAGE_NO;
+		if (bot_count > 0)
+			botcam_u();   // become the agent's first-person camera (one-shot)
+	}
 	if (intermission_running)
 	{
 		IntermissionThink ();	// otherwise a button could be missed between

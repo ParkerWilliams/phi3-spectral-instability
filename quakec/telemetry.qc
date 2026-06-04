@@ -234,7 +234,11 @@ void(entity attacker) Tel_Death =
 	// clock and one-shot guards — so no level_end ever emits and the stream
 	// truncates (watchdog kill). Emit the terminal level_end{died} + quit so the run
 	// ends cleanly with outcome "died" instead of looping into a restart.
-	if (cvar("sim_mode") && (self.flags & FL_CLIENT))
+	//
+	// Watch mode (sim_watch 1) skips the quit: a human is observing, so on death we
+	// let the SP level restart and the agent respawn — the session keeps running for
+	// observation rather than closing the window.
+	if (cvar("sim_mode") && (self.flags & FL_CLIENT) && !cvar("sim_watch"))
 	{
 		Tel_LevelEnd("died");
 		localcmd("quit\n");

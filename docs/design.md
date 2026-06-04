@@ -299,6 +299,11 @@ random; movement/positioning doesn't matter.
 
 (Mirror of `CLAUDE.md`; resolve here, then update both.)
 
+- **Hero name (TBD — pending the lore doc).** The agent the player watches needs a
+  name/identity. The watch build currently shows the placeholder `"AGENT"`
+  (`BotConnect`, gated on `sim_mode`). Decide the real name (and broader lore) in a
+  forthcoming lore doc, then change that string (or wire an `agent_name` cvar once
+  `cvar_string` is declared in `defs.qc`).
 - Idle pacing: true offline progression vs active-watch only? (early lean: pure idle)
 - Stat-improvement vs behavior-unlock ratio in progression?
 - Automatic-navigation mechanism for procedural maps (see §3/§7). Direction is

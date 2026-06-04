@@ -3,6 +3,68 @@
 Rolling state summary so work survives session/crash loss (CLAUDE.md convention).
 Newest entry on top. Keep entries short: what's true now, what's next, gotchas.
 
+## 2026-06-04 — Watch mode (first-person bot-cam) on feat/watch-mode
+
+`just watch` — a lightweight GL-client observation path (no Tauri yet): listen
+server, autostarts the agent on lq_e1m2, first-person bot-cam (`impulse 103`,
+bound to O). Makes the agent actually play by setting `sim_mode 1` (combat/boredom/
+nav behaviors are sim_mode-gated) while a new **`sim_watch 1`** flag suppresses the
+death/timeout auto-quits so the window survives (on death the SP level restarts and
+the agent respawns). `sim_time_limit 0` = no timeout. `maxplayers 2` so
+DynamicWaypoint stays enabled (host + agent).
+
+**Hero name = TBD** (Parker building a lore doc). Placeholder `"AGENT"` set in
+`BotConnect` (gated sim_mode); noted in design.md §11 Open Questions. `cvar_string`
+isn't declared in defs.qc, so it's a hardcoded placeholder for now (one-line change
+when the name is decided).
+
+**Local only — never built the GL client before.** First `just watch` will likely
+need audio dev libs (opus/vorbis/xcb/xxf86dga) for `build-engine`, and may need
+tuning: the fteqw-gl binary path, the `maxplayers` cvar name/effect (if the agent
+loiters, max_clients<2 → DynamicWaypoint off), and the bot-cam keypress/auto-attach.
+Expect a first-cut iteration pass. QuakeC compiles by inspection; pytest unaffected.
+
+**Iter 1 (1st live run): GL client built + ran ✓; Issue C reuse CONFIRMED**
+(`execing data/maps/lq_e1m2.way`, no "couldn't exec"). But hit a **telefrag death
+loop**: SP maps have one `info_player_start`, so the human host + the agent spawn on
+the same spot and `spawn_tdeath` (client.qc:807) telefrags them repeatedly → level
+restarts → spam. **Fix:** gate `spawn_tdeath` on `!sim_mode` (co-spawn alive; agent
+walks off, observer rides the cam). Caveat to watch next run: host+agent overlap at
+spawn briefly — the agent may be blocked until you press O (botcam → non-solid);
+if it's stuck at spawn, that's why. Rebuild + re-run `just watch`.
+
+**Iter 2: telefrag loop GONE ✓** but the agent froze at spawn (distance=0,
+waypoints=1, boredom climbing 56→1887). Cause: the Issue C fix made it LOAD the
+`.way` → WM_LOADED, and our explore + boredom-seek live in `frik_bot_roam` which
+only runs in **WM_DYNAMIC** — so a reused-graph run has NO movement drive (real
+gap: reuse silently disables the good behaviors). Fix (no rebuild — cvar already
+wired): `watch` now sets `sim_nav_regen 1` → forces fresh generation → WM_DYNAMIC →
+the proven explore/boredom/combat behavior. Plus press **O** to free the agent from
+the host co-spawn collision (host → non-solid bot-cam). **Follow-ups:** (a) make
+explore/boredom run in WM_LOADED too, else reuse degrades behavior everywhere, not
+just watch; (b) auto-free/auto-cam the host so O isn't required (needs reliable
+human-vs-bot detection — `ishuman` semantics unclear).
+
+**Iter 3:** still frozen at spawn even with regen. Parker's clue: lq_e1m2's
+`info_player_start` is **on top of a monster**, so the agent is boxed in by the
+host body + the monster, can't move or even acquire the point-blank monster
+(boredom just climbs). Two fixes: (1) **human-vs-bot is `ishuman == 1`** (reliable —
+gates frik_stuffcmd/sprint/centerprint); used it to make the human host a
+**non-solid noclip observer** every frame in `PlayerPreThink` (sim_watch only) so it
+never blocks the agent — no O needed for movement, fly around or press O for
+first-person. (2) Switched the watch map to **lq_e1m1** (clean spawn; the agent
+already explored+fought there). Needs `build-quakec` (client.qc changed).
+
+**Iter 4: agent MOVES now** (lq_e1m1: distance 0→599, x/y changing) — the non-solid
+host fix worked. But the camera sat at the host's spawn while the agent ran off.
+**Design clarified (Parker):** "watch your friend get better" = sitting beside a
+friend watching HIS SCREEN — i.e. the agent's own **first-person FPS view**, NOT a
+third-person chase. The game is first-person FPS throughout. Fix: `PlayerPreThink`
+now **auto-attaches FrikBot's bot-cam** to the agent the moment it connects
+(`bot_count > 0`), one-shot — the window becomes the agent's first-person view with
+no keypress; BotPreFrame's `botcam()` follows each frame. (O still cycles/detaches.)
+Needs `build-quakec`.
+
 ## 2026-06-04 — Fix Issue C (.way reuse path) on fix/way-reuse-path
 
 **Confirmed broken then fixed.** Two-run test: the file lands at
