@@ -48,6 +48,13 @@ float tel_nav_total;         // total waypoints in the graph (FrikBot `waypoints
 vector tel_nav_lastorg;      // previous agent origin (for distance deltas)
 .float wp_visited;           // per-waypoint flag: already counted toward visited
 
+// Periodic `nav` sample (feature: nav-competence metric). Emit position +
+// counters every NAV_SAMPLE_INTERVAL sim-seconds so the Python harness can derive
+// ANY traversal metric (extent / cells / exploration-rate) from the stream without
+// a QuakeC rebuild. The metric registry lives in sims/idledoom_sim/traversal.py.
+float NAV_SAMPLE_INTERVAL = 2;   // seconds between nav samples
+float tel_nav_next_sample;       // next sim-time (since origin) to emit a sample
+
 // --- line builders -------------------------------------------------------
 // bprint takes one string per call in this codebase; we build a line with a
 // run of calls and terminate it with Tel_End. QuakeC is single-threaded within
@@ -99,6 +106,7 @@ void() Tel_LevelStart =
 	tel_nav_visited = 0;
 	tel_nav_total = 0;
 	tel_nav_lastorg = '0 0 0';
+	tel_nav_next_sample = NAV_SAMPLE_INTERVAL;   // first nav sample at ~t=NAV_SAMPLE_INTERVAL
 	Tel_Begin("level_start");
 	Tel_Str("map", mapname);
 	Tel_Num("seed", cvar("sim_seed"));
@@ -125,14 +133,27 @@ void(string outcome) Tel_LevelEnd =
 	Tel_End();
 };
 
+// Periodic nav sample (feature: nav-competence metric). Emits the agent's latest
+// position (tel_nav_lastorg, set by bot_nav_track) + cumulative coverage counters,
+// so the Python harness can compute any traversal metric from the time series.
+void() Tel_NavSample =
+{
+	Tel_Begin("nav");
+	Tel_Num("x", tel_nav_lastorg_x);
+	Tel_Num("y", tel_nav_lastorg_y);
+	Tel_Num("waypoints", tel_nav_visited);
+	Tel_Num("distance", tel_nav_distance);
+	Tel_End();
+};
+
 // --- per-frame hook ------------------------------------------------------
 
 // Called at the top of StartFrame(). On the first frame it emits level_start
-// (once total_secrets is known); thereafter it enforces the in-engine session
-// cap -> timeout (FR-003). The harness wall-clock watchdog is the backstop.
+// (once total_secrets is known); then it samples nav periodically and enforces the
+// in-engine session cap -> timeout (FR-003). The harness wall-clock watchdog backs up.
 void() Tel_Frame =
 {
-	local float limit;
+	local float limit, elapsed;
 
 	if (!cvar("sim_mode"))
 		return;
@@ -140,8 +161,17 @@ void() Tel_Frame =
 	if (!telemetry_started)
 		Tel_LevelStart();
 
+	elapsed = time - telemetry_origin;
+
+	// periodic nav sample for the pluggable traversal metrics (harness-side).
+	if (!telemetry_ended && elapsed >= tel_nav_next_sample)
+	{
+		Tel_NavSample();
+		tel_nav_next_sample = elapsed + NAV_SAMPLE_INTERVAL;
+	}
+
 	limit = cvar("sim_time_limit");
-	if (limit > 0 && !telemetry_ended && (time - telemetry_origin) >= limit)
+	if (limit > 0 && !telemetry_ended && elapsed >= limit)
 	{
 		Tel_LevelEnd("timeout");
 		localcmd("quit\n");   // clean shutdown; harness watchdog backs this up

@@ -20,6 +20,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
+from .traversal import compute_traversal
+
 EVENT_PREFIX = "@EVT|"
 SCHEMA_VERSION = 1
 
@@ -134,6 +136,9 @@ def _empty_stats() -> dict[str, Any]:
         "map_coverage": 0.0,
         "distance_traveled": 0,
         "reached_exit": False,
+        # Pluggable traversal-coverage metrics (computed from the `nav` sample
+        # stream by traversal.py); empty when no nav samples were emitted.
+        "traversal": {},
         "weapon_usage": {},
         "deaths_by_cause": {},
     }
@@ -207,4 +212,7 @@ def aggregate(events: list[ParsedEvent]) -> dict[str, Any]:
     )
     stats["weapon_usage"] = weapon_usage
     stats["deaths_by_cause"] = deaths_by_cause
+    # Traversal metrics: a pure function of the `nav` sample stream (registry in
+    # traversal.py). Computed in parallel so any one is selectable in `compare`.
+    stats["traversal"] = compute_traversal(events)
     return stats
