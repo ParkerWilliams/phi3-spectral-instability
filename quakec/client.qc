@@ -874,6 +874,16 @@ void() NextLevel =
 	if (nextmap != string_null)
 		return; // already done
 
+	// idledoom headless-sim: the agent reached the exit -> terminal "completed"
+	// (feature 001, T015). Emit before the changelevel proceeds, then quit so
+	// the dedicated server ends the run instead of loading another map.
+	if (cvar("sim_mode"))
+	{
+		Tel_LevelEnd("completed");
+		localcmd("quit\n");
+		return;
+	}
+
 	if (mapname == "start")
 	{
 		if (!cvar("registered"))
@@ -1523,6 +1533,11 @@ void(entity targ, entity attacker) ClientObituary =
 	
 	attackerteam = attacker.team;
 	targteam = targ.team;
+
+	// idledoom telemetry (T025): the agent died. ClientObituary also runs for
+	// monster deaths (from Killed) — gate on the victim being the agent.
+	if (Tel_IsAgent(targ))
+		Tel_Death(attacker);
 
 	rnum = random();
 

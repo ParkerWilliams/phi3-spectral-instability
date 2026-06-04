@@ -1,0 +1,58 @@
+name: CI
+
+# Feature 001 (headless-sim-telemetry) CI. Two gates:
+#   - harness: fast Python lint/type/test on every push & PR (protects the harness).
+#   - smoke:   builds the dedicated server + gamecode, vendors the LibreQuake map,
+#              and runs `just sim-smoke` end-to-end (FR-013 / SC-005, T041).
+#
+# NOTE: the smoke job MUST run on a GitHub-hosted runner — it compiles the FTEQW
+# engine, which OOMs the 1 GB dev droplet (a self-hosted droplet runner can't do
+# it; see docs/session-log.md / SETUP.md). First-CI validation pending — like the
+# QuakeC, this build recipe hasn't been exercised in Actions yet; expect to tweak.
+
+on:
+  push:
+    branches: ["main", "001-headless-sim-telemetry"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  harness:
+    name: Harness (ruff + mypy + pytest)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - name: Lint, typecheck, test
+        working-directory: sims
+        run: |
+          uv run ruff check .
+          uv run mypy .
+          uv run pytest -q
+
+  smoke:
+    name: Smoke (build + headless run, SC-005/FR-013)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Install build deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential pkg-config unzip \
+            libsdl2-dev libgl1-mesa-dev libasound2-dev libx11-dev \
+            zlib1g-dev libpng-dev libjpeg-dev
+      - uses: astral-sh/setup-uv@v5
+      - uses: extractions/setup-just@v2
+      - name: Build dedicated server + gamecode + harness env
+        run: just build-sim
+      - name: Vendor LibreQuake map data (release paks -> id1/)
+        run: |
+          mkdir -p id1
+          curl -fL -o /tmp/lq-mod.zip \
+            https://github.com/lavenderdotpet/LibreQuake/releases/download/v0.09-beta/mod.zip
+          unzip -o /tmp/lq-mod.zip -d /tmp/lq
+          cp /tmp/lq/mod/lq1/pak0.pak /tmp/lq/mod/lq1/pak1.pak id1/
+      - name: Smoke run (chain-health gate)
+        run: just sim-smoke

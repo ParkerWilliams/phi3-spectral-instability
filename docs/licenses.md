@@ -18,9 +18,19 @@ and source. If a license is unclear, the asset doesn't ship.
 
 ### Game data: LibreQuake
 
-- **License:** GPLv2 (game data and code)
-- **Source:** https://github.com/MissLavender-LQ/LibreQuake
-- **Vendoring:** git submodule under `assets/libre-quake/`
+- **License:** ⚠️ **UNRESOLVED — not cleared for release.** The repo describes
+  "art under the BSD license" but ships **no `LICENSE` file** (GitHub reports
+  `NOASSERTION`); code is typically GPLv2. The earlier "GPLv2 (game data and
+  code)" claim was **not substantiated**. Confirm the exact code/art split with
+  upstream before any release (CLAUDE.md: "if a license is unclear, the asset
+  doesn't ship").
+- **Source:** https://github.com/lavenderdotpet/LibreQuake (formerly
+  `MissLavender-LQ/LibreQuake`, now redirects). Release **v0.09-beta**.
+- **Vendoring (as-built, feature 001):** prebuilt release paks (`mod.zip` →
+  `lq1/pak0.pak` + `pak1.pak`) placed in `id1/` as **runtime data (gitignored)**.
+  The git repo holds only `.map`/`.wad` sources that need a map compiler, so a
+  plain source submodule isn't directly runnable — the originally planned
+  `assets/libre-quake/` submodule is deferred pending the license call above.
 - **Attribution:** see upstream `CREDITS` / `AUTHORS`. Mirror into our
   `CREDITS` file before release.
 
@@ -48,7 +58,7 @@ and source. If a license is unclear, the asset doesn't ship.
 
 | File | Map | Author | License | Source | Notes |
 |------|-----|--------|---------|--------|-------|
-| (none yet) | | | | | |
+| lq_e1m1.bsp | lq_e1m1 | LibreQuake team | ⚠️ see "Game data: LibreQuake" above (unresolved BSD-art / GPL split) | https://github.com/lavenderdotpet/LibreQuake — v0.09-beta `mod.zip` | Confirmed live 2026-06-02 (feature 001 US1): loads with our `progs.dat`, agent autostarts, telemetry emits, schema-valid `timeout` summary written. First SP level (has `info_player_start`; launcher runs `deathmatch 0`). **No `trigger_secret` → `secrets_total=0`** — choose a secret-bearing map for US2 secret tests. Paks are runtime data in `id1/` (gitignored), not committed. |
 
 Format: when a map is added, append a row with full provenance. Don't ship
 a map whose license you cannot cite here.

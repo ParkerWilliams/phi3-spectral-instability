@@ -187,6 +187,10 @@ via tmux. Conventions:
 - Frontend framework: Svelte vs React vs something else?
 - Window embedding strategy for the dual viewport: reparent native window,
   or render engine output to a texture the host displays?
+- Automatic navigation for procedurally generated maps: nav competence is a
+  progression axis (decided); generation mechanism — DynamicWaypoint auto-record
+  vs BSP-derived nav-mesh — is open. Hand-recorded `.way` files are temporary
+  scaffolding only (see `docs/design.md` §3/§7, `docs/waypointing.md`).
 
 ## Infrastructure
 
@@ -204,6 +208,10 @@ before first release. See `docs/licenses.md` for per-asset attribution and
 the one outstanding question (FrikBot's exact license).
 
 <!-- SPECKIT START -->
-For additional context about technologies to be used, project structure,
-shell commands, and other important information, read the current plan
+Active feature plan: `specs/002-auto-navigation/plan.md` (automatic agent
+navigation — QuakeC `DynamicWaypoint` auto-generation, no engine-C patches;
+navigation competence as a progression axis; verified via the feature-001 sim).
+For technologies, structure, and decisions read that plan and its `research.md` /
+`data-model.md` / `contracts/`. Feature 001 (headless sim + telemetry,
+`specs/001-headless-sim-telemetry/`) is in review (PR #2) and is 002's harness.
 <!-- SPECKIT END -->

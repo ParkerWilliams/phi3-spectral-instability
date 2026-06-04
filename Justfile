@@ -21,9 +21,10 @@ run-fresh: build
 # Build all components
 build: build-engine build-quakec build-host
 
-# Build only what the droplet needs (no graphics, no frontend)
-build-sim: build-engine build-quakec
-    cd sims && pip install -r requirements.txt
+# Build only what the headless sim needs: dedicated server + gamecode + harness env.
+# (No GL client, no frontend.) Compiles C — LOCAL/CI only, never on the droplet.
+build-sim: build-engine-sv build-quakec
+    cd sims && uv sync
 
 # === Component builds ===
 
@@ -35,6 +36,13 @@ build-engine:
     @echo "Building FTEQW GL client (LOCAL ONLY — do not run on the droplet)..."
     make -C engine/engine gl-rel -j$(nproc 2>/dev/null || sysctl -n hw.ncpu)
     @echo "Built client -> engine/engine/fteqw-gl*  (exact suffix is target-dependent)"
+
+# Dedicated server (headless) — the binary the sim harness launches (ADR-0001, R1).
+# LOCAL/CI only; the droplet may run the resulting binary but never builds it.
+build-engine-sv:
+    @echo "Building FTEQW dedicated server (LOCAL ONLY — do not run on the droplet)..."
+    make -C engine/engine sv-rel -j$(nproc 2>/dev/null || sysctl -n hw.ncpu)
+    @echo "Built dedicated server -> engine/engine/fteqw-sv*  (exact suffix is target-dependent)"
 
 # fteqcc ships inside the FTEQW tree (engine/engine/qclib). build-quakec needs it.
 build-fteqcc:
@@ -56,15 +64,18 @@ build-host:
 
 # Run the current tuning sim config
 sim:
-    cd sims && python harness.py run --config configs/current.toml
+    cd sims && uv run harness.py run --config configs/current.toml
 
-# Quick smoke test that the sim pipeline works end-to-end
+# Quick smoke test that the sim pipeline works end-to-end (fast CI gate).
+# Needs the `smoke` subcommand + configs/smoke.toml (feature 001 US4).
 sim-smoke:
-    cd sims && python harness.py run --config configs/smoke.toml --duration 10
+    cd sims && uv run harness.py smoke --config configs/smoke.toml
 
-# Run an overnight batch (nightly tuning matrix)
+# Run an overnight batch (nightly tuning matrix).
+# DEFERRED: multi-run aggregation is out of scope for feature 001 (FR-014 / R10).
+# The single-run primitive (`just sim`) is the foundation a batch runner will use.
 sim-batch:
-    cd sims && python harness.py batch --config configs/nightly.toml
+    @echo "sim-batch is deferred — see specs/001-headless-sim-telemetry (FR-014, R10)."
 
 # === Quality gates ===
 
@@ -83,13 +94,13 @@ check-frontend:
     cd host/ui && npm run typecheck
 
 check-python:
-    cd sims && ruff check .
-    cd sims && mypy .
+    cd sims && uv run ruff check .
+    cd sims && uv run mypy .
 
 # Run all tests
 test:
     cd host && cargo test
-    cd sims && pytest
+    cd sims && uv run pytest
 
 # === Maintenance ===
 
@@ -108,4 +119,4 @@ sync-deps:
 fmt:
     cd host && cargo fmt
     cd host/ui && npm run fmt
-    cd sims && ruff format .
+    cd sims && uv run ruff format .

@@ -1,0 +1,13 @@
+# Fast CI smoke config (feature 001 US4 / SC-005, FR-013).
+#
+# Exercises the whole chain — launch fteqw-sv -> FrikBot autostart -> @EVT
+# telemetry -> schema-valid summary + bracketed event stream — in well under 60s.
+# The game OUTCOME is irrelevant here (a `timeout` is expected and healthy); the
+# `smoke` subcommand's gate only checks the pipeline ran end-to-end and produced
+# a valid, level_start..level_end-bracketed stream. A broken chain exits non-zero.
+map = "lq_e1m1"
+seed = 1
+time_limit = 15
+
+[bot]
+bot_accuracy = 0.3

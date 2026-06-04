@@ -2,6 +2,11 @@ progs.dat
 
 defs.qc
 
+// Headless-sim telemetry emission + sim_* autostart state (feature 001).
+// Placed after defs.qc (uses its builtins/globals) and before FrikBot so the
+// shared `sim_autostart_done` guard is visible to frikbot/bot.qc's BotFrame().
+telemetry.qc
+
 // === FrikBot X v0.10.2 (Public Domain — see frikbot/bot.qc header) ===========
 // Inserted immediately after defs.qc per FrikBot's src/install.txt. The
 // QuakeWorld variant (frikbot/bot_qw.qc) is intentionally NOT compiled here;

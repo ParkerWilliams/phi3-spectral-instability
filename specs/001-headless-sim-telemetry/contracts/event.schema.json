@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://idledoom/specs/001/event.schema.json",
+  "title": "Per-event record (schema_version 1)",
+  "description": "Binding contract for one line of the per-event JSONL stream. Mirrors docs/telemetry.md. FR-005, FR-011, FR-012. Validated per-line.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "t", "run_id", "type", "data"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "t": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Seconds since level_start, not wall-clock (FR-011)."
+    },
+    "run_id": { "type": "string", "format": "uuid" },
+    "type": {
+      "enum": ["level_start", "level_end", "kill", "death", "shot", "hit", "pickup", "secret", "upgrade_applied"]
+    },
+    "data": { "type": "object" }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "type": { "const": "level_start" } } },
+      "then": { "properties": { "data": {
+        "type": "object", "required": ["map", "seed"],
+        "properties": { "map": { "type": "string" }, "seed": { "type": "integer" } }
+      } } }
+    },
+    {
+      "if": { "properties": { "type": { "const": "level_end" } } },
+      "then": { "properties": { "data": {
+        "type": "object", "required": ["outcome", "time_sec"],
+        "properties": {
+          "outcome": { "enum": ["completed", "died", "timeout", "error"] },
+          "time_sec": { "type": "number", "minimum": 0 }
+        }
+      } } }
+    },
+    {
+      "if": { "properties": { "type": { "const": "kill" } } },
+      "then": { "properties": { "data": {
+        "type": "object", "required": ["victim", "weapon", "distance"],
+        "properties": {
+          "victim": { "type": "string" }, "weapon": { "type": "string" },
+          "distance": { "type": "number", "minimum": 0 }
+        }
+      } } }
+    },
+    {
+      "if": { "properties": { "type": { "const": "death" } } },
+      "then": { "properties": { "data": {
+        "type": "object", "required": ["cause", "killer"],
+        "properties": { "cause": { "type": "string" }, "killer": { "type": "string" } }
+      } } }
+    },
+    {
+      "if": { "properties": { "type": { "const": "shot" } } },
+      "then": { "properties": { "data": {
+        "type": "object", "required": ["weapon", "target"],
+        "properties": {
+          "weapon": { "type": "string" },
+          "target": { "type": ["string", "null"] }
+        }
+      } } }
+    },
+    {
+      "if": { "properties": { "type": { "const": "hit" } } },
+      "then": { "properties": { "data": {
+        "type": "object", "required": ["weapon", "target", "damage"],
+        "properties": {
+          "weapon": { "type": "string" }, "target": { "type": "string" },
+          "damage": { "type": "integer", "minimum": 0 }
+        }
+      } } }
+    },
+    {
+      "if": { "properties": { "type": { "const": "pickup" } } },
+      "then": { "properties": { "data": {
+        "type": "object", "required": ["item", "value"],
+        "properties": { "item": { "type": "string" }, "value": { "type": "number" } }
+      } } }
+    },
+    {
+      "if": { "properties": { "type": { "const": "secret" } } },
+      "then": { "properties": { "data": {
+        "type": "object", "required": ["secret_id"],
+        "properties": { "secret_id": { "type": "integer" } }
+      } } }
+    }
+  ]
+}

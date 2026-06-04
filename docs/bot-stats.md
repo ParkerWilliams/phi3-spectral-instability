@@ -37,7 +37,7 @@ code and the upgrade tree in `progression.md`.
 
 | Name | Type | Range | Default | Player-facing | Observable effect |
 |------|------|-------|---------|---------------|-------------------|
-| `bot_map_awareness` | float | 0.0 – 1.0 | 0.3 | yes | Knows layout; takes more direct paths |
+| `bot_map_awareness` | float | 0.0 – 1.0 | 0.3 | yes | Knows layout: explores more of the map and routes more directly (higher `map_coverage`) — **WIRED (navigation, feature 002)** |
 | `bot_secret_knowledge` | float | 0.0 – 1.0 | 0.0 | yes | Finds secret areas; collects hidden items |
 | `bot_item_timing` | bool | – | false | yes | Tracks armor/megahealth respawns |
 | `bot_weapon_priority_skill` | float | 0.0 – 1.0 | 0.5 | yes | Picks the right weapon for the situation |
@@ -76,3 +76,34 @@ code and the upgrade tree in `progression.md`.
   visibly improvable
 - Maxed-out across the board should look like a high-level FPS player
   (intentional ceiling: human-plausible expert, not aimbot-perfect)
+
+## Control cvars (`sim_*`, dev-only)
+
+Harness-set run controls, **not** player-facing tunables and **not** clamped like
+`bot_*` (see `specs/001-headless-sim-telemetry/contracts/cvars.md`):
+
+| Name | Type | Purpose |
+|------|------|---------|
+| `sim_mode` | int | `1` = headless sim: autostart one FrikBot agent, emit `@EVT` telemetry, enforce the time limit |
+| `sim_seed` | int | per-run seed, surfaced in `level_start` (wiring it to the engine RNG is an open question — research R6) |
+| `sim_time_limit` | float | in-engine session cap (seconds) → `timeout` outcome |
+| `sim_nav_regen` | int | `1` = regenerate the nav graph even if `maps/<map>.way` exists; `0` (default) = load it if present, else generate (feature 002, T009) |
+
+## Implementation status (feature 001)
+
+- **`bot_accuracy` — WIRED.** Injects aim error in `frikbot/bot_ai.qc`
+  `bot_angle_set` (`err = (1 - accuracy) * 15°`); higher accuracy → higher
+  `stats.accuracy`. *Live SC-004 proof is deferred pending automatic navigation* —
+  the agent needs a nav graph to reach combat (`docs/design.md` §3).
+## Implementation status (feature 002)
+
+- **`bot_map_awareness` — WIRED (navigation).** Scales exploration thoroughness
+  (frontier candidate count, 8→32) and route directness (heading noise toward the
+  frontier) in `frikbot/bot_move.qc` `frik_bot_roam`; higher → more `map_coverage`
+  and/or lower `time_to_exit_sec` (SC-003). Was recorded-only in feature 001.
+- **`sim_nav_regen`** (above) added as a sim control for nav-graph regeneration.
+
+- **All other `bot_*` — RECORDED-ONLY.** Clamped and written into the
+  summary's `bot_config` (so config hashing / reproducibility works), but not yet
+  wired into behavior. Wire them incrementally under the "adding a bot stat"
+  convention (CLAUDE.md).

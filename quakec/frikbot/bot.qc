@@ -102,6 +102,12 @@ To remove these waypoints:
 Delete the code in bot_map_load, located below.
 */
 
+// idledoom: forward declarations for the per-map waypoint loaders, defined in
+// waypoints/map_dm{1..6}.qc — which compile *after* this file in progs.src.
+// fteqcc is single-pass, so bot_map_load() below needs them declared first.
+void() map_dm1; void() map_dm2; void() map_dm3;
+void() map_dm4; void() map_dm5; void() map_dm6;
+
 void() bot_map_load =
 {
 	// place your qc loaded waypoints here
@@ -147,6 +153,8 @@ for all variables in the bot...
 .vector	b_angle, b_dest, mouse_emu, obs_dir;
 .vector	movevect, b_dir;
 .vector dyn_dest;
+.vector stuck_org;   // T017: agent origin sampled at the last stuck-check
+.float  stuck_time;  // T017: next sim-time to evaluate the stuck window
 
 // --------defines-----
 float SVC_UPDATENAME	= 13;
@@ -226,6 +234,20 @@ entity 	player_head, phys_head, way_head;
 float		busy_waypoints;
 float		saved_bots, saved_skills1, saved_skills2, current_bots;
 
+// idledoom (T009 / research R3): auto-save of dynamically-generated nav graphs.
+// When the sim generates a graph (WM_DYNAMIC) and coverage stops growing, the
+// graph is written to maps/<map>.way so later runs of the same map load it
+// (WM_LOADED) instead of regenerating. See NavAutoSave() in bot_way.qc.
+float NAV_SAVE_STABLE_SECS = 3;  // graph idle this long (no new waypoints) -> persist
+float NAV_SAVE_MIN_WAYS    = 8;  // don't persist a near-empty graph
+float nav_autosaved;             // one-shot: maps/<map>.way written this level
+float nav_lastcount;             // `waypoints` at the last coverage-stable check
+float nav_lastgrow;              // sim-time the waypoint count last increased
+
+// idledoom (T017 / research R7): stuck detection + recovery (idle-tolerance).
+float STUCK_WINDOW   = 1.5;      // seconds between stuck-checks
+float STUCK_MIN_DIST = 40;       // min horizontal travel per window, else "stuck"
+
 // -------ProtoTypes------
 // external
 void()				ClientConnect;
@@ -249,6 +271,7 @@ float()				begin_route;
 void(entity this, float direct)			bot_get_path;
 void()				WaypointThink;
 entity(entity start)				FindWayPoint;
+void()				NavAutoSave;   // T009: persist a generated graph (bot_way.qc)
 
 // physics & movement
 float(entity e)			bot_can_rj;
@@ -287,6 +310,10 @@ void(float tpic) bot_start_topic;
 
 void()				bot_way_edit;
 void()				bot_menu_display;
+// idledoom: forward decls so BotImpulses' 106/107 (breadcrumb waypointing) can
+// reach these — both are defined later (bot_way.qc / bot_ed.qc), single-pass.
+float(entity e1, entity e2)	LinkWays;
+void()				SaveWays;
 
 
 // ----------Commands---------
@@ -1182,15 +1209,28 @@ void() WaypointWatch =
 		cvar_set ("saved4", "0");
 		if (max_clients > 1)
 		{
-			localcmd("exec maps/");
-			localcmd(mapname);
-			localcmd(".way\n");
+			// idledoom (T009/R3): load an existing maps/<map>.way unless regen
+			// is forced. `exec` of a missing file fails silently, so we stay
+			// WM_DYNAMIC and generate fresh; a present file's loader drives
+			// waypoint_mode to WM_LOADED over the next frames. sim_nav_regen 1
+			// skips the load so the graph is always regenerated (and the fresh
+			// graph then overwrites the stale file via NavAutoSave).
+			if (!cvar("sim_nav_regen"))
+			{
+				localcmd("exec maps/");
+				localcmd(mapname);
+				localcmd(".way\n");
+			}
 			waypoint_mode = WM_DYNAMIC;
+			nav_autosaved = FALSE;   // reset auto-save tracking for this level
+			nav_lastcount = 0;
+			nav_lastgrow = time;
 			bot_map_load();
 		}
 		else
 			waypoint_mode = WM_LOADED;
 	}
+	NavAutoSave();   // T009: persist a generated graph once coverage stabilises
 };
 void() BotFrame =
 {
@@ -1203,7 +1243,19 @@ void() BotFrame =
 	sv_accelerate = cvar("sv_accelerate");
 	sv_stopspeed = cvar("sv_stopspeed");
 	real_frametime = frametime; // in NQ this is alright
-	
+
+	// === idledoom headless-sim autostart (feature 001, research R2) ==========
+	// On a dedicated server there is no human client to issue impulse 100, so
+	// with sim_mode set we spawn one FrikBot agent directly — once per level —
+	// giving us an autonomous player with no window and no input (FR-001/FR-002).
+	// BotConnect(whichteam, whatbot=0 -> random name, whatskill). self is reset
+	// by the client loop just below.
+	if (cvar("sim_mode") && !sim_autostart_done)
+	{
+		sim_autostart_done = TRUE;
+		BotConnect(0, 0, cvar("skill"));
+	}
+
 	self = nextent(world);
 	num = 0;
 	while (num < max_clients)
@@ -1239,6 +1291,7 @@ related functions.
 void() BotImpulses =
 {
 	local float f;
+	local entity w;
 
 	if (self.impulse == 100)
 	{
@@ -1256,6 +1309,23 @@ void() BotImpulses =
 		botcam_u();
 	else if (self.impulse == 104)
 		bot_way_edit();
+	else if (self.impulse == 106)
+	{
+		// idledoom: drop a waypoint at the player and chain it both ways to the
+		// previous drop — a "breadcrumb". Bind a key to `impulse 106`, walk, and
+		// tap to lay a connected trail with NO editor menu (docs/waypointing.md).
+		w = make_waypoint(self.origin + self.view_ofs);
+		setmodel(w, "progs/s_bubble.spr");   // visible marker (precached in BotInit)
+		if (self.current_way)
+		{
+			LinkWays(self.current_way, w);
+			LinkWays(w, self.current_way);
+		}
+		self.current_way = w;
+		sprint(self, "waypoint dropped\n");
+	}
+	else if (self.impulse == 107)
+		SaveWays();   // -> maps/<mapname>.way (needs FRIK_FILE / pr_checkextension 1)
 	else
 		return;
 

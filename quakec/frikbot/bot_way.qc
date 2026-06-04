@@ -282,6 +282,51 @@ entity(vector org) make_waypoint =
 /*
 -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
+idledoom (T009 / research R3): persist a dynamically-generated nav graph.
+
+In a headless sim, once the WM_DYNAMIC waypoint graph stops growing (coverage
+has stabilised), write it to maps/<map>.way via FrikBot's existing async
+SaveWays() so later runs of the same map load it (WM_LOADED) instead of
+regenerating. Saving on coverage-stable fires mid-run — well before Tel_Frame's
+time-limit `quit` — so SaveWays' one-waypoint-per-frame writer has time to
+finish (a save at the quit instant would be truncated). One save per level.
+
+Only graphs we *generated* are saved (WM_DYNAMIC); a loaded graph (WM_LOADED) is
+already on disk. Sim-only: interactive/editor play keeps stock FrikBot behaviour.
+For procedural maps (unique each run) this just regenerates every time — still
+zero human steps (FR-002/FR-004).
+
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+*/
+void() NavAutoSave =
+{
+	if (!cvar("sim_mode"))
+		return;                       // sim-only; don't change interactive play
+	if (nav_autosaved)
+		return;                       // already persisted this level
+	if (waypoint_mode != WM_DYNAMIC)
+		return;                       // loaded graph is already on disk
+	if (fixer)
+		return;                       // a SaveWays/dump writer is busy; retry next frame
+	if (waypoints < NAV_SAVE_MIN_WAYS)
+		return;                       // too sparse to be worth saving
+
+	if (waypoints > nav_lastcount)
+	{
+		nav_lastcount = waypoints;    // still discovering space — reset the idle timer
+		nav_lastgrow = time;
+		return;
+	}
+	if (time - nav_lastgrow >= NAV_SAVE_STABLE_SECS)
+	{
+		nav_autosaved = TRUE;
+		SaveWays();                   // async writer -> maps/<map>.way
+	}
+};
+
+/*
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
 Dynamic Waypoint spawning and linking. Not
 very good all things considered.
 

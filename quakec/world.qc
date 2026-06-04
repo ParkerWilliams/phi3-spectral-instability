@@ -359,6 +359,7 @@ void() worldspawn =
 
 void StartFrame() {
 	BotFrame();	// FrikBot
+	Tel_Frame();	// idledoom headless-sim telemetry: level_start (first frame) + timeout (feature 001)
 	teamplay = cvar("teamplay");
 	skill = cvar("skill");
 	cheats_allowed = cvar("sv_cheats");

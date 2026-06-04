@@ -45,6 +45,10 @@ sims/*.log
 # Asset symlinks created by setup scripts
 assets/_runtime/
 
+# LibreQuake release paks placed locally for headless sim runs (feature 001).
+# Runtime data, not source; final vendoring approach is TBD (see docs/licenses.md).
+/id1/
+
 # === Local config ===
 
 .env

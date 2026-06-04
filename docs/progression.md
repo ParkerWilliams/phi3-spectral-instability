@@ -49,7 +49,8 @@ on screen.
 
 Improves bot pathing and decision-making within a level.
 
-- **Map Sense I–V:** raises `bot_map_awareness`; bot takes shorter routes
+- **Map Sense I–V:** raises `bot_map_awareness` (WIRED, feature 002); bot explores
+  more of the level and takes more direct routes — visibly more `map_coverage` per run
 - **Secret Seeker I–V:** raises `bot_secret_knowledge`; finds hidden areas
 - **Item Timer (unlock):** bot starts tracking item respawns
 - **Loadout Logic I–V:** raises weapon priority skill
