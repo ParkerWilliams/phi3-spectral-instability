@@ -18,6 +18,29 @@ run-fresh: build
     rm -f data/save.sqlite
     cd host && cargo run --release
 
+# Watch the agent play in a GL window (LOCAL ONLY — needs a display; the droplet
+# can't run this, and the GL client needs audio dev libs the server build doesn't:
+# e.g. libopus-dev libvorbis-dev libxxf86dga-dev libxcb*-dev — install if the build
+# fails on missing headers). Lightweight observation path (no Tauri host yet):
+# a listen server that autostarts the named agent on a combat-reliable map, with
+# the agent's good behaviors on (sim_mode) but auto-quit suppressed (sim_watch) so
+# the window survives death/timeout. First-person bot-cam: ride the agent with
+# `impulse 103` (bound to O below, or type it in the ~ console).
+#
+# NOTE maxplayers 2: DynamicWaypoint needs max_clients >= 2 (bot_way.qc). The human
+# host is client 1, the agent client 2. If the agent just loiters, confirm this took
+# effect (FTE cvar name; adjust if your build differs).
+watch: build-engine build-quakec
+    @echo "Launching watch session (first-person bot-cam — press O / 'impulse 103')..."
+    @BIN=$(ls engine/engine/release/fteqw-gl* engine/engine/fteqw-gl* 2>/dev/null | head -1); \
+     if [ -z "$BIN" ]; then echo "ERROR: no fteqw-gl binary — did build-engine succeed? (audio dev libs)"; exit 1; fi; \
+     echo "Using client: $BIN"; \
+     "$BIN" -basedir "$(pwd)" -game quakec \
+       +set deathmatch 0 +set coop 0 +set skill 1 +set sv_cheats 1 \
+       +set maxplayers 2 +set sim_mode 1 +set sim_watch 1 +set sim_time_limit 0 \
+       +bind o "impulse 103" \
+       +map lq_e1m2
+
 # Build all components
 build: build-engine build-quakec build-host
 

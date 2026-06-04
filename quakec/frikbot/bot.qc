@@ -999,6 +999,13 @@ void(float whichteam, float whatbot, float whatskill) BotConnect =
 	self.colormap = f + 1;
 	if (whatbot)
 		self.netname = BotName(whatbot);
+	else if (cvar("sim_mode"))
+		// The autostarted agent is the player's "hero". Give it a consistent name
+		// (not a random one each run) so the watch build shows one protagonist.
+		// PLACEHOLDER — the real hero name is TBD pending the lore doc (design.md
+		// Open Questions). When decided, change this string (or wire an agent_name
+		// cvar via cvar_string once that builtin is declared).
+		self.netname = "AGENT";
 	else
 		self.netname = PickARandomName();
 	// players can set skill all weird, so leave these checks in

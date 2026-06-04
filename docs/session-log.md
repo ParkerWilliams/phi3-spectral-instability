@@ -3,6 +3,27 @@
 Rolling state summary so work survives session/crash loss (CLAUDE.md convention).
 Newest entry on top. Keep entries short: what's true now, what's next, gotchas.
 
+## 2026-06-04 — Watch mode (first-person bot-cam) on feat/watch-mode
+
+`just watch` — a lightweight GL-client observation path (no Tauri yet): listen
+server, autostarts the agent on lq_e1m2, first-person bot-cam (`impulse 103`,
+bound to O). Makes the agent actually play by setting `sim_mode 1` (combat/boredom/
+nav behaviors are sim_mode-gated) while a new **`sim_watch 1`** flag suppresses the
+death/timeout auto-quits so the window survives (on death the SP level restarts and
+the agent respawns). `sim_time_limit 0` = no timeout. `maxplayers 2` so
+DynamicWaypoint stays enabled (host + agent).
+
+**Hero name = TBD** (Parker building a lore doc). Placeholder `"AGENT"` set in
+`BotConnect` (gated sim_mode); noted in design.md §11 Open Questions. `cvar_string`
+isn't declared in defs.qc, so it's a hardcoded placeholder for now (one-line change
+when the name is decided).
+
+**Local only — never built the GL client before.** First `just watch` will likely
+need audio dev libs (opus/vorbis/xcb/xxf86dga) for `build-engine`, and may need
+tuning: the fteqw-gl binary path, the `maxplayers` cvar name/effect (if the agent
+loiters, max_clients<2 → DynamicWaypoint off), and the bot-cam keypress/auto-attach.
+Expect a first-cut iteration pass. QuakeC compiles by inspection; pytest unaffected.
+
 ## 2026-06-04 — Fix Issue C (.way reuse path) on fix/way-reuse-path
 
 **Confirmed broken then fixed.** Two-run test: the file lands at
