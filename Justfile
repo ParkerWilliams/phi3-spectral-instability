@@ -40,9 +40,9 @@ watch: build-engine build-quakec
        +set maxplayers 2 +set sim_mode 1 +set sim_watch 1 +set sim_time_limit 0 \
        +set sim_nav_regen 1 \
        +bind o "impulse 103" \
-       +map lq_e1m2
-    @echo "NOTE: press O once the level loads — that rides the agent (first person)"
-    @echo "      AND turns your host into a non-solid cam so it stops blocking the agent."
+       +map lq_e1m1
+    @echo "Your host is a non-solid fly-around observer (it won't block the agent)."
+    @echo "Press O to ride the agent first-person (bot-cam); press again to detach."
 
 # Build all components
 build: build-engine build-quakec build-host

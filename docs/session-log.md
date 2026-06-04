@@ -45,6 +45,16 @@ explore/boredom run in WM_LOADED too, else reuse degrades behavior everywhere, n
 just watch; (b) auto-free/auto-cam the host so O isn't required (needs reliable
 human-vs-bot detection — `ishuman` semantics unclear).
 
+**Iter 3:** still frozen at spawn even with regen. Parker's clue: lq_e1m2's
+`info_player_start` is **on top of a monster**, so the agent is boxed in by the
+host body + the monster, can't move or even acquire the point-blank monster
+(boredom just climbs). Two fixes: (1) **human-vs-bot is `ishuman == 1`** (reliable —
+gates frik_stuffcmd/sprint/centerprint); used it to make the human host a
+**non-solid noclip observer** every frame in `PlayerPreThink` (sim_watch only) so it
+never blocks the agent — no O needed for movement, fly around or press O for
+first-person. (2) Switched the watch map to **lq_e1m1** (clean spawn; the agent
+already explored+fought there). Needs `build-quakec` (client.qc changed).
+
 ## 2026-06-04 — Fix Issue C (.way reuse path) on fix/way-reuse-path
 
 **Confirmed broken then fixed.** Two-run test: the file lands at

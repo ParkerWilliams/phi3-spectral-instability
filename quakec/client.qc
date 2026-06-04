@@ -1208,6 +1208,17 @@ void() PlayerPreThink =
 {
 	if (BotPreFrame()) // FrikBot
 		return;
+	// idledoom (watch): the human host is a non-solid, free-flying observer so it
+	// never blocks the autostarted agent — SP maps have one info_player_start, so
+	// host + agent co-spawn on the same spot. Set every frame so it sticks. Bots
+	// have ishuman != 1; once the viewer presses O it becomes a "botcam" (handled
+	// by FrikBot) and we leave it alone. Fly around to watch, or O for first-person.
+	if (cvar("sim_watch") && self.ishuman == 1 && self.classname != "botcam")
+	{
+		self.solid = SOLID_NOT;
+		self.movetype = MOVETYPE_NOCLIP;
+		self.takedamage = DAMAGE_NO;
+	}
 	if (intermission_running)
 	{
 		IntermissionThink ();	// otherwise a button could be missed between
