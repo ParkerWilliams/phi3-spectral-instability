@@ -3,6 +3,21 @@
 Rolling state summary so work survives session/crash loss (CLAUDE.md convention).
 Newest entry on top. Keep entries short: what's true now, what's next, gotchas.
 
+## 2026-06-04 — Boredom mechanic (combat-seeking) on feat/nav-competence-metric
+
+New behavior: agent `.boredom` rises while wandering (no enemy), resets the instant
+it has a target. Past a threshold it stops frontier-exploring and **beelines to the
+nearest live monster** (`nearest_monster()` in bot_move.qc) — "gets bored, seeks
+combat". Threshold scales with **bot_aggression** (impatient bots seek sooner →
+wires that previously recorded-only stat). Loop: explore → bored → hunt → fight →
+reset → repeat. Should lower `time_to_combat_sec`. Boredom is mirrored into the
+`nav` telemetry + a `peak_boredom` traversal metric for observability/tuning.
+Harness verified (pytest 68/68, ruff+mypy clean); **QuakeC compile-pending.**
+
+**Before merge (build-then-merge):** `just build-quakec` (boredom is new gamecode —
+confirm it compiles + doesn't regress combat), then a nav2 run to eyeball boredom
+rising→combat→reset in the nav events and check `time_to_combat`. Merge once green.
+
 ## 2026-06-04 — 🎯 US3 DEMONSTRATED (+ Issue A confirmed live)
 
 Re-swept on lq_e1m2 (roomier; reliable combat) with the goal/rate metrics:

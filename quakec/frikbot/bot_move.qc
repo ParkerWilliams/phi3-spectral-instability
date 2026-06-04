@@ -494,10 +494,62 @@ float(vector p) nearest_way_dist =
 	return best;
 };
 
+// idledoom (boredom): the nearest live monster anywhere on the map — the
+// combat-seeking target when the agent is bored. findradius over a map-spanning
+// radius; cheap enough since roam is gated (not run every frame).
+entity() nearest_monster =
+{
+	local entity m, best;
+	local float d, bd;
+	bd = 1000000;
+	best = world;
+	m = findradius(self.origin, 100000);
+	while (m)
+	{
+		if (m.flags & FL_MONSTER)
+			if (m.health > 0)
+			{
+				d = vlen(m.origin - self.origin);
+				if (d < bd)
+				{
+					bd = d;
+					best = m;
+				}
+			}
+		m = m.chain;
+	}
+	return best;
+};
+
 void() frik_bot_roam =
 {
 	local vector org, ang, org1, bestorg;
-	local float loopcount, dist, score, bestscore, acc;
+	local float loopcount, dist, score, bestscore, acc, aggr, bored_thresh;
+	local entity m;
+
+	// idledoom (boredom): if the agent has wandered too long without a fight, stop
+	// frontier-exploring and beeline to the nearest live monster — it "gets bored
+	// and seeks combat". Threshold scales with bot_aggression (impatient bots seek
+	// sooner: ~1.5x BOREDOM_TICKS at aggression 0, ~0.5x at 1). Once the monster is
+	// in view, normal acquisition (bot_dodge_stuff) takes over and it fights; the
+	// kill clears the enemy and boredom climbs again -> a restless hunt loop.
+	aggr = cvar("bot_aggression");
+	if (aggr < 0) aggr = 0;
+	if (aggr > 1) aggr = 1;
+	bored_thresh = BOREDOM_TICKS * (1.5 - aggr);
+	if (self.boredom > bored_thresh)
+	{
+		m = nearest_monster();
+		if (m != world)
+		{
+			SpawnTempWaypoint(m.origin);     // a goal waypoint at the monster
+			org1 = vectoangles(m.origin - (self.origin + self.view_ofs));
+			self.b_angle_y = org1_y;         // face the monster and head for it
+			makevectors(self.v_angle);
+			frik_walkmove(v_forward);
+			return;                          // skip frontier exploration this roam
+		}
+	}
 
 	// idledoom (002, T008/R2): frontier-biased exploration. The stock roam takes
 	// the FIRST valid random spot, so the agent loiters near spawn and never

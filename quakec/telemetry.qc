@@ -54,6 +54,7 @@ vector tel_nav_lastorg;      // previous agent origin (for distance deltas)
 // a QuakeC rebuild. The metric registry lives in sims/idledoom_sim/traversal.py.
 float NAV_SAMPLE_INTERVAL = 2;   // seconds between nav samples
 float tel_nav_next_sample;       // next sim-time (since origin) to emit a sample
+float tel_boredom;               // mirror of the agent's .boredom (set by bot_nav_track)
 
 // --- line builders -------------------------------------------------------
 // bprint takes one string per call in this codebase; we build a line with a
@@ -143,6 +144,7 @@ void() Tel_NavSample =
 	Tel_Num("y", tel_nav_lastorg_y);
 	Tel_Num("waypoints", tel_nav_visited);
 	Tel_Num("distance", tel_nav_distance);
+	Tel_Num("boredom", tel_boredom);
 	Tel_End();
 };
 

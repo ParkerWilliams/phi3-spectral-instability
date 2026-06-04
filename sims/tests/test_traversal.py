@@ -15,6 +15,7 @@ from idledoom_sim.traversal import (
     compute_traversal,
     extent_area,
     nav_samples,
+    peak_boredom,
     visited_cells,
     waypoints_at_15s,
 )
@@ -64,6 +65,22 @@ def test_rate_metric_uses_latest_sample_within_checkpoint() -> None:
     # waypoints by t<=15 is 12; the t=20 spike (30) must NOT count (exploration speed)
     s = [_wp(0, 0), _wp(5, 4), _wp(10, 8), _wp(15, 12), _wp(20, 30)]
     assert waypoints_at_15s(s) == 12.0
+
+
+def test_peak_boredom_tracks_max_then_reset() -> None:
+    # boredom climbs while wandering, resets on combat -> peak captures the high.
+    s = [
+        NavSample(0, 0, 0, 0, 0, boredom=3),
+        NavSample(2, 0, 0, 1, 50, boredom=12),
+        NavSample(4, 0, 0, 2, 90, boredom=0),
+    ]
+    assert peak_boredom(s) == 12.0
+    assert peak_boredom([]) == 0.0
+
+
+def test_nav_samples_reads_boredom_from_event_data() -> None:
+    s = nav_samples([ParsedEvent(2.0, "nav", {"x": 0, "y": 0, "waypoints": 1, "boredom": 7})])
+    assert s[0].boredom == 7.0
 
 
 def test_compute_traversal_runs_the_full_registry() -> None:

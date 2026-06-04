@@ -46,7 +46,7 @@ code and the upgrade tree in `progression.md`.
 
 | Name | Type | Range | Default | Player-facing | Observable effect |
 |------|------|-------|---------|---------------|-------------------|
-| `bot_aggression` | float | 0.0 – 1.0 | 0.5 | yes | Engages vs avoids; pushes fights |
+| `bot_aggression` | float | 0.0 – 1.0 | 0.5 | yes | Engages vs avoids; pushes fights. **Partially WIRED:** scales the boredom threshold — higher aggression → gets bored wandering sooner → beelines to the nearest monster (combat-seeking) |
 | `bot_retreat_threshold` | float | 0.0 – 1.0 | 0.3 | yes | HP fraction at which the bot backs off |
 | `bot_target_priority_skill` | float | 0.0 – 1.0 | 0.5 | yes | Picks the most dangerous enemy first |
 | `bot_resource_management` | float | 0.0 – 1.0 | 0.3 | yes | Conserves ammo, picks up health proactively |

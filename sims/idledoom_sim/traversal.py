@@ -42,6 +42,7 @@ class NavSample:
     y: float
     waypoints: int
     distance: float
+    boredom: float = 0.0  # agent restlessness at this sample (rises while wandering)
 
 
 def _num(value: Any) -> float:
@@ -62,6 +63,7 @@ def nav_samples(events: Iterable[ParsedEvent]) -> list[NavSample]:
                 y=_num(d.get("y")),
                 waypoints=int(_num(d.get("waypoints"))),
                 distance=_num(d.get("distance")),
+                boredom=_num(d.get("boredom")),
             )
         )
     return out
@@ -108,6 +110,12 @@ def final_waypoints(s: list[NavSample]) -> float:
     return float(s[-1].waypoints) if s else 0.0
 
 
+def peak_boredom(s: list[NavSample]) -> float:
+    """Highest boredom reached — how restless the agent got before finding combat.
+    Lower = it sought/found fights sooner (the boredom mechanic working)."""
+    return max((p.boredom for p in s), default=0.0)
+
+
 # Registry — add a metric by writing a function above and listing it here.
 TRAVERSAL_METRICS: dict[str, Callable[[list[NavSample]], float]] = {
     "extent_area": extent_area,
@@ -115,6 +123,7 @@ TRAVERSAL_METRICS: dict[str, Callable[[list[NavSample]], float]] = {
     "waypoints_at_15s": waypoints_at_15s,
     "distance_at_15s": distance_at_15s,
     "final_waypoints": final_waypoints,
+    "peak_boredom": peak_boredom,
 }
 
 
