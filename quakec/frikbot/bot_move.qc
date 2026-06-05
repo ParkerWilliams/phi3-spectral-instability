@@ -681,13 +681,15 @@ void() frik_bot_roam =
 		edir_z = 0;
 		edir = normalize(edir);
 	}
-	// Breaking a loop: drop the enemy tug, crank frontier-seeking, and commit harder
-	// to the current heading so it decisively leaves the area instead of orbiting.
+	// Breaking a loop: drop the enemy tug and crank frontier-seeking, and RELEASE
+	// momentum (mom = 0) so it's free to turn to the longest FRESH ray and leave.
+	// NEVER commit harder to the current heading here -- that drove it face-first
+	// into corners and wedged it (it would then just stall-jump in place).
 	if (time < self.loop_boost)
 	{
 		pull = 0;
 		away = away * LOOP_AWAY_MULT;
-		mom = mom * 2;
+		mom = 0;
 	}
 
 	best = -1;
