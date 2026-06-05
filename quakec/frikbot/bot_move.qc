@@ -423,6 +423,8 @@ vector(vector wishdir) frik_whiskers =
 	local vector eye, fwd, rgt, c;
 	local float range, dc, dl, dr;
 
+	if (cvar("bot_whiskers_off"))   // debug bisection kill-switch (default off => whiskers on)
+		return wishdir;
 	wishdir_z = 0;
 	if (wishdir == '0 0 0')
 		return wishdir;
@@ -680,6 +682,7 @@ void() frik_bot_roam =
 	// let the view ease around to the new heading, then commit. Veterans (dwell 0)
 	// flow without breaking stride. Guarded so an already-dwelling agent never
 	// extends its own pause into a stall.
+	if (!cvar("bot_dwell_off"))   // debug bisection kill-switch (settles within ~0.5s)
 	if (time >= self.dwell_time)
 		if (self.last_movedir != '0 0 0')
 			if ((bestdir * self.last_movedir) < TURN_DWELL_DOT)

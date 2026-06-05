@@ -86,7 +86,7 @@ void() CL_KeyMove = // CL_BaseMove + CL_AdjustAngles
 		// speed (timid). Horizontal only -- never weaken jumps/rocket-jumps
 		// (movevect_z). movevect persists between key-changes and bot_competence is
 		// static per run, so scaling here stays consistent every frame.
-		if (!self.ishuman)
+		if (!self.ishuman && !cvar("bot_throttle_off"))   // debug bisection kill-switch
 		{
 			ms = comp_lerp(THROTTLE_NOVICE, 1);
 			self.movevect_x = self.movevect_x * ms;
