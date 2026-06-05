@@ -256,8 +256,14 @@ float(float thresh) comp_has =
 };
 
 // Slice A locomotion feel curve -- the WHOLE tuning surface, lerped off bot_comp:
-float WHISKER_NEAR	= 40;	// novice look-ahead (u): reacts late, hugs walls
-float WHISKER_FAR	= 130;	// veteran look-ahead (u): sees the corner early, eases
+// Whiskers: DYNAMIC avoidance radius = WHISKER_MIN + speed * look-ahead-time, so the
+// reach grows with speed (always time to turn). Look-ahead time is competence-scaled
+// (veteran anticipates earlier); bot_whisker_time overrides it.
+float WHISKER_MIN	= 48;	// min look-ahead (u) even when slow (body clearance)
+float WHISKER_MAX	= 250;	// cap on the dynamic look-ahead (u)
+float WHISK_T_NOVICE	= 0.30;	// look-ahead seconds at competence 0 (reacts later)
+float WHISK_T_VET	= 0.55;	// look-ahead seconds at competence 1 (anticipates earlier)
+float WHISKER_STRENGTH	= 0.35;	// continuous wall-clearance steer gain (off a side wall)
 float THROTTLE_NOVICE	= 0.6;	// novice horizontal move scale (timid shuffle); vet 1.0
 float DWELL_NOVICE	= 0.5;	// novice pause (s) on a sharp turn; veteran 0 (flows)
 float TURN_DWELL_DOT	= 0.64;	// cos(~50deg): heading change past this triggers a dwell

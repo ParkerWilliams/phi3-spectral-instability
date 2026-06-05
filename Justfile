@@ -54,6 +54,8 @@ watch: build-engine build-quakec
     @echo "  bot_enemy_pull 400  soft tug toward the nearest monster through open space"
     @echo "  bot_stall_dist 32   hop when it moves < this many units in ~0.4s"
     @echo "  bot_loop_dist 150   break a loop if NET travel < this over ~2.5s (circling)"
+    @echo "  bot_whisker_time 0  wall-avoidance look-ahead seconds (0 = competence-scaled);"
+    @echo "                      reach = 48 + speed*time, so it grows with speed (dynamic)"
 
 # Build all components
 build: build-engine build-quakec build-host

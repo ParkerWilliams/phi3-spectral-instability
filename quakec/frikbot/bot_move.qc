@@ -420,42 +420,53 @@ blah
 // decoupled). Returns an adjusted unit world direction.
 vector(vector wishdir) frik_whiskers =
 {
-	local vector eye, fwd, rgt, c;
-	local float range, dc, dl, dr;
+	local vector eye, fwd, rgt, c, vel;
+	local float range, dc, dl, dr, sp, t, steer;
 
-	if (cvar("bot_whiskers_off"))   // debug bisection kill-switch (default off => whiskers on)
+	if (cvar("bot_whiskers_off"))   // debug kill-switch (default off => whiskers on)
 		return wishdir;
 	wishdir_z = 0;
 	if (wishdir == '0 0 0')
 		return wishdir;
 	wishdir = normalize(wishdir);
 
-	range = comp_lerp(WHISKER_NEAR, WHISKER_FAR);
+	// DYNAMIC avoidance radius: look further ahead the faster the agent is moving, so
+	// there is always time to turn (a fixed reach is far too short at speed). The
+	// look-ahead TIME is competence-scaled (veteran anticipates earlier);
+	// bot_whisker_time overrides the seconds of look-ahead.
+	vel = self.velocity; vel_z = 0; sp = vlen(vel);
+	t = cvar("bot_whisker_time"); if (t <= 0) t = comp_lerp(WHISK_T_NOVICE, WHISK_T_VET);
+	range = WHISKER_MIN + sp * t;
+	if (range > WHISKER_MAX) range = WHISKER_MAX;
+
 	eye = self.origin + self.view_ofs;
 	fwd = wishdir;
-
-	traceline(eye, eye + fwd * range, TRUE, self);
-	dc = trace_fraction;
-	if (dc > 0.99)
-		return wishdir;			// open ahead -> walk straight
-
 	c = vectoangles(wishdir);
 	makevectors(c);				// v_right = flat right of wishdir
 	rgt = normalize(v_right);
 
-	traceline(eye, eye + (fwd + rgt) * range, TRUE, self);
-	dr = trace_fraction;
-	traceline(eye, eye + (fwd - rgt) * range, TRUE, self);
-	dl = trace_fraction;
+	// Three feelers (center + both sides). Steer toward the more-open side -- this
+	// keeps CLEARANCE from a wall the agent is sliding ALONG (not just stopping a
+	// head-on hit), so it actually helps in open-ish roam, and steers harder when the
+	// center itself is about to hit.
+	traceline(eye, eye + fwd * range, TRUE, self);          dc = trace_fraction;
+	traceline(eye, eye + (fwd + rgt) * range, TRUE, self);  dr = trace_fraction;
+	traceline(eye, eye + (fwd - rgt) * range, TRUE, self);  dl = trace_fraction;
 
-	if (dr < 0.2 && dl < 0.2)
-		return wishdir;			// boxed both sides -> let roam/stuck handle it
+	if (dc > 0.99 && dr > 0.99 && dl > 0.99)
+		return wishdir;			// clear all around -> straight
+	if (dc < 0.2 && dr < 0.2 && dl < 0.2)
+		return wishdir;			// boxed in -> let roam/stuck handle it
 
-	// steer toward the more-open side; strength grows as the center gets blocked
-	if (dr >= dl)
-		wishdir = wishdir + rgt * (1 - dc);
-	else
-		wishdir = wishdir - rgt * (1 - dc);
+	steer = (dl - dr) * WHISKER_STRENGTH;   // >0 => left clearer => veer left (-rgt)
+	if (dc < 0.99)                          // head-on: push hard toward the open side
+	{
+		if (dl >= dr)
+			steer = steer + (1 - dc);   // (tie -> veer left, deterministic)
+		else
+			steer = steer - (1 - dc);
+	}
+	wishdir = wishdir - rgt * steer;
 	wishdir_z = 0;
 	return normalize(wishdir);
 };
