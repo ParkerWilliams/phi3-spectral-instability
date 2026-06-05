@@ -44,6 +44,7 @@ watch MAP="lq_e1m1": build-engine build-quakec
        +set bot_scan_amp 35 +set bot_explore_bias 1 +set bot_exit_bias 3 \
        +set bot_stall_dist 32 +set bot_whisker_time 0 \
        +set bot_patrol_dist 300 +set bot_patrol_off 0 \
+       +set bot_look_volume 0.5 \
        +bind o "impulse 103" \
        +map {{MAP}}
     @echo "The view auto-attaches to the agent's first-person (like watching a"
@@ -56,6 +57,8 @@ watch MAP="lq_e1m1": build-engine build-quakec
     @echo "  bot_whisker_time 0  wall-avoidance look-ahead seconds (0 = competence-scaled);"
     @echo "                      reach = 48 + speed*time, grows with speed (dynamic)"
     @echo "  bot_scan_amp 35     how far the view glances off the heading while exploring"
+    @echo "  bot_look_volume 0.5 look toward the room's open VOLUME vs the move heading"
+    @echo "                      (0 = look where you walk, 1 = look fully into the room)"
     @echo "  bot_explore_bias 1  weight toward UNEXPLORED space when choosing where to go"
     @echo "Navigation: COMMITTED exploration (pick a reachable open point, TRAVEL there,"
     @echo "  re-pick on arrival/timeout) grows the graph; the Dijkstra patrol tours it."

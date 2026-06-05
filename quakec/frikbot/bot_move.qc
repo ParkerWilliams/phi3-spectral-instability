@@ -614,7 +614,7 @@ entity() nearest_monster =
 // the ray count + the unexplored bias; bot_explore_bias tunes the latter.
 vector() bot_pick_frontier =
 {
-	local vector ang, eye, bestorg;
+	local vector ang, eye, bestorg, vol;
 	local float i, n, len, score, best, away, acc;
 
 	acc = cvar("bot_map_awareness");
@@ -629,6 +629,7 @@ vector() bot_pick_frontier =
 	eye = self.origin + self.view_ofs;
 	best = -1;
 	bestorg = eye;
+	vol = '0 0 0';
 	i = 0;
 	while (i < n)
 	{
@@ -637,6 +638,8 @@ vector() bot_pick_frontier =
 		makevectors(ang);
 		traceline(eye, eye + v_forward * 2300, TRUE, self);
 		len = vlen(trace_endpos - eye);
+		vol = vol + v_forward * len;   // 004: accumulate toward the open ROOM VOLUME
+		                               // (each ray weighted by how far it sees)
 		score = len + away * nearest_way_dist(trace_endpos);
 		if (score > best)
 		{
@@ -645,6 +648,11 @@ vector() bot_pick_frontier =
 		}
 		i = i + 1;
 	}
+	// Store the room-volume look direction (centroid of openness, flat) for the view
+	// bias -- it points into the bulk of the room, away from the wall the feet may hug.
+	vol_z = 0;
+	if (vol != '0 0 0')
+		self.look_dir = normalize(vol);
 	// pull back off the wall the winning ray hit so the target isn't inside geometry
 	if (vlen(bestorg - eye) > 48)
 		bestorg = bestorg - normalize(bestorg - eye) * 40;
@@ -661,8 +669,8 @@ vector() bot_pick_frontier =
 // commitment makes those unnecessary.
 void() frik_bot_roam =
 {
-	local vector dir, va;
-	local float aggr, bored_thresh, amp, d;
+	local vector dir, va, look;
+	local float aggr, bored_thresh, amp, d, lv;
 	local entity m;
 
 	m = nearest_monster();
@@ -699,9 +707,18 @@ void() frik_bot_roam =
 		dir = '1 0 0';
 	dir = normalize(dir);
 
-	// View: survey independently of movement -- yaw toward the destination with a
-	// periodic glance offset (eased by smooth-aim). amp 0 (unset) -> face the heading.
-	va = vectoangles(dir);
+	// View: look toward the open ROOM VOLUME (openness centroid from the scan), BLENDED
+	// with the move heading so the eyes survey the room while the feet travel -- loosely
+	// coupled, not fully decoupled (that's what stops it staring at a wall it's hugging).
+	// bot_look_volume tunes the blend: ~0 = look where you walk, 1 = look fully at the
+	// volume; <=0/unset -> 0.5. A periodic glance offset (bot_scan_amp) rides on top.
+	lv = cvar("bot_look_volume");
+	if (lv <= 0) lv = 0.5;
+	if (lv > 1) lv = 1;
+	look = dir;
+	if (self.look_dir != '0 0 0')
+		look = normalize(dir * (1 - lv) + self.look_dir * lv);
+	va = vectoangles(look);
 	amp = cvar("bot_scan_amp");
 	if (amp <= 0) amp = 35;
 	if (time > self.scan_time)

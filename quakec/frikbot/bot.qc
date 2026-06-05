@@ -165,6 +165,7 @@ for all variables in the bot...
 .float  explore_time;// 003: re-pick the destination when time passes this
 .float  nav_seen_ways;// 003: highest waypoint count seen (graph-growth tracker)
 .float  nav_grow_time;// 003: last time the graph grew -- stale => local frontier done
+.vector look_dir;    // 004 view feel: room-volume look direction (openness centroid)
 .float  boredom;     // boredom: rises while wandering w/o a fight, resets in combat
 .float  scan_time;   // next time to re-pick a view glance offset (look-around scan)
 .float  scan_dir;    // current view glance offset (deg) around the move heading
