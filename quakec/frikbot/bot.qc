@@ -163,6 +163,8 @@ for all variables in the bot...
 .float  patrol_stamp;// 003: per-waypoint -- last time it was chosen as a patrol destination
 .vector explore_dest;// 003: committed exploration destination (a clear-ray endpoint)
 .float  explore_time;// 003: re-pick the destination when time passes this
+.float  nav_seen_ways;// 003: highest waypoint count seen (graph-growth tracker)
+.float  nav_grow_time;// 003: last time the graph grew -- stale => local frontier done
 .float  boredom;     // boredom: rises while wandering w/o a fight, resets in combat
 .float  scan_time;   // next time to re-pick a view glance offset (look-around scan)
 .float  scan_dir;    // current view glance offset (deg) around the move heading
@@ -270,6 +272,7 @@ float WHISKER_STRENGTH	= 0.35;	// continuous wall-clearance steer gain (off a si
 float THROTTLE_NOVICE	= 0.6;	// novice horizontal move scale (timid shuffle); vet 1.0
 float DWELL_NOVICE	= 0.5;	// novice pause (s) on a sharp turn; veteran 0 (flows)
 float TURN_DWELL_DOT	= 0.64;	// cos(~50deg): heading change past this triggers a dwell
+float NAV_STALE_SECS	= 3;	// graph not growing this long => escape the explored area
 
 // Roam tuning baked from playtest (units; live cvars override, negative = off):
 float MOMENTUM_DEFAULT   = 450;  // bot_momentum: anti-doubling-back strength

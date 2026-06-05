@@ -783,25 +783,28 @@ void(float scope) bot_look_for_crap =
 	}
 	if (best == world)
 	{
-		// No item/enemy goal -> committed graph-node patrol: Dijkstra-route to a
-		// reachable node and follow it; the no-goal loop re-picks on arrival or the
-		// 5s goal timeout. Only on the post-Dijkstra global pass (scope), where the
-		// .items costs are valid. Too-small graph -> hand back to roam to grow it.
-		if (scope && !cvar("bot_patrol_off"))
+		if (scope)
 		{
-			pwp = bot_patrol_pick();
-			if (pwp != world)
+			// Explore locally (committed frontier roam) while we're still reaching new
+			// ground. Once the graph STOPS growing, the local line-of-sight area is
+			// covered and reactive roaming can only ping-pong across it -- so ESCAPE:
+			// Dijkstra-route to a distant under-visited node (around corners the scan
+			// can't see), then resume exploring from there. The 5s goal lease / arrival
+			// pops the node and this loop re-evaluates.
+			if (!cvar("bot_patrol_off") && (time - self.nav_grow_time) > NAV_STALE_SECS)
 			{
-				pwp.patrol_stamp = time;
-				target_add(pwp);
-				bot_get_path(pwp, FALSE);
-				self.b_aiflags = self.b_aiflags | AI_WAIT;
+				pwp = bot_patrol_pick();
+				if (pwp != world)
+				{
+					pwp.patrol_stamp = time;
+					target_add(pwp);
+					bot_get_path(pwp, FALSE);
+					self.b_aiflags = self.b_aiflags | AI_WAIT;
+					return;
+				}
 			}
-			else
-			{
-				route_table = world;        // free the router
-				self.route_failed = TRUE;   // graph too small -> roam to grow it
-			}
+			route_table = world;        // free the router
+			self.route_failed = TRUE;   // -> committed local exploration (frik_bot_roam)
 		}
 		return;
 	}
@@ -996,6 +999,16 @@ void() BotAI =
 		else
 			self.boredom = self.boredom + 1;
 		tel_boredom = self.boredom;   // mirror for the nav telemetry sample
+	}
+
+	// Frontier-exhaustion signal: while the graph keeps GROWING the agent is reaching
+	// new ground; when it stops, the local line-of-sight area is explored (reactive
+	// roaming would only ping-pong across it) -> bot_look_for_crap escapes to a distant
+	// node via Dijkstra. Tracked every frame (before the skill stagger early-return).
+	if (waypoints > self.nav_seen_ways)
+	{
+		self.nav_seen_ways = waypoints;
+		self.nav_grow_time = time;
 	}
 
 	// am I dead? Fire randomly until I respawn
