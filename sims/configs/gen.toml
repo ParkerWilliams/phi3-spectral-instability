@@ -1,0 +1,15 @@
+# Feature 004 dynamic verification: run the agent on a PROCEDURALLY GENERATED level.
+#
+# The map stem is a generated seed (`gen_<seed>`), compiled locally via
+# `scripts/mapgen_compile.sh <seed>` into the game maps dir. Override per run with
+# `--map gen_<seed>` (T017 harness support). LOCAL/CI only — needs the compiled .bsp.
+#
+# Expected (SC-003): with NO hand-authored nav data the agent covers the level and reaches
+# combat — waypoints climb, shots_fired > 0, kills >= 1 — the same bar it clears on lq_e1m1.
+map = "gen_1234"
+seed = 1
+time_limit = 60
+
+[bot]
+bot_map_awareness = 0.3
+# feature 003 motion lives on its own branch; once merged, pin bot_competence here too.

@@ -26,10 +26,10 @@ plays it) are both **P1** and together form the watchable MVP.
 
 **Purpose**: stand up the generator package + the compile toolchain.
 
-- [ ] T001 Scaffold the `mapgen/` uv package (`pyproject.toml`, `idledoom_mapgen/__init__.py`, `tests/`) mirroring `sims/` layout
-- [ ] T002 [P] Configure ruff + mypy for `mapgen/` matching `sims/` config (in `mapgen/pyproject.toml`)
+- [X] T001 Scaffold the `mapgen/` uv package (`pyproject.toml`, `idledoom_mapgen/__init__.py`, `tests/`) mirroring `sims/` layout
+- [X] T002 [P] Configure ruff + mypy for `mapgen/` matching `sims/` config (in `mapgen/pyproject.toml`)
 - [ ] T003 Vendor **prebuilt** ericw-tools (`qbsp`/`vis`/`light`, latest 2.x) into `tools/ericw-tools/` with a `tools/ericw-tools/README.md` fetch note — download per-OS binaries, **never build on the droplet** (constitution)
-- [ ] T004 [P] Add Justfile targets `mapgen`, `mapgen-compile`, `mapgen-verify` (wire to the CLI/scripts created later)
+- [X] T004 [P] Add Justfile targets `mapgen`, `mapgen-compile`, `mapgen-verify` (wire to the CLI/scripts created later)
 
 ---
 
@@ -39,8 +39,8 @@ plays it) are both **P1** and together form the watchable MVP.
 
 **⚠️ CRITICAL**: no user-story work begins until this phase is complete.
 
-- [ ] T005 Implement `GenParams` (fields + defaults + clamping) and the single seeded `random.Random(seed)` in `mapgen/idledoom_mapgen/params.py` (per data-model.md)
-- [ ] T006 Define the shared dataclasses `Room`, `RoomGraph`, `Grid`, `Brush`, `MapEntity`, `BrushSet`, `EntitySet`, `MapModel` in `mapgen/idledoom_mapgen/model.py` (per data-model.md)
+- [X] T005 Implement `GenParams` (fields + defaults + clamping) and the single seeded `random.Random(seed)` in `mapgen/idledoom_mapgen/params.py` (per data-model.md)
+- [X] T006 Define the shared dataclasses `Room`, `RoomGraph`, `Grid`, `Brush`, `MapEntity`, `BrushSet`, `EntitySet`, `MapModel` in `mapgen/idledoom_mapgen/model.py` (per data-model.md)
 
 **Checkpoint**: params + data model importable; user stories can begin.
 
@@ -57,17 +57,17 @@ needed.
 
 ### Tests for User Story 1 ⚠️ (write first, ensure they FAIL)
 
-- [ ] T007 [P] [US1] Static-verification tests (reachability flood-fill == open set; sealed hull; no entity overlap; spawn room monster-free; every monster/item reachable) in `mapgen/tests/test_verify.py`
-- [ ] T008 [P] [US1] Determinism test (same `(seed, params)` → byte-identical `.map`) in `mapgen/tests/test_determinism.py`
+- [X] T007 [P] [US1] Static-verification tests (reachability flood-fill == open set; sealed hull; no entity overlap; spawn room monster-free; every monster/item reachable) in `mapgen/tests/test_verify.py`
+- [X] T008 [P] [US1] Determinism test (same `(seed, params)` → byte-identical `.map`) in `mapgen/tests/test_determinism.py`
 
 ### Implementation for User Story 1
 
-- [ ] T009 [US1] Implement `layout()` — non-overlapping room placement + connectivity graph (MST over centers + `loopiness` extra edges) + corridor rasterization → `Grid` — in `mapgen/idledoom_mapgen/layout.py`
-- [ ] T010 [US1] Implement `geometry()` — `Grid` → sealed wall brushes from solid-adjacent-to-open cells (greedy rectangle merge) + floor/ceiling slabs — in `mapgen/idledoom_mapgen/geometry.py`
-- [ ] T011 [US1] Implement `entities()` — place `info_player_start`, `monster_army`/`monster_dog`/`monster_knight`, `item_health`/`item_shells`/`weapon_supershotgun`, and one `light` per room, enforcing the placement invariants — in `mapgen/idledoom_mapgen/entities.py`
-- [ ] T012 [US1] Implement `verify()` — the static invariants from data-model.md (reachability, spawn safety, content reachable, no overlap, sealed) — in `mapgen/idledoom_mapgen/verify.py`
-- [ ] T013 [US1] Implement `emit_map()` — `.map` text: `worldspawn` with `"wad"`, axis-aligned box brushes (6 planes, LibreQuake texture names), then entities — in `mapgen/idledoom_mapgen/mapfile.py`
-- [ ] T014 [US1] Implement `cli.py` — `mapgen --seed S [--out] [--params k=v]`, the **reject-and-reseed** loop (only ever writes a static-verified `.map`), summary print — in `mapgen/idledoom_mapgen/cli.py`
+- [X] T009 [US1] Implement `layout()` — non-overlapping room placement + connectivity graph (MST over centers + `loopiness` extra edges) + corridor rasterization → `Grid` — in `mapgen/idledoom_mapgen/layout.py`
+- [X] T010 [US1] Implement `geometry()` — `Grid` → sealed wall brushes from solid-adjacent-to-open cells (greedy rectangle merge) + floor/ceiling slabs — in `mapgen/idledoom_mapgen/geometry.py`
+- [X] T011 [US1] Implement `entities()` — place `info_player_start`, `monster_army`/`monster_dog`/`monster_knight`, `item_health`/`item_shells`/`weapon_supershotgun`, and one `light` per room, enforcing the placement invariants — in `mapgen/idledoom_mapgen/entities.py`
+- [X] T012 [US1] Implement `verify()` — the static invariants from data-model.md (reachability, spawn safety, content reachable, no overlap, sealed) — in `mapgen/idledoom_mapgen/verify.py`
+- [X] T013 [US1] Implement `emit_map()` — `.map` text: `worldspawn` with `"wad"`, axis-aligned box brushes (6 planes, LibreQuake texture names), then entities — in `mapgen/idledoom_mapgen/mapfile.py`
+- [X] T014 [US1] Implement `cli.py` — `mapgen --seed S [--out] [--params k=v]`, the **reject-and-reseed** loop (only ever writes a static-verified `.map`), summary print — in `mapgen/idledoom_mapgen/cli.py`
 
 **Checkpoint**: `just mapgen 1234` writes a verified `gen_1234.map`; `uv run pytest` green.
 
@@ -87,7 +87,7 @@ sim, and confirm `waypoints` climb, `shots_fired > 0`, `kills ≥ 1` (SC-003).
 
 ### Implementation for User Story 2
 
-- [ ] T015 [US2] Implement the compile helper — `mapgen` → `qbsp`→`vis`→`light` → `gen_S.bsp` → game `maps/` dir, with **leak detection** (a `.pts`/"leaked" result is a hard failure) — in `scripts/mapgen_compile.sh` (wired to Justfile `mapgen-compile`)
+- [X] T015 [US2] Implement the compile helper — `mapgen` → `qbsp`→`vis`→`light` → `gen_S.bsp` → game `maps/` dir, with **leak detection** (a `.pts`/"leaked" result is a hard failure) — in `scripts/mapgen_compile.sh` (wired to Justfile `mapgen-compile`)
 - [ ] T016 [US2] Pin the LibreQuake `.wad` + wall/floor/ceiling texture names; pass the WAD to `qbsp`; record texture provenance in `docs/licenses.md`
 - [ ] T017 [US2] Add `sims/configs/gen.toml` and `--map gen_S` support to the harness so the sim/watch run the agent on a generated level
 
@@ -103,8 +103,8 @@ seeds — invalid levels are never emitted.
 **Independent Test**: run a batch of N seeds; all pass static verification, ≥95% on the
 first generation (the rest auto-reseeded), and each seed reproduces identically.
 
-- [ ] T019 [P] [US3] Batch property test over N seeds (all pass static verify; ≥95% valid on first generation — SC-006) in `mapgen/tests/test_batch.py`
-- [ ] T020 [US3] Harden the reject-and-reseed loop in `mapgen/idledoom_mapgen/cli.py` — bounded re-rolls, clear diagnostic + non-zero exit on exhaustion; clamp degenerate `GenParams`
+- [X] T019 [P] [US3] Batch property test over N seeds (all pass static verify; ≥95% valid on first generation — SC-006) in `mapgen/tests/test_batch.py`
+- [X] T020 [US3] Harden the reject-and-reseed loop in `mapgen/idledoom_mapgen/cli.py` — bounded re-rolls, clear diagnostic + non-zero exit on exhaustion; clamp degenerate `GenParams`
 - [ ] T021 [US3] Add `mapgen` pytest + ruff + mypy to CI (`.github/workflows/ci.yml`) and `just check`, so generation regressions are caught
 
 **Checkpoint**: `cd mapgen && uv run pytest` green across the batch; CI runs it.
@@ -126,7 +126,7 @@ in-scope sliver is param-driven variety, already delivered by `GenParams` (T005)
 
 ## Phase 7: Polish & Cross-Cutting Concerns
 
-- [ ] T023 [P] Write `docs/adr/0004-procedural-map-generation.md` — the mechanism decision (external `.map` + ericw-tools vs engine-side; libre constraint; droplet/local split)
+- [X] T023 [P] Write `docs/adr/0004-procedural-map-generation.md` — the mechanism decision (external `.map` + ericw-tools vs engine-side; libre constraint; droplet/local split)
 - [ ] T024 [P] Update `docs/design.md` §6 to link ADR-0004; confirm `docs/licenses.md` records the LibreQuake texture provenance
 - [ ] T025 Confirm the ericw-tools Linux prebuilt runs headless on the droplet (resolves the open research item — decides CI-compile vs local-only)
 - [ ] T026 Run `quickstart.md` end-to-end locally (gen → compile → watch → sim) and confirm SC-001…SC-006

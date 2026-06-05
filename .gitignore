@@ -42,6 +42,15 @@ data/
 sims/results/
 sims/*.log
 
+# === Procedural maps (feature 004) ===
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+gen_*.map
+gen_*.bsp
+# vendored prebuilt ericw-tools binaries are fetched locally, not committed
+tools/ericw-tools/bin/
+
 # Asset symlinks created by setup scripts
 assets/_runtime/
 

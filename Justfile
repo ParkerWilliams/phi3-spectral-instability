@@ -152,3 +152,18 @@ fmt:
     cd host && cargo fmt
     cd host/ui && npm run fmt
     cd sims && uv run ruff format .
+
+# === Procedural maps (feature 004) ===
+
+# Generate a level (e.g. `just mapgen 1234` or `just mapgen 1234 --params room_count=12`)
+mapgen SEED *ARGS:
+    cd mapgen && uv run python -m idledoom_mapgen.cli --seed {{SEED}} {{ARGS}}
+    @echo "Compile + play LOCALLY: just mapgen-compile {{SEED}}  (needs vendored ericw-tools + LibreQuake wad)"
+
+# Static-verify the generator across many seeds (droplet-OK; no engine)
+mapgen-verify:
+    cd mapgen && uv run pytest -q && uv run ruff check . && uv run mypy .
+
+# Compile a generated .map -> .bsp (LOCAL ONLY: vendored ericw-tools + LibreQuake wad)
+mapgen-compile SEED:
+    scripts/mapgen_compile.sh {{SEED}}
