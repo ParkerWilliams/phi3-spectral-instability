@@ -597,11 +597,32 @@ entity() nearest_monster =
 // bot_exit_bias, bot_scan_amp (view look-around amplitude).
 void() frik_bot_roam =
 {
-	local vector ang, eye, bestdir, bestorg, va, edir;
-	local float i, n, len, score, best, acc, aggr, bored_thresh, away, amp, mom, pull;
+	local vector ang, eye, bestdir, bestorg, va, edir, d;
+	local float i, n, len, score, best, acc, aggr, bored_thresh, away, amp, mom, pull, lp;
 	local entity m;
 
 	m = nearest_monster();   // computed once: used by the bored charge AND the soft tug
+
+	// Lightweight repeat detector: if over LOOP_WINDOW the agent's NET travel is tiny
+	// (it kept moving but ended up where it started -- circling / ping-ponging /
+	// doubling back over seconds), escalate exploration for a moment to break out.
+	// Distinct from stall-jump (obstacle) and stuck_check (wedged): this catches
+	// "moving but getting nowhere". Tunable/off via bot_loop_dist.
+	lp = cvar("bot_loop_dist");
+	if (!lp) lp = LOOP_MIN_PROGRESS;
+	if (lp > 0)
+		if (time >= self.loop_time)
+		{
+			if (self.loop_org != '0 0 0')
+			{
+				d = self.loop_org - self.origin;
+				d_z = 0;
+				if (vlen(d) < lp)
+					self.loop_boost = time + LOOP_BOOST_SECS;
+			}
+			self.loop_org = self.origin;
+			self.loop_time = time + LOOP_WINDOW;
+		}
 
 	aggr = cvar("bot_aggression");
 	if (aggr < 0) aggr = 0;
@@ -651,14 +672,22 @@ void() frik_bot_roam =
 	//   bot_enemy_pull -- a gentle drift TOWARD the nearest monster through open
 	//                     space, so it seeks combat without clipping at walls (the
 	//                     LOS charge above takes the final approach once it's seen).
-	mom = cvar("bot_momentum");    if (mom < 0) mom = 0;
-	pull = cvar("bot_enemy_pull"); if (pull < 0) pull = 0;
+	mom = cvar("bot_momentum");    if (!mom) mom = MOMENTUM_DEFAULT;    if (mom < 0) mom = 0;
+	pull = cvar("bot_enemy_pull"); if (!pull) pull = ENEMY_PULL_DEFAULT; if (pull < 0) pull = 0;
 	edir = '0 0 0';
 	if (m != world && pull > 0)
 	{
 		edir = m.origin - eye;
 		edir_z = 0;
 		edir = normalize(edir);
+	}
+	// Breaking a loop: drop the enemy tug, crank frontier-seeking, and commit harder
+	// to the current heading so it decisively leaves the area instead of orbiting.
+	if (time < self.loop_boost)
+	{
+		pull = 0;
+		away = away * LOOP_AWAY_MULT;
+		mom = mom * 2;
 	}
 
 	best = -1;

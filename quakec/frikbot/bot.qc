@@ -157,6 +157,9 @@ for all variables in the bot...
 .float  stuck_time;  // T017: next sim-time to evaluate the stuck window
 .vector stall_org;   // 003: origin sampled at the last stall-jump check
 .float  stall_time;  // 003: next time to evaluate the stall window
+.vector loop_org;    // 003: origin sampled at the last loop (net-progress) check
+.float  loop_time;   // 003: next time to evaluate the loop window
+.float  loop_boost;  // 003: while time < this, escalate exploration to break a loop
 .float  boredom;     // boredom: rises while wandering w/o a fight, resets in combat
 .float  scan_time;   // next time to re-pick a view glance offset (look-around scan)
 .float  scan_dir;    // current view glance offset (deg) around the move heading
@@ -258,6 +261,16 @@ float WHISKER_FAR	= 130;	// veteran look-ahead (u): sees the corner early, eases
 float THROTTLE_NOVICE	= 0.6;	// novice horizontal move scale (timid shuffle); vet 1.0
 float DWELL_NOVICE	= 0.5;	// novice pause (s) on a sharp turn; veteran 0 (flows)
 float TURN_DWELL_DOT	= 0.64;	// cos(~50deg): heading change past this triggers a dwell
+
+// Roam tuning baked from playtest (units; live cvars override, negative = off):
+float MOMENTUM_DEFAULT   = 450;  // bot_momentum: anti-doubling-back strength
+float ENEMY_PULL_DEFAULT = 400;  // bot_enemy_pull: soft tug toward the nearest monster
+float STALL_DIST_DEFAULT = 32;   // bot_stall_dist: hop if horizontal travel < this / ~0.4s
+// Lightweight repeat/loop detector (catches "moving but circling / doubling back"):
+float LOOP_WINDOW        = 2.5;  // s: net-progress check window
+float LOOP_MIN_PROGRESS  = 150;  // u: bot_loop_dist default -- net travel below => looping
+float LOOP_BOOST_SECS    = 2;    // s: escalate exploration this long after a loop is seen
+float LOOP_AWAY_MULT     = 3;    // frontier-bias multiplier while breaking a loop
 // =============================================================================
 
 // -------globals-----

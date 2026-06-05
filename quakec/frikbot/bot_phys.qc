@@ -599,8 +599,9 @@ void() bot_stall_jump =
 	if (!(self.flags & FL_ONGROUND))
 		return;                       // already airborne
 	md = cvar("bot_stall_dist");
-	if (md <= 0)
-		return;                       // disabled
+	if (!md) md = STALL_DIST_DEFAULT;     // baked default
+	if (md < 0)
+		return;                       // explicitly disabled
 	if (time < self.stall_time)
 		return;                       // evaluate once per window
 	if (self.stall_org != '0 0 0')

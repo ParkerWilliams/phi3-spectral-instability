@@ -42,7 +42,6 @@ watch: build-engine build-quakec
        +set bot_smooth_aim 1 \
        +set bot_competence 0.35 \
        +set bot_scan_amp 35 +set bot_explore_bias 1 +set bot_exit_bias 3 \
-       +set bot_momentum 300 +set bot_enemy_pull 500 +set bot_stall_dist 24 \
        +bind o "impulse 103" \
        +map lq_e1m1
     @echo "The view auto-attaches to the agent's first-person (like watching a"
@@ -50,10 +49,11 @@ watch: build-engine build-quakec
     @echo "Motion competence starts at 0.35 (still-learning). In the ~ console try"
     @echo "  bot_competence 0   (tepid newbie)  ...  bot_competence 1  (veteran)"
     @echo "to watch the locomotion arc: slower & wall-hugging -> fast & corner-cutting."
-    @echo "Roam tuning (live in ~ console; 0 = off):"
-    @echo "  bot_momentum 300    anti-doubling-back (reward heading, penalize reversal)"
-    @echo "  bot_enemy_pull 500  soft tug toward the nearest monster through open space"
-    @echo "  bot_stall_dist 24   hop when it moves < this many units in ~0.4s"
+    @echo "Roam tuning (baked defaults; live in ~ console; negative = off):"
+    @echo "  bot_momentum 450    anti-doubling-back (reward heading, penalize reversal)"
+    @echo "  bot_enemy_pull 400  soft tug toward the nearest monster through open space"
+    @echo "  bot_stall_dist 32   hop when it moves < this many units in ~0.4s"
+    @echo "  bot_loop_dist 150   break a loop if NET travel < this over ~2.5s (circling)"
 
 # Build all components
 build: build-engine build-quakec build-host
