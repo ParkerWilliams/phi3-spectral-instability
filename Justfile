@@ -30,7 +30,7 @@ run-fresh: build
 # NOTE maxplayers 2: DynamicWaypoint needs max_clients >= 2 (bot_way.qc). The human
 # host is client 1, the agent client 2. If the agent just loiters, confirm this took
 # effect (FTE cvar name; adjust if your build differs).
-watch: build-engine build-quakec
+watch MAP="lq_e1m1": build-engine build-quakec
     @echo "Launching watch session (first-person bot-cam — press O / 'impulse 103')..."
     @BIN=$(ls engine/engine/release/fteqw-gl* engine/engine/fteqw-gl* 2>/dev/null | head -1); \
      if [ -z "$BIN" ]; then echo "ERROR: no fteqw-gl binary — did build-engine succeed? (audio dev libs)"; exit 1; fi; \
@@ -43,7 +43,7 @@ watch: build-engine build-quakec
        +set bot_competence 0.35 \
        +set bot_scan_amp 35 +set bot_explore_bias 1 +set bot_exit_bias 3 \
        +bind o "impulse 103" \
-       +map lq_e1m1
+       +map {{MAP}}
     @echo "The view auto-attaches to the agent's first-person (like watching a"
     @echo "friend's screen). Press O to cycle/detach the camera if you want."
     @echo "Motion competence starts at 0.35 (still-learning). In the ~ console try"

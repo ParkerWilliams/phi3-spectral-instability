@@ -1,40 +1,50 @@
 #!/usr/bin/env bash
 # Compile a procedurally generated level: gen_<seed>.map -> gen_<seed>.bsp (feature 004).
 #
-# LOCAL ONLY. Needs the vendored prebuilt ericw-tools (tools/ericw-tools/bin/) and a
-# LibreQuake texture .wad. The droplet cannot run this (no engine, ericw-tools not vendored
-# there); generation + static verification run on the droplet via `just mapgen-verify`.
+# LOCAL ONLY (the droplet has no engine and ericw-tools isn't vendored there; generation +
+# static verification run on the droplet via `just mapgen-verify`).
 #
-# Usage: scripts/mapgen_compile.sh <seed> [out_map_dir]
+# Needs prebuilt ericw-tools. Point at them with ERICW_BIN, else the vendored
+# tools/ericw-tools/bin/. A LibreQuake texture .wad (LIBREQUAKE_WAD) is OPTIONAL — without
+# it the map compiles fine but is untextured (grey).
+#
+#   # one-time vendor:  mkdir -p tools/ericw-tools/bin && cp <ericw>/bin/* tools/ericw-tools/bin/
+#   scripts/mapgen_compile.sh <seed>
 set -euo pipefail
 
-SEED="${1:?usage: mapgen_compile.sh <seed> [out_map_dir]}"
-MAPS_DIR="${2:-quakec/maps}"          # where the engine/sim looks for +map gen_<seed>
+SEED="${1:?usage: mapgen_compile.sh <seed>}"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-TOOLS="$ROOT/tools/ericw-tools/bin"
-WAD="${LIBREQUAKE_WAD:-$ROOT/assets/wads/librequake.wad}"   # override via env if needed
-MAP="gen_${SEED}.map"
-BSP="gen_${SEED}.bsp"
+BIN="${ERICW_BIN:-$ROOT/tools/ericw-tools/bin}"
+MAPS_DIR="${MAPS_DIR:-quakec/maps}"          # where the engine loads +map gen_<seed>
+WAD="${LIBREQUAKE_WAD:-}"                      # optional
+MAP="$ROOT/gen_${SEED}.map"
+BSP="$ROOT/gen_${SEED}.bsp"
 
 for t in qbsp vis light; do
-  [ -x "$TOOLS/$t" ] || { echo "ERROR: missing $TOOLS/$t — vendor prebuilt ericw-tools (see tools/ericw-tools/README.md)"; exit 1; }
+  [ -x "$BIN/$t" ] || { echo "ERROR: $BIN/$t missing. Vendor ericw-tools or set ERICW_BIN:"; \
+    echo "  mkdir -p tools/ericw-tools/bin && cp <ericw>/bin/* tools/ericw-tools/bin/"; exit 1; }
 done
-[ -f "$WAD" ] || { echo "ERROR: LibreQuake wad not found at $WAD (set LIBREQUAKE_WAD)"; exit 1; }
+export LD_LIBRARY_PATH="$BIN:${LD_LIBRARY_PATH:-}"   # ericw ships libtbb/libembree alongside
 
-# 1) generate (re-generates deterministically; safe to re-run)
-( cd "$ROOT/mapgen" && uv run python -m idledoom_mapgen.cli --seed "$SEED" --out "$ROOT/$MAP" )
+# 1) generate (deterministic; safe to re-run)
+( cd "$ROOT/mapgen" && uv run python -m idledoom_mapgen.cli --seed "$SEED" --out "$MAP" )
 
-# 2) compile
-"$TOOLS/qbsp" -wadpath "$(dirname "$WAD")" "$ROOT/$MAP"
-# qbsp writes a .pts on a leak -> hard failure
+# 2) compile (qbsp -> vis -> light)
+WADARGS=()
+if [ -n "$WAD" ] && [ -f "$WAD" ]; then
+  WADARGS=(-wadpath "$(dirname "$WAD")")
+else
+  echo "NOTE: no LibreQuake wad (set LIBREQUAKE_WAD) -> the level will be untextured (grey, but playable)."
+fi
+"$BIN/qbsp" "${WADARGS[@]}" "$MAP"
 if [ -f "$ROOT/gen_${SEED}.pts" ]; then
-  echo "ERROR: LEAK in gen_${SEED} (qbsp produced a .pts). The seed should have been rejected upstream — file a bug."
+  echo "ERROR: LEAK in gen_${SEED} (qbsp produced a .pts) — should have been rejected upstream; file a bug."
   exit 2
 fi
-"$TOOLS/vis"   "$ROOT/$BSP"
-"$TOOLS/light" "$ROOT/$BSP"
+"$BIN/vis"   "$BSP"
+"$BIN/light" "$BSP"
 
 # 3) place where the engine/sim load it
 mkdir -p "$ROOT/$MAPS_DIR"
-mv -f "$ROOT/$BSP" "$ROOT/$MAPS_DIR/$BSP"
-echo "Compiled -> $MAPS_DIR/$BSP   (play it: just watch gen_${SEED})"
+mv -f "$BSP" "$ROOT/$MAPS_DIR/gen_${SEED}.bsp"
+echo "Compiled -> $MAPS_DIR/gen_${SEED}.bsp   (play it: just watch gen_${SEED})"
