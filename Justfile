@@ -42,8 +42,7 @@ watch: build-engine build-quakec
        +set bot_smooth_aim 1 \
        +set bot_competence 0.35 \
        +set bot_scan_amp 35 +set bot_explore_bias 1 +set bot_exit_bias 3 \
-       +set bot_momentum 450 +set bot_enemy_pull 400 +set bot_stall_dist 32 \
-       +set bot_loop_dist 150 +set bot_whisker_time 0 \
+       +set bot_stall_dist 32 +set bot_whisker_time 0 \
        +set bot_patrol_dist 300 +set bot_patrol_off 0 \
        +bind o "impulse 103" \
        +map lq_e1m1
@@ -52,17 +51,16 @@ watch: build-engine build-quakec
     @echo "Motion competence starts at 0.35 (still-learning). In the ~ console try"
     @echo "  bot_competence 0   (tepid newbie)  ...  bot_competence 1  (veteran)"
     @echo "to watch the locomotion arc: slower & wall-hugging -> fast & corner-cutting."
-    @echo "Roam tuning (baked defaults; live in ~ console; negative = off):"
-    @echo "  bot_momentum 450    anti-doubling-back (reward heading, penalize reversal)"
-    @echo "  bot_enemy_pull 400  soft tug toward the nearest monster through open space"
+    @echo "Movement tuning (live in ~ console; negative = off):"
     @echo "  bot_stall_dist 32   hop when it moves < this many units in ~0.4s"
-    @echo "  bot_loop_dist 150   break a loop if NET travel < this over ~2.5s (circling)"
     @echo "  bot_whisker_time 0  wall-avoidance look-ahead seconds (0 = competence-scaled);"
-    @echo "                      reach = 48 + speed*time, so it grows with speed (dynamic)"
-    @echo "Navigation: COMMITTED graph-node patrol via the Dijkstra pathfinder ->"
-    @echo "  picks a reachable far node, routes to it AROUND walls, re-picks on arrival."
-    @echo "  bot_patrol_dist 300 min distance of a patrol target (longer = more committed)"
-    @echo "  bot_patrol_off 0    set 1 to fall back to the old radial roam"
+    @echo "                      reach = 48 + speed*time, grows with speed (dynamic)"
+    @echo "  bot_scan_amp 35     how far the view glances off the heading while exploring"
+    @echo "  bot_explore_bias 1  weight toward UNEXPLORED space when choosing where to go"
+    @echo "Navigation: COMMITTED exploration (pick a reachable open point, TRAVEL there,"
+    @echo "  re-pick on arrival/timeout) grows the graph; the Dijkstra patrol tours it."
+    @echo "  bot_patrol_dist 300 min distance of a Dijkstra patrol target"
+    @echo "  bot_patrol_off 0    set 1 to skip patrol (committed exploration only)"
 
 # Build all components
 build: build-engine build-quakec build-host
