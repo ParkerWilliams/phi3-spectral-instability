@@ -208,10 +208,13 @@ before first release. See `docs/licenses.md` for per-asset attribution and
 the one outstanding question (FrikBot's exact license).
 
 <!-- SPECKIT START -->
-Active feature plan: `specs/002-auto-navigation/plan.md` (automatic agent
-navigation — QuakeC `DynamicWaypoint` auto-generation, no engine-C patches;
-navigation competence as a progression axis; verified via the feature-001 sim).
-For technologies, structure, and decisions read that plan and its `research.md` /
-`data-model.md` / `contracts/`. Feature 001 (headless sim + telemetry,
-`specs/001-headless-sim-telemetry/`) is in review (PR #2) and is 002's harness.
+Active feature plan: `specs/004-procedural-maps/plan.md` (procedural map
+generation — a seeded Python `mapgen/` emits libre Quake `.map` levels,
+navigable-by-construction, compiled by vendored ericw-tools, no engine-C patches;
+verified by static `pytest` asserts + the feature-001 sim telemetry). For
+technologies, structure, and decisions read that plan and its `research.md` /
+`data-model.md` / `contracts/`; the brainstormed design is
+`docs/superpowers/specs/2026-06-05-procedural-maps-design.md`. Builds on the
+automatic navigation work (`specs/002-auto-navigation/`, the consumer/navigator)
+and the feature-001 sim harness (`specs/001-headless-sim-telemetry/`, the verifier).
 <!-- SPECKIT END -->
