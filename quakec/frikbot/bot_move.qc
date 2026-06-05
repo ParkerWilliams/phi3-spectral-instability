@@ -611,7 +611,14 @@ void() frik_bot_roam =
 	if (self.boredom > bored_thresh)
 	{
 		m = nearest_monster();
-		if (m != world)
+		// Only CHARGE a monster we can actually SEE. A blind beeline at the nearest
+		// monster anywhere on the map (it may be behind a wall) drives the agent
+		// face-first into geometry and wedges it there forever -- boredom never
+		// resets because it never reaches the monster (the "drags its face along a
+		// wall" bug). If it's not visible, fall through to the radial frontier roam
+		// below, which heads to OPEN space and navigates around walls until a
+		// monster actually comes into sight.
+		if (m != world && sisible(m))
 		{
 			va = vectoangles(m.origin - (self.origin + self.view_ofs));
 			self.b_angle_y = va_y;
