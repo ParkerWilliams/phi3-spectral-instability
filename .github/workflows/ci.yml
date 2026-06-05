@@ -30,6 +30,19 @@ jobs:
           uv run mypy .
           uv run pytest -q
 
+  mapgen:
+    name: Mapgen (ruff + mypy + pytest, feature 004)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - name: Lint, typecheck, test the procedural map generator
+        working-directory: mapgen
+        run: |
+          uv run ruff check .
+          uv run mypy .
+          uv run pytest -q
+
   smoke:
     name: Smoke (build + headless run, SC-005/FR-013)
     runs-on: ubuntu-latest

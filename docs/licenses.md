@@ -92,6 +92,15 @@ maps, monsters, or the "Quake" trademark; keep names/art original or libre.
   redistributable
 - Most commercial Quake mods — case-by-case, usually no
 
+## Procedurally generated maps (feature 004)
+
+Generated `.map`/`.bsp` levels (the `mapgen/` generator) are **derived works of
+LibreQuake textures** (libre) plus our libre monster/item content — no id assets. The
+exact LibreQuake wall/floor/ceiling texture names are pinned when the compile pipeline
+is wired locally (T016) and listed here at that point. The generator code itself is our
+original GPLv2 work. Generated levels are runtime output (gitignored, like other build
+artifacts); if any are ever curated and shipped, log them here.
+
 ## Release checklist
 
 Before any public release:

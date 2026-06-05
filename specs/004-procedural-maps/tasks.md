@@ -89,7 +89,7 @@ sim, and confirm `waypoints` climb, `shots_fired > 0`, `kills ≥ 1` (SC-003).
 
 - [X] T015 [US2] Implement the compile helper — `mapgen` → `qbsp`→`vis`→`light` → `gen_S.bsp` → game `maps/` dir, with **leak detection** (a `.pts`/"leaked" result is a hard failure) — in `scripts/mapgen_compile.sh` (wired to Justfile `mapgen-compile`)
 - [ ] T016 [US2] Pin the LibreQuake `.wad` + wall/floor/ceiling texture names; pass the WAD to `qbsp`; record texture provenance in `docs/licenses.md`
-- [ ] T017 [US2] Add `sims/configs/gen.toml` and `--map gen_S` support to the harness so the sim/watch run the agent on a generated level
+- [X] T017 [US2] Add `sims/configs/gen.toml` and `--map gen_S` support to the harness so the sim/watch run the agent on a generated level
 
 **Checkpoint**: `just watch gen_1234` shows the agent explore + fight a never-seen level; the sim test passes.
 
@@ -105,7 +105,7 @@ first generation (the rest auto-reseeded), and each seed reproduces identically.
 
 - [X] T019 [P] [US3] Batch property test over N seeds (all pass static verify; ≥95% valid on first generation — SC-006) in `mapgen/tests/test_batch.py`
 - [X] T020 [US3] Harden the reject-and-reseed loop in `mapgen/idledoom_mapgen/cli.py` — bounded re-rolls, clear diagnostic + non-zero exit on exhaustion; clamp degenerate `GenParams`
-- [ ] T021 [US3] Add `mapgen` pytest + ruff + mypy to CI (`.github/workflows/ci.yml`) and `just check`, so generation regressions are caught
+- [X] T021 [US3] Add `mapgen` pytest + ruff + mypy to CI (`.github/workflows/ci.yml`) and `just check`, so generation regressions are caught
 
 **Checkpoint**: `cd mapgen && uv run pytest` green across the batch; CI runs it.
 
@@ -118,7 +118,7 @@ The actual richer geometry (prefab kit), intentional structure (grammar), and AI
 the design's **Phase 2/3** — a future feature (005+), out of scope for this build. The
 in-scope sliver is param-driven variety, already delivered by `GenParams` (T005).
 
-- [ ] T022 [US4] Document the Phase 2/3 trajectory and map `GenParams` (size/count/density/loopiness) onto difficulty/progression in `docs/progression.md` and `docs/design.md` §6; defer geometry/grammar/LLM-theming to a future spec
+- [X] T022 [US4] Document the Phase 2/3 trajectory and map `GenParams` (size/count/density/loopiness) onto difficulty/progression in `docs/progression.md` and `docs/design.md` §6; defer geometry/grammar/LLM-theming to a future spec
 
 **Checkpoint**: the variety/difficulty axis and future phases are recorded; no Phase 2/3 code in this build.
 
@@ -127,7 +127,7 @@ in-scope sliver is param-driven variety, already delivered by `GenParams` (T005)
 ## Phase 7: Polish & Cross-Cutting Concerns
 
 - [X] T023 [P] Write `docs/adr/0004-procedural-map-generation.md` — the mechanism decision (external `.map` + ericw-tools vs engine-side; libre constraint; droplet/local split)
-- [ ] T024 [P] Update `docs/design.md` §6 to link ADR-0004; confirm `docs/licenses.md` records the LibreQuake texture provenance
+- [X] T024 [P] Update `docs/design.md` §6 to link ADR-0004; confirm `docs/licenses.md` records the LibreQuake texture provenance
 - [ ] T025 Confirm the ericw-tools Linux prebuilt runs headless on the droplet (resolves the open research item — decides CI-compile vs local-only)
 - [ ] T026 Run `quickstart.md` end-to-end locally (gen → compile → watch → sim) and confirm SC-001…SC-006
 

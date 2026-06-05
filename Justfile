@@ -128,6 +128,8 @@ check-frontend:
 check-python:
     cd sims && uv run ruff check .
     cd sims && uv run mypy .
+    cd mapgen && uv run ruff check .
+    cd mapgen && uv run mypy .
 
 # Run all tests
 test:

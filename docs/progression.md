@@ -98,6 +98,12 @@ Each has an unlock node and 3-5 mastery tiers.
 
 Progression through content. See "Content gating" below.
 
+**Procedural maps (feature 004):** generated levels supply endless content. Their
+generation parameters are a difficulty axis — early game yields small, sparse,
+loop-light layouts; progression unlocks larger, denser, more-connected maps (and,
+in later phases, intentional structure + richer geometry). The size/room-count/
+connectivity/population knobs map onto the gating below.
+
 ## Pacing
 
 ### First session (target: 30-60 minutes)

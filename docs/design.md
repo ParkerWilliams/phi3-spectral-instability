@@ -229,10 +229,16 @@ Original/libre levels with a PS1 aesthetic — LibreQuake-derived or hand-made;
 curated libre community maps later if licensing checks out (`docs/licenses.md`).
 [Difficulty curve, gating criteria.]
 
-**Procedurally generated maps are a planned direction** — generated levels for
-effectively endless content. This is the hard reason navigation must be automatic
-(§3): the agent must path maps no human waypointed. Map generation must therefore
-emit (or pair with) whatever the nav system consumes.
+**Procedurally generated maps are the shipping direction** — generated levels for
+effectively endless content, and the hard reason navigation must be automatic (§3):
+the agent must path maps no human waypointed. **Mechanism (decided — ADR-0004):** a
+seeded generator emits libre Quake `.map` levels (LibreQuake textures + our libre
+monsters/items), compiled by ericw-tools, **navigable-by-construction**, verified by
+the feature-001 sim. The generator's parameters (size, room count, connectivity,
+population) double as the **difficulty/progression knobs** — bigger/denser/more-complex
+maps unlock with progress. See feature 004 (`specs/004-procedural-maps/`); richer
+geometry (prefab kit), intentional structure (grammar), and optional AI theming are
+phased follow-ups.
 
 ### Weapons and behaviors
 
