@@ -12,3 +12,6 @@ time_limit = 60
 # Default competence; US3 varies bot_map_awareness 0.1 vs 0.9 to show the axis.
 [bot]
 bot_map_awareness = 0.3
+# Feature 003: pin the master dial to veteran so feel-throttle/dwell stay inert
+# and SC-003 nav metrics see only the always-on whisker anti-scrape.
+bot_competence = 1.0

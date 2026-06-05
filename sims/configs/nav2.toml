@@ -8,3 +8,5 @@ time_limit = 60
 
 [bot]
 bot_map_awareness = 0.3
+# Feature 003: pin the master dial to veteran (feel-throttle/dwell inert here).
+bot_competence = 1.0

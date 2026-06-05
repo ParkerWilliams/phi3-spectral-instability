@@ -24,6 +24,19 @@ late to extend mid-game. Avoid exponential to prevent late-game grinds.]
 Mirrors the bot stats taxonomy. See `bot-stats.md` for the underlying
 parameters.
 
+### 0. Motion Competence (the master dial)
+
+The headline "watch your friend get better" axis — a single `bot_competence`
+(see `bot-stats.md`). Raising it makes the agent's *motion* visibly mature, the
+clearest cause→effect in the game:
+
+- **Finding Your Feet I–V:** raises `bot_competence`. Low → tepid (slower, hugs
+  walls, pauses at junctions); high → confident (full speed, rounds corners
+  cleanly, flows through without breaking stride). WIRED (locomotion, feature 003).
+- It is a **master dial** that fans out to the per-axis trees below (aim feel,
+  movement tech) as those slices land — one number to watch climb, with deeper
+  per-axis investment layered on later.
+
 ### 1. Aim and Reflexes
 
 Improves the bot's mechanical skill. Most visible early-game.

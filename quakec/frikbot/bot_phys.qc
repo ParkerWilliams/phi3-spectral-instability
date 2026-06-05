@@ -61,7 +61,7 @@ float(float key) CL_KeyState =
 
 void() CL_KeyMove = // CL_BaseMove + CL_AdjustAngles
 {
-	local float anglespeed, gain, maxr, ry, rx;
+	local float anglespeed, gain, maxr, ry, rx, ms;
 	local vector view;
 	if (self.keys != self.oldkeys)
 	{
@@ -79,8 +79,19 @@ void() CL_KeyMove = // CL_BaseMove + CL_AdjustAngles
 		self.movevect_z = self.movevect_z - (200 * CL_KeyState(KEY_MOVEDOWN)); 
 		// 200 is the default cl_upspeed
 		if (!self.b_aiflags & AI_PRECISION)
-			self.movevect = self.movevect * 2; 
+			self.movevect = self.movevect * 2;
 		// 2 is the default cl_movespeedkey & bot always has +speed
+
+		// 003 tepid pacing: a low-competence agent moves at a fraction of full
+		// speed (timid). Horizontal only -- never weaken jumps/rocket-jumps
+		// (movevect_z). movevect persists between key-changes and bot_competence is
+		// static per run, so scaling here stays consistent every frame.
+		if (!self.ishuman)
+		{
+			ms = comp_lerp(THROTTLE_NOVICE, 1);
+			self.movevect_x = self.movevect_x * ms;
+			self.movevect_y = self.movevect_y * ms;
+		}
 	}
 	self.oldkeys = self.keys;
 

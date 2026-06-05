@@ -14,3 +14,7 @@ time_limit = 120
 # recorded (clamped) in the summary's bot_config.
 [bot]
 bot_accuracy = 0.3
+# Master competence dial (feature 003). Pinned to 1.0 (veteran) so the locomotion
+# feel curve — move-throttle + junction-dwell — is INERT and only the always-on
+# whisker anti-scrape affects nav metrics. Sweep 0.2 vs 1.0 to see the motion arc.
+bot_competence = 1.0

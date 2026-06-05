@@ -411,10 +411,63 @@ blah
 -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 */
 
+// idledoom (003 Slice A): anticipatory anti-scrape. Bend a wish-direction away
+// from walls BEFORE we press movement keys, so the agent curves around a corner
+// instead of grinding its face along it and then reactively dodging (the old
+// frik_dodge_obstruction only fires AFTER contact). Look-ahead range rides
+// bot_competence: novices react late and hug walls, veterans see the corner early
+// and ease around. Horizontal only; never touches the view (move/view stay
+// decoupled). Returns an adjusted unit world direction.
+vector(vector wishdir) frik_whiskers =
+{
+	local vector eye, fwd, rgt, c;
+	local float range, dc, dl, dr;
+
+	wishdir_z = 0;
+	if (wishdir == '0 0 0')
+		return wishdir;
+	wishdir = normalize(wishdir);
+
+	range = comp_lerp(WHISKER_NEAR, WHISKER_FAR);
+	eye = self.origin + self.view_ofs;
+	fwd = wishdir;
+
+	traceline(eye, eye + fwd * range, TRUE, self);
+	dc = trace_fraction;
+	if (dc > 0.99)
+		return wishdir;			// open ahead -> walk straight
+
+	c = vectoangles(wishdir);
+	makevectors(c);				// v_right = flat right of wishdir
+	rgt = normalize(v_right);
+
+	traceline(eye, eye + (fwd + rgt) * range, TRUE, self);
+	dr = trace_fraction;
+	traceline(eye, eye + (fwd - rgt) * range, TRUE, self);
+	dl = trace_fraction;
+
+	if (dr < 0.2 && dl < 0.2)
+		return wishdir;			// boxed both sides -> let roam/stuck handle it
+
+	// steer toward the more-open side; strength grows as the center gets blocked
+	if (dr >= dl)
+		wishdir = wishdir + rgt * (1 - dc);
+	else
+		wishdir = wishdir - rgt * (1 - dc);
+	wishdir_z = 0;
+	return normalize(wishdir);
+};
+
 void() frik_movetogoal =
 {
 	local vector way, start, stop, ang;
 	local float g;
+
+	if (time < self.dwell_time)
+	{
+		self.keys = self.keys & 960;	// 003: junction hesitation -- stop, keep looking
+		return;
+	}
 
 	if (self.target1 == world)
 	{
@@ -430,6 +483,7 @@ void() frik_movetogoal =
 	}
 
 	way = normalize(way);
+	way = frik_whiskers(way);		// 003: anticipatory anti-scrape
 	self.keys = self.keys & 960 + frik_KeysForDir(way);
 
 	frik_dodge_obstruction();
@@ -450,6 +504,12 @@ float(vector weird) frik_walkmove =
 {
 	// okay so it's not walkmove
 	// sue me
+	if (time < self.dwell_time)
+	{
+		self.keys = self.keys & 960;	// 003: junction hesitation -- stop, keep looking
+		return TRUE;
+	}
+	weird = frik_whiskers(weird);		// 003: anticipatory anti-scrape
  	self.keys = self.keys & 960 + frik_KeysForDir(weird);
 
 	frik_dodge_obstruction();
@@ -616,5 +676,15 @@ void() frik_bot_roam =
 	// Move toward the open direction, decoupled from the view (frik_KeysForDir
 	// presses forward/strafe relative to v_angle). Body heads to open space; eyes
 	// scan around — how a person actually plays.
+	// 003 tepid pacing: a low-competence agent hesitates on a SHARP turn -- pause,
+	// let the view ease around to the new heading, then commit. Veterans (dwell 0)
+	// flow without breaking stride. Guarded so an already-dwelling agent never
+	// extends its own pause into a stall.
+	if (time >= self.dwell_time)
+		if (self.last_movedir != '0 0 0')
+			if ((bestdir * self.last_movedir) < TURN_DWELL_DOT)
+				self.dwell_time = time + comp_lerp(DWELL_NOVICE, 0);
+	self.last_movedir = bestdir;
+
 	frik_walkmove(bestdir);
 };

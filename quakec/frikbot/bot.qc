@@ -158,6 +158,8 @@ for all variables in the bot...
 .float  boredom;     // boredom: rises while wandering w/o a fight, resets in combat
 .float  scan_time;   // next time to re-pick a view glance offset (look-around scan)
 .float  scan_dir;    // current view glance offset (deg) around the move heading
+.float  dwell_time;  // 003: time until which a tepid agent pauses on a sharp turn
+.vector last_movedir;// 003: previous chosen move heading (turn detection for dwell)
 
 // --------defines-----
 float SVC_UPDATENAME	= 13;
@@ -221,6 +223,40 @@ float WM_EDITOR_DYNLINK	= 6;
 
 float OPT_SAVEBOTS	= 1;
 float OPT_NOCHAT	= 2;
+
+// === idledoom feature 003: human-like motion competence spine ================
+// bot_competence (0..1) is THE leveling-up stat: STATIC during a run, written by
+// the idle-game between runs, read-only here. It is the single legible "how good
+// is my friend right now" dial; every motion feel-param interpolates along it via
+// comp_lerp(). Today it is one master dial -- bot_comp() is the fan-out SEAM: when
+// we later split into per-axis competences (locomotion / aim / ...), only this
+// function body changes; every caller stays the same.
+float() bot_comp =
+{
+	local float c;
+	c = cvar("bot_competence");
+	if (c < 0) c = 0;
+	if (c > 1) c = 1;
+	return c;
+};
+// novice value at competence 0, veteran value at competence 1 (linear).
+float(float novice, float veteran) comp_lerp =
+{
+	return novice + (veteran - novice) * bot_comp();
+};
+// binary unlocks (feature 003 Slice C: strafe-jump etc.) -- competence >= thresh.
+float(float thresh) comp_has =
+{
+	return bot_comp() >= thresh;
+};
+
+// Slice A locomotion feel curve -- the WHOLE tuning surface, lerped off bot_comp:
+float WHISKER_NEAR	= 40;	// novice look-ahead (u): reacts late, hugs walls
+float WHISKER_FAR	= 130;	// veteran look-ahead (u): sees the corner early, eases
+float THROTTLE_NOVICE	= 0.6;	// novice horizontal move scale (timid shuffle); vet 1.0
+float DWELL_NOVICE	= 0.5;	// novice pause (s) on a sharp turn; veteran 0 (flows)
+float TURN_DWELL_DOT	= 0.64;	// cos(~50deg): heading change past this triggers a dwell
+// =============================================================================
 
 // -------globals-----
 float 	active_clients;

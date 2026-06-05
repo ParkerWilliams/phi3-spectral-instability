@@ -14,6 +14,18 @@ code and the upgrade tree in `progression.md`.
   are dev-only knobs)
 - **Observable effect:** how does a player notice this changing in-game?
 
+## Master progression dial
+
+The single "how good is my friend right now" axis. **Static during a run** — the
+idle-game writes it between runs; gamecode reads it read-only. This is the
+leveling-up mechanic: every motion feel-param interpolates along it. Today it is one
+master dial that **fans out** to the per-axis stats below over time (`bot_comp()` in
+`frikbot/bot.qc` is the seam; `comp_lerp(novice, veteran)` is the interpolation).
+
+| Name | Type | Range | Default | Player-facing | Observable effect |
+|------|------|-------|---------|---------------|-------------------|
+| `bot_competence` | float | 0.0 – 1.0 | 0.0 | yes | Overall skill. Low → tepid: slower, hugs walls, pauses at junctions. High → confident: full speed, rounds corners cleanly, flows. (Drives aim & movement-tech in later slices.) — **WIRED (locomotion, feature 003)** |
+
 ## Mechanical skill
 
 | Name | Type | Range | Default | Player-facing | Observable effect |
@@ -114,3 +126,15 @@ Harness-set run controls, **not** player-facing tunables and **not** clamped lik
   summary's `bot_config` (so config hashing / reproducibility works), but not yet
   wired into behavior. Wire them incrementally under the "adding a bot stat"
   convention (CLAUDE.md).
+## Implementation status (feature 003)
+
+- **`bot_competence` — WIRED (locomotion feel).** The master motion dial. Read via
+  `bot_comp()` (the fan-out seam) in `frikbot/bot.qc`; `comp_lerp(novice, veteran)`
+  interpolates three Slice-A feel-params: **whisker look-ahead** (`frik_whiskers` in
+  `bot_move.qc` — anticipatory anti-scrape / corner-rounding, *always on*),
+  **move-throttle** (horizontal speed in `bot_phys.qc` `CL_KeyMove`; jumps unaffected),
+  and **junction-dwell** (a tepid pause on sharp turns, set in `frik_bot_roam`). At
+  competence 1.0 throttle and dwell are inert, so only the whisker anti-scrape affects
+  nav metrics — the sim configs pin 1.0 to isolate it (re-baseline SC-003/SC-004).
+  Aim feel (Slice B) and movement-tech unlocks (Slice C, via `comp_has(thresh)`) are
+  deferred. Live-tunable in the `~` console (`bot_competence 0..1`).

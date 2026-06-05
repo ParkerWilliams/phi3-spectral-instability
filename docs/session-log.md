@@ -3,6 +3,36 @@
 Rolling state summary so work survives session/crash loss (CLAUDE.md convention).
 Newest entry on top. Keep entries short: what's true now, what's next, gotchas.
 
+## 2026-06-05 — Motion competence spine + locomotion feel (Slice A) on feat/motion-competence
+
+Reframed "change the pathfinding" → **human-like motion that visibly improves**. New
+master dial `bot_competence` (0..1): THE leveling-up stat — static per run, read-only in
+gamecode, set by the idle-game between runs. Spine = `bot_comp()` (fan-out seam) +
+`comp_lerp(novice,veteran)` + `comp_has(thresh)` in frikbot/bot.qc. Master dial now; fans
+out to per-axis competences later (one function body changes).
+
+Slice A (locomotion feel, all `comp_lerp`-driven off the curve):
+- **Whiskers** (`frik_whiskers`, bot_move.qc): anticipatory anti-scrape — short feeler
+  traces bend the wish-dir away from walls BEFORE frik_KeysForDir, so it rounds a corner
+  instead of grinding then reactively dodging. Always on; look-ahead 40→130u by competence.
+  Hooked into frik_movetogoal + frik_walkmove.
+- **Move throttle** (CL_KeyMove, bot_phys.qc): horizontal movevect ×comp_lerp(0.6,1) —
+  tepid→full speed. Horizontal only (jumps/RJ untouched), bots only.
+- **Junction dwell** (frik_bot_roam): sharp turn (>~50°) → pause comp_lerp(0.5,0)s (novice
+  peeks then commits; veteran flows). New fields dwell_time/last_movedir.
+
+At competence 1.0 throttle+dwell are INERT → only whiskers affect nav → sims pin
+bot_competence=1.0 (current/nav/nav2/smoke). Watch default 0.35; tune live in ~ console.
+
+Verified on droplet: progs.dat compiles CLEAN via fteqcc (had to `apt install zlib1g-dev`
+to build the compiler); sims pytest 68/68, ruff+mypy clean. CAN'T run engine/sim here (no
+fteqw-sv, no paks, engine build forbidden). **Next: build+run LOCALLY** — `just watch`,
+sweep `bot_competence 0→1` to eyeball the arc; `just sim` to **RE-BASELINE SC-003/SC-004**
+(whiskers change paths even at 1.0). Watch for: crabbing if whisker steer too strong at
+corners; over-dwell if roam bestdir is jittery (guarded — tune TURN_DWELL_DOT/DWELL_NOVICE).
+Slice B (aim curve) + C (strafe-jump, via comp_has) deferred, same spine. Design doc:
+docs/superpowers/specs/2026-06-05-human-motion-competence-design.md.
+
 ## 2026-06-04 — Radial-scan roam: walk toward open space, scan view (feat/watch-feel)
 
 Parker: bot still gets stuck (boredom not unsticking it); wants human-style nav —
