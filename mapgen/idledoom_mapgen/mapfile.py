@@ -11,9 +11,8 @@ format is::
 
     ( x y z ) ( x y z ) ( x y z ) TEX 0 0 0 1 1
 
-with integer coordinates and outward-facing normals (standard box winding).
-
-# NOTE: plane winding to be confirmed on first local qbsp compile (T015)
+with integer coordinates and outward-facing normals (standard box winding,
+confirmed correct on the first local qbsp 0.18.1 compile — sealed, no leak).
 """
 
 from __future__ import annotations
@@ -21,6 +20,9 @@ from __future__ import annotations
 from idledoom_mapgen.model import Brush, MapEntity, MapModel, Vec3
 
 WAD_NAME = "librequake.wad"
+# Global ambient floor so a level is never pitch-black (the per-room point lights
+# don't reach big-room corners; read by ericw-tools `light` as "_minlight").
+MINLIGHT = 60
 
 
 def emit_map(model: MapModel) -> str:
@@ -37,6 +39,7 @@ def _emit_worldspawn(lines: list[str], brushes: list[Brush]) -> None:
     lines.append("{")
     lines.append('"classname" "worldspawn"')
     lines.append(f'"wad" "{WAD_NAME}"')
+    lines.append(f'"_minlight" "{MINLIGHT}"')
     for brush in brushes:
         _emit_brush(lines, brush)
     lines.append("}")
@@ -67,8 +70,7 @@ def _box_planes(mins: Vec3, maxs: Vec3) -> list[tuple[Vec3, Vec3, Vec3]]:
 
     Each triple of points winds clockwise when viewed from outside the brush,
     which is the convention qbsp expects for the face normal (research R3).
-
-    # NOTE: plane winding to be confirmed on first local qbsp compile (T015)
+    Confirmed correct: qbsp 0.18.1 sealed the world (FillOutside, no leak).
     """
     x0, y0, z0 = mins
     x1, y1, z1 = maxs
