@@ -895,6 +895,8 @@ void() bot_angle_set =
 		view = vectoangles(view);
 		view_x = view_x * -1;
 		self.b_angle = view;
+		self.b_angle_x = 0;   // 003: navigation looks LEVEL -- don't crane up/down at
+		                      // floor waypoints (and dodges the b_angle_x<-180 wrap bug)
 	}
 	else
 		self.b_angle_x = 0;
