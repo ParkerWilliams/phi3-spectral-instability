@@ -420,40 +420,53 @@ blah
 // decoupled). Returns an adjusted unit world direction.
 vector(vector wishdir) frik_whiskers =
 {
-	local vector eye, fwd, rgt, c;
-	local float range, dc, dl, dr;
+	local vector eye, fwd, rgt, c, vel;
+	local float range, dc, dl, dr, sp, t, steer;
 
+	if (cvar("bot_whiskers_off"))   // debug kill-switch (default off => whiskers on)
+		return wishdir;
 	wishdir_z = 0;
 	if (wishdir == '0 0 0')
 		return wishdir;
 	wishdir = normalize(wishdir);
 
-	range = comp_lerp(WHISKER_NEAR, WHISKER_FAR);
+	// DYNAMIC avoidance radius: look further ahead the faster the agent is moving, so
+	// there is always time to turn (a fixed reach is far too short at speed). The
+	// look-ahead TIME is competence-scaled (veteran anticipates earlier);
+	// bot_whisker_time overrides the seconds of look-ahead.
+	vel = self.velocity; vel_z = 0; sp = vlen(vel);
+	t = cvar("bot_whisker_time"); if (t <= 0) t = comp_lerp(WHISK_T_NOVICE, WHISK_T_VET);
+	range = WHISKER_MIN + sp * t;
+	if (range > WHISKER_MAX) range = WHISKER_MAX;
+
 	eye = self.origin + self.view_ofs;
 	fwd = wishdir;
-
-	traceline(eye, eye + fwd * range, TRUE, self);
-	dc = trace_fraction;
-	if (dc > 0.99)
-		return wishdir;			// open ahead -> walk straight
-
 	c = vectoangles(wishdir);
 	makevectors(c);				// v_right = flat right of wishdir
 	rgt = normalize(v_right);
 
-	traceline(eye, eye + (fwd + rgt) * range, TRUE, self);
-	dr = trace_fraction;
-	traceline(eye, eye + (fwd - rgt) * range, TRUE, self);
-	dl = trace_fraction;
+	// Three feelers (center + both sides). Steer toward the more-open side -- this
+	// keeps CLEARANCE from a wall the agent is sliding ALONG (not just stopping a
+	// head-on hit), so it actually helps in open-ish roam, and steers harder when the
+	// center itself is about to hit.
+	traceline(eye, eye + fwd * range, TRUE, self);          dc = trace_fraction;
+	traceline(eye, eye + (fwd + rgt) * range, TRUE, self);  dr = trace_fraction;
+	traceline(eye, eye + (fwd - rgt) * range, TRUE, self);  dl = trace_fraction;
 
-	if (dr < 0.2 && dl < 0.2)
-		return wishdir;			// boxed both sides -> let roam/stuck handle it
+	if (dc > 0.99 && dr > 0.99 && dl > 0.99)
+		return wishdir;			// clear all around -> straight
+	if (dc < 0.2 && dr < 0.2 && dl < 0.2)
+		return wishdir;			// boxed in -> let roam/stuck handle it
 
-	// steer toward the more-open side; strength grows as the center gets blocked
-	if (dr >= dl)
-		wishdir = wishdir + rgt * (1 - dc);
-	else
-		wishdir = wishdir - rgt * (1 - dc);
+	steer = (dl - dr) * WHISKER_STRENGTH;   // >0 => left clearer => veer left (-rgt)
+	if (dc < 0.99)                          // head-on: push hard toward the open side
+	{
+		if (dl >= dr)
+			steer = steer + (1 - dc);   // (tie -> veer left, deterministic)
+		else
+			steer = steer - (1 - dc);
+	}
+	wishdir = wishdir - rgt * steer;
 	wishdir_z = 0;
 	return normalize(wishdir);
 };
@@ -593,49 +606,28 @@ entity() nearest_monster =
 // that bias so the agent stops doing laps and EXITS the area it's in. Ray count and
 // the bias scale with bot_map_awareness (US3). Tunable live: bot_explore_bias,
 // bot_exit_bias, bot_scan_amp (view look-around amplitude).
-void() frik_bot_roam =
+// idledoom: pick a COMMITTED exploration destination. The radial scan casts rays in
+// a full circle; each ray is a CLEAR traceline, so its endpoint is a guaranteed
+// line-of-sight-reachable point. Score = openness (ray length) + an "unexplored"
+// bias (distance from existing nodes), so it favours the longest ray into NEW space.
+// Returns that endpoint, pulled back off the wall it hit. bot_map_awareness scales
+// the ray count + the unexplored bias; bot_explore_bias tunes the latter.
+vector() bot_pick_frontier =
 {
-	local vector ang, eye, bestdir, bestorg, va;
-	local float i, n, len, score, best, acc, aggr, bored_thresh, away, amp;
-	local entity m;
-
-	aggr = cvar("bot_aggression");
-	if (aggr < 0) aggr = 0;
-	if (aggr > 1) aggr = 1;
-	bored_thresh = BOREDOM_TICKS * (1.5 - aggr);
-
-	// Bored + a monster somewhere -> go hunt it. Head toward it (decoupled); normal
-	// acquisition lines up the shot once it's in sight, which resets boredom.
-	if (self.boredom > bored_thresh)
-	{
-		m = nearest_monster();
-		if (m != world)
-		{
-			va = vectoangles(m.origin - (self.origin + self.view_ofs));
-			self.b_angle_y = va_y;
-			frik_walkmove(normalize(m.origin - self.origin));
-			return;
-		}
-	}
+	local vector ang, eye, bestorg;
+	local float i, n, len, score, best, away, acc;
 
 	acc = cvar("bot_map_awareness");
 	if (acc < 0) acc = 0;
 	if (acc > 1) acc = 1;
-	n = 12 + floor(acc * 12);             // 12..24 rays (finer choice at high awareness)
+	n = 12 + floor(acc * 12);
 
 	away = cvar("bot_explore_bias");
 	if (away <= 0) away = 1;
-	away = away * (0.5 + acc);            // higher awareness -> stronger pull to new space
-	if (self.boredom > bored_thresh)
-	{
-		amp = cvar("bot_exit_bias");
-		if (amp <= 0) amp = 3;
-		away = away + amp;               // bored -> strongly prefer leaving the area
-	}
+	away = away * (0.5 + acc);
 
 	eye = self.origin + self.view_ofs;
 	best = -1;
-	bestdir = '0 0 0';
 	bestorg = eye;
 	i = 0;
 	while (i < n)
@@ -649,21 +641,67 @@ void() frik_bot_roam =
 		if (score > best)
 		{
 			best = score;
-			bestdir = v_forward;
 			bestorg = trace_endpos;
 		}
 		i = i + 1;
 	}
+	// pull back off the wall the winning ray hit so the target isn't inside geometry
+	if (vlen(bestorg - eye) > 48)
+		bestorg = bestorg - normalize(bestorg - eye) * 40;
+	return bestorg;
+};
 
-	// Drop a frontier waypoint partway toward the open space (coverage telemetry +
-	// the anti-lap "visited" memory the next scan reads via nearest_way_dist).
-	if (vlen(bestorg - eye) > 96)
-		SpawnTempWaypoint(eye + bestdir * (vlen(bestorg - eye) * 0.5));
+// idledoom: COMMITTED frontier exploration -- replaces the per-frame direction churn
+// that caused the dithering/circling. Pick a reachable open point, then COMMIT to
+// travelling there until we ARRIVE, time out, or have none -- re-choosing only then.
+// The body heads to the point (whisker avoidance handles walls); the view surveys
+// independently (a periodic glance offset, eased by smooth-aim; pitch left level by
+// bot_angle_set). DynamicWaypoint lays the node trail as it moves -> the graph grows
+// for the Dijkstra patrol. Simpler than before: no per-frame momentum/loop/dwell --
+// commitment makes those unnecessary.
+void() frik_bot_roam =
+{
+	local vector dir, va;
+	local float aggr, bored_thresh, amp, d;
+	local entity m;
 
-	// View: scan the environment independently of movement. Re-pick a glance offset
-	// around the heading periodically; the eased turn sweeps the view there for a
-	// continuous "surveying" look. amp 0 (unset) -> face the heading (no scan).
-	va = vectoangles(bestdir);
+	m = nearest_monster();
+
+	aggr = cvar("bot_aggression");
+	if (aggr < 0) aggr = 0;
+	if (aggr > 1) aggr = 1;
+	bored_thresh = BOREDOM_TICKS * (1.5 - aggr);
+
+	// Bored + a monster we can SEE -> charge it (acquisition takes over once in sight,
+	// which resets boredom). Not visible -> keep exploring toward open space below.
+	if (self.boredom > bored_thresh)
+		if (m != world && sisible(m))
+		{
+			va = vectoangles(m.origin - (self.origin + self.view_ofs));
+			self.b_angle_y = va_y;
+			frik_walkmove(normalize(m.origin - self.origin));
+			return;
+		}
+
+	// (Re)commit a destination ONLY on arrival / timeout / none -- otherwise keep
+	// travelling to the same point. That commitment is the whole fix.
+	dir = self.explore_dest - self.origin;
+	dir_z = 0;
+	d = vlen(dir);
+	if (self.explore_dest == '0 0 0' || d < 80 || time > self.explore_time)
+	{
+		self.explore_dest = bot_pick_frontier();
+		self.explore_time = time + 4;
+		dir = self.explore_dest - self.origin;
+		dir_z = 0;
+	}
+	if (dir == '0 0 0')
+		dir = '1 0 0';
+	dir = normalize(dir);
+
+	// View: survey independently of movement -- yaw toward the destination with a
+	// periodic glance offset (eased by smooth-aim). amp 0 (unset) -> face the heading.
+	va = vectoangles(dir);
 	amp = cvar("bot_scan_amp");
 	if (amp <= 0) amp = 35;
 	if (time > self.scan_time)
@@ -673,18 +711,6 @@ void() frik_bot_roam =
 	}
 	self.b_angle_y = frik_anglemod(va_y + self.scan_dir);
 
-	// Move toward the open direction, decoupled from the view (frik_KeysForDir
-	// presses forward/strafe relative to v_angle). Body heads to open space; eyes
-	// scan around — how a person actually plays.
-	// 003 tepid pacing: a low-competence agent hesitates on a SHARP turn -- pause,
-	// let the view ease around to the new heading, then commit. Veterans (dwell 0)
-	// flow without breaking stride. Guarded so an already-dwelling agent never
-	// extends its own pause into a stall.
-	if (time >= self.dwell_time)
-		if (self.last_movedir != '0 0 0')
-			if ((bestdir * self.last_movedir) < TURN_DWELL_DOT)
-				self.dwell_time = time + comp_lerp(DWELL_NOVICE, 0);
-	self.last_movedir = bestdir;
-
-	frik_walkmove(bestdir);
+	// Travel to the committed point; whiskers keep clearance from walls.
+	frik_walkmove(dir);
 };

@@ -719,9 +719,45 @@ float(entity thing) priority_for_thing =
 	return thisp;
 };
 
+// idledoom: committed graph-node patrol target. Among nodes the just-completed
+// Dijkstra could REACH (.items != -1) beyond bot_patrol_dist, pick the
+// least-recently-chosen (patrol_stamp), farthest as the tie-break -- so the agent
+// tours the map instead of orbiting one spot. world if the graph is still too small.
+entity() bot_patrol_pick =
+{
+	local entity w, best;
+	local float oldest, mind, dist, bestdist;
+	mind = cvar("bot_patrol_dist"); if (mind <= 0) mind = 300;
+	oldest = time + 1;
+	bestdist = 0;
+	best = world;
+	w = way_head;
+	while (w)
+	{
+		if (w.items != -1)              // Dijkstra reached it (reachable from here)
+		if (w != self.current_way)
+		{
+			dist = vlen(w.origin - self.origin);
+			if (dist > mind)
+			{
+				if (w.patrol_stamp < oldest)
+				{
+					oldest = w.patrol_stamp; best = w; bestdist = dist;
+				}
+				else if (w.patrol_stamp == oldest && dist > bestdist)
+				{
+					best = w; bestdist = dist;
+				}
+			}
+		}
+		w = w._next;
+	}
+	return best;
+};
+
 void(float scope) bot_look_for_crap =
 {
-	local entity foe, best;
+	local entity foe, best, pwp;
 	local float thatp, bestp, dist;
 
 	if (scope == 1)
@@ -746,7 +782,32 @@ void(float scope) bot_look_for_crap =
 		foe = foe.chain;
 	}
 	if (best == world)
+	{
+		if (scope)
+		{
+			// Explore locally (committed frontier roam) while we're still reaching new
+			// ground. Once the graph STOPS growing, the local line-of-sight area is
+			// covered and reactive roaming can only ping-pong across it -- so ESCAPE:
+			// Dijkstra-route to a distant under-visited node (around corners the scan
+			// can't see), then resume exploring from there. The 5s goal lease / arrival
+			// pops the node and this loop re-evaluates.
+			if (!cvar("bot_patrol_off") && (time - self.nav_grow_time) > NAV_STALE_SECS)
+			{
+				pwp = bot_patrol_pick();
+				if (pwp != world)
+				{
+					pwp.patrol_stamp = time;
+					target_add(pwp);
+					bot_get_path(pwp, FALSE);
+					self.b_aiflags = self.b_aiflags | AI_WAIT;
+					return;
+				}
+			}
+			route_table = world;        // free the router
+			self.route_failed = TRUE;   // -> committed local exploration (frik_bot_roam)
+		}
 		return;
+	}
 	if (!target_onstack(best))
 	{	
 		target_add(best);
@@ -837,6 +898,8 @@ void() bot_angle_set =
 		view = vectoangles(view);
 		view_x = view_x * -1;
 		self.b_angle = view;
+		self.b_angle_x = 0;   // 003: navigation looks LEVEL -- don't crane up/down at
+		                      // floor waypoints (and dodges the b_angle_x<-180 wrap bug)
 	}
 	else
 		self.b_angle_x = 0;
@@ -936,6 +999,16 @@ void() BotAI =
 		else
 			self.boredom = self.boredom + 1;
 		tel_boredom = self.boredom;   // mirror for the nav telemetry sample
+	}
+
+	// Frontier-exhaustion signal: while the graph keeps GROWING the agent is reaching
+	// new ground; when it stops, the local line-of-sight area is explored (reactive
+	// roaming would only ping-pong across it) -> bot_look_for_crap escapes to a distant
+	// node via Dijkstra. Tracked every frame (before the skill stagger early-return).
+	if (waypoints > self.nav_seen_ways)
+	{
+		self.nav_seen_ways = waypoints;
+		self.nav_grow_time = time;
 	}
 
 	// am I dead? Fire randomly until I respawn

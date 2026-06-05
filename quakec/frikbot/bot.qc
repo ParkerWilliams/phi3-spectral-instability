@@ -155,6 +155,16 @@ for all variables in the bot...
 .vector dyn_dest;
 .vector stuck_org;   // T017: agent origin sampled at the last stuck-check
 .float  stuck_time;  // T017: next sim-time to evaluate the stuck window
+.vector stall_org;   // 003: origin sampled at the last stall-jump check
+.float  stall_time;  // 003: next time to evaluate the stall window
+.vector loop_org;    // 003: origin sampled at the last loop (net-progress) check
+.float  loop_time;   // 003: next time to evaluate the loop window
+.float  loop_boost;  // 003: while time < this, escalate exploration to break a loop
+.float  patrol_stamp;// 003: per-waypoint -- last time it was chosen as a patrol destination
+.vector explore_dest;// 003: committed exploration destination (a clear-ray endpoint)
+.float  explore_time;// 003: re-pick the destination when time passes this
+.float  nav_seen_ways;// 003: highest waypoint count seen (graph-growth tracker)
+.float  nav_grow_time;// 003: last time the graph grew -- stale => local frontier done
 .float  boredom;     // boredom: rises while wandering w/o a fight, resets in combat
 .float  scan_time;   // next time to re-pick a view glance offset (look-around scan)
 .float  scan_dir;    // current view glance offset (deg) around the move heading
@@ -251,11 +261,28 @@ float(float thresh) comp_has =
 };
 
 // Slice A locomotion feel curve -- the WHOLE tuning surface, lerped off bot_comp:
-float WHISKER_NEAR	= 40;	// novice look-ahead (u): reacts late, hugs walls
-float WHISKER_FAR	= 130;	// veteran look-ahead (u): sees the corner early, eases
+// Whiskers: DYNAMIC avoidance radius = WHISKER_MIN + speed * look-ahead-time, so the
+// reach grows with speed (always time to turn). Look-ahead time is competence-scaled
+// (veteran anticipates earlier); bot_whisker_time overrides it.
+float WHISKER_MIN	= 48;	// min look-ahead (u) even when slow (body clearance)
+float WHISKER_MAX	= 250;	// cap on the dynamic look-ahead (u)
+float WHISK_T_NOVICE	= 0.30;	// look-ahead seconds at competence 0 (reacts later)
+float WHISK_T_VET	= 0.55;	// look-ahead seconds at competence 1 (anticipates earlier)
+float WHISKER_STRENGTH	= 0.35;	// continuous wall-clearance steer gain (off a side wall)
 float THROTTLE_NOVICE	= 0.6;	// novice horizontal move scale (timid shuffle); vet 1.0
 float DWELL_NOVICE	= 0.5;	// novice pause (s) on a sharp turn; veteran 0 (flows)
 float TURN_DWELL_DOT	= 0.64;	// cos(~50deg): heading change past this triggers a dwell
+float NAV_STALE_SECS	= 3;	// graph not growing this long => escape the explored area
+
+// Roam tuning baked from playtest (units; live cvars override, negative = off):
+float MOMENTUM_DEFAULT   = 450;  // bot_momentum: anti-doubling-back strength
+float ENEMY_PULL_DEFAULT = 400;  // bot_enemy_pull: soft tug toward the nearest monster
+float STALL_DIST_DEFAULT = 32;   // bot_stall_dist: hop if horizontal travel < this / ~0.4s
+// Lightweight repeat/loop detector (catches "moving but circling / doubling back"):
+float LOOP_WINDOW        = 2.5;  // s: net-progress check window
+float LOOP_MIN_PROGRESS  = 150;  // u: bot_loop_dist default -- net travel below => looping
+float LOOP_BOOST_SECS    = 2;    // s: escalate exploration this long after a loop is seen
+float LOOP_AWAY_MULT     = 3;    // frontier-bias multiplier while breaking a loop
 // =============================================================================
 
 // -------globals-----

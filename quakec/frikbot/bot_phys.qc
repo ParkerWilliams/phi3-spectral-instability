@@ -86,7 +86,7 @@ void() CL_KeyMove = // CL_BaseMove + CL_AdjustAngles
 		// speed (timid). Horizontal only -- never weaken jumps/rocket-jumps
 		// (movevect_z). movevect persists between key-changes and bot_competence is
 		// static per run, so scaling here stays consistent every frame.
-		if (!self.ishuman)
+		if (!self.ishuman && !cvar("bot_throttle_off"))   // debug bisection kill-switch
 		{
 			ms = comp_lerp(THROTTLE_NOVICE, 1);
 			self.movevect_x = self.movevect_x * ms;
@@ -581,6 +581,40 @@ void() bot_stuck_check =
 	self.stuck_time = time + STUCK_WINDOW;
 };
 
+// idledoom (003): quick stall hop. If the agent's horizontal position barely
+// changes over a short window while NOT fighting, try a jump -- clears steps, low
+// ledges, and lips the radial roam can't otherwise path over. Lighter than the
+// full bot_stuck_check turn-around. Tunable/off via bot_stall_dist (0 = off; watch
+// sets 24). Bots only; left alone in combat (holding position is intentional).
+void() bot_stall_jump =
+{
+	local vector d;
+	local float md;
+	if (self.ishuman)
+		return;
+	if (self.health < 1)
+		return;
+	if (self.enemy != world)
+		return;                       // fighting: standing/strafing is intentional
+	if (!(self.flags & FL_ONGROUND))
+		return;                       // already airborne
+	md = cvar("bot_stall_dist");
+	if (!md) md = STALL_DIST_DEFAULT;     // baked default
+	if (md < 0)
+		return;                       // explicitly disabled
+	if (time < self.stall_time)
+		return;                       // evaluate once per window
+	if (self.stall_org != '0 0 0')
+	{
+		d = self.origin - self.stall_org;
+		d_z = 0;
+		if (vlen(d) < md)
+			bot_jump();
+	}
+	self.stall_org = self.origin;
+	self.stall_time = time + 0.4;
+};
+
 void() PostPhysics =
 {
 	local vector obstr, org;
@@ -646,6 +680,7 @@ void() PostPhysics =
 
 	PlayerPostThink();
 	bot_stuck_check();   // T017: un-wedge before the AI picks this frame's move
+	bot_stall_jump();    // 003: quick hop when horizontal progress stalls
 	BotAI();
 	self.dmg_take = self.dmg_save = 0;
 
