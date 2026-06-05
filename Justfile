@@ -39,10 +39,16 @@ watch: build-engine build-quakec
        +set deathmatch 0 +set coop 0 +set skill 1 +set sv_cheats 1 \
        +set maxplayers 2 +set sim_mode 1 +set sim_watch 1 +set sim_time_limit 0 \
        +set sim_nav_regen 1 \
+       +set bot_smooth_aim 1 \
+       +set bot_competence 0.35 \
+       +set bot_scan_amp 35 +set bot_explore_bias 1 +set bot_exit_bias 3 \
        +bind o "impulse 103" \
        +map lq_e1m1
     @echo "The view auto-attaches to the agent's first-person (like watching a"
     @echo "friend's screen). Press O to cycle/detach the camera if you want."
+    @echo "Motion competence starts at 0.35 (still-learning). In the ~ console try"
+    @echo "  bot_competence 0   (tepid newbie)  ...  bot_competence 1  (veteran)"
+    @echo "to watch the locomotion arc: slower & wall-hugging -> fast & corner-cutting."
 
 # Build all components
 build: build-engine build-quakec build-host

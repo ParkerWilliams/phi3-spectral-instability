@@ -11,3 +11,6 @@ time_limit = 15
 
 [bot]
 bot_accuracy = 0.3
+# Feature 003: pin the master dial to veteran so the smoke run isn't slowed by the
+# novice move-throttle/dwell (outcome is irrelevant here, but keep it representative).
+bot_competence = 1.0

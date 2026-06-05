@@ -3,6 +3,77 @@
 Rolling state summary so work survives session/crash loss (CLAUDE.md convention).
 Newest entry on top. Keep entries short: what's true now, what's next, gotchas.
 
+## 2026-06-05 — Motion competence spine + locomotion feel (Slice A) on feat/motion-competence
+
+Reframed "change the pathfinding" → **human-like motion that visibly improves**. New
+master dial `bot_competence` (0..1): THE leveling-up stat — static per run, read-only in
+gamecode, set by the idle-game between runs. Spine = `bot_comp()` (fan-out seam) +
+`comp_lerp(novice,veteran)` + `comp_has(thresh)` in frikbot/bot.qc. Master dial now; fans
+out to per-axis competences later (one function body changes).
+
+Slice A (locomotion feel, all `comp_lerp`-driven off the curve):
+- **Whiskers** (`frik_whiskers`, bot_move.qc): anticipatory anti-scrape — short feeler
+  traces bend the wish-dir away from walls BEFORE frik_KeysForDir, so it rounds a corner
+  instead of grinding then reactively dodging. Always on; look-ahead 40→130u by competence.
+  Hooked into frik_movetogoal + frik_walkmove.
+- **Move throttle** (CL_KeyMove, bot_phys.qc): horizontal movevect ×comp_lerp(0.6,1) —
+  tepid→full speed. Horizontal only (jumps/RJ untouched), bots only.
+- **Junction dwell** (frik_bot_roam): sharp turn (>~50°) → pause comp_lerp(0.5,0)s (novice
+  peeks then commits; veteran flows). New fields dwell_time/last_movedir.
+
+At competence 1.0 throttle+dwell are INERT → only whiskers affect nav → sims pin
+bot_competence=1.0 (current/nav/nav2/smoke). Watch default 0.35; tune live in ~ console.
+
+Verified on droplet: progs.dat compiles CLEAN via fteqcc (had to `apt install zlib1g-dev`
+to build the compiler); sims pytest 68/68, ruff+mypy clean. CAN'T run engine/sim here (no
+fteqw-sv, no paks, engine build forbidden). **Next: build+run LOCALLY** — `just watch`,
+sweep `bot_competence 0→1` to eyeball the arc; `just sim` to **RE-BASELINE SC-003/SC-004**
+(whiskers change paths even at 1.0). Watch for: crabbing if whisker steer too strong at
+corners; over-dwell if roam bestdir is jittery (guarded — tune TURN_DWELL_DOT/DWELL_NOVICE).
+Slice B (aim curve) + C (strafe-jump, via comp_has) deferred, same spine. Design doc:
+docs/superpowers/specs/2026-06-05-human-motion-competence-design.md.
+
+## 2026-06-04 — Radial-scan roam: walk toward open space, scan view (feat/watch-feel)
+
+Parker: bot still gets stuck (boredom not unsticking it); wants human-style nav —
+continuously scan the environment, and pick far-away points by throwing vectors,
+measuring lengths, walking toward the longest; boredom should make it EXIT a room
+rather than do laps. And: steer MOVEMENT independent of VIEW (how humans play).
+
+Rewrote frik_bot_roam (replaces the candidate-sampling frontier roam):
+- Radial scan: cast 12..24 rays (scales w/ bot_map_awareness) in a full circle from
+  the eye; score = ray length (openness) + away*nearest_way_dist(endpoint)
+  (unexplored bias). Walk toward the best -> heads to open space, never wall-scrapes.
+- Boredom amplifies the unexplored bias (bot_exit_bias) -> leaves the area / no laps.
+  Bored + a monster anywhere -> hunt it (kept).
+- MOVE decoupled from VIEW: frik_walkmove(bestdir) (frik_KeysForDir maps a world dir
+  to forward/strafe keys relative to v_angle), while the view scans independently —
+  a glance offset (bot_scan_amp) re-picked every 0.6s, swept smoothly by the eased
+  turn (bot_smooth_aim). Body goes to open space; eyes look around.
+- New fields scan_time/scan_dir. Live cvars: bot_scan_amp, bot_explore_bias,
+  bot_exit_bias (set in watch launch; tune in ~ console).
+
+Big untested behavior change — on feat/watch-feel, main keeps the working roam.
+Changes the headless sim roam too -> SC-003/SC-004 will need re-baselining. Needs
+build-quakec. Watch for: crabbing if scan_amp too high; walk-offs on slow turns.
+
+## 2026-06-04 — Watch-feel tuning: smooth aim (whiskers next) on feat/watch-feel
+
+Aim was too jerky to watch. CL_KeyMove (skill!=2) turned at a fixed 210 deg/s
+on/off via look-keys (snaps + stops dead at 10 deg); navigation did an instant
+v_angle=b_angle snap each think. Replaced with an **eased proportional turn**
+(bot_smooth_aim): rate = angle_error * bot_turn_gain, capped at bot_turn_max deg/s —
+a fast SWING when far off-target that slows as it lines up (calibration). Both knobs
+live-tunable in the ~ console. bot_angle_set skips its snaps under smooth-aim and
+lets CL_KeyMove own v_angle. **Watch-only opt-in** (watch launch sets bot_smooth_aim
+1); headless sim unchanged so SC-003/SC-004 metrics hold. Defaults gain 6 / max 300.
+
+Sequenced deliberately: ship + tune the aim FEEL first (isolate the variable), then
+do the **whiskers** (forward/side feeler traces to stop wall-face-scraping) as a
+separate pass. Ledge-fall risk from smooth nav-turning (the old instant-snap was an
+anti-walk-off hack) — mitigated by the turn cap; raise bot_turn_max if it walks off
+during turn-arounds. Needs build-quakec.
+
 ## 2026-06-04 — Watch mode (first-person bot-cam) on feat/watch-mode
 
 `just watch` — a lightweight GL-client observation path (no Tauri yet): listen

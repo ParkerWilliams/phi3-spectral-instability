@@ -77,6 +77,11 @@ _STATS: tuple[BotStat, ...] = (
     BotStat("bot_resource_management", "float", 0.3, 0.0, 1.0),
     # Combat
     BotStat("bot_splash_awareness", "float", 0.0, 0.0, 1.0),
+    # Progression (master dial — feature 003). THE leveling-up stat; drives
+    # human-like motion feel (locomotion now; aim/tech later) and will fan out to
+    # the per-axis stats above over time. Fresh-game default 0.0 (a tepid newbie);
+    # sim configs pin it to 1.0 so nav/combat metrics aren't throttled.
+    BotStat("bot_competence", "float", 0.0, 0.0, 1.0),
 )
 
 BOT_STATS: dict[str, BotStat] = {s.name: s for s in _STATS}

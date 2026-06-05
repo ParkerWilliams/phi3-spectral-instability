@@ -61,7 +61,7 @@ float(float key) CL_KeyState =
 
 void() CL_KeyMove = // CL_BaseMove + CL_AdjustAngles
 {
-	local float anglespeed;
+	local float anglespeed, gain, maxr, ry, rx, ms;
 	local vector view;
 	if (self.keys != self.oldkeys)
 	{
@@ -79,22 +79,50 @@ void() CL_KeyMove = // CL_BaseMove + CL_AdjustAngles
 		self.movevect_z = self.movevect_z - (200 * CL_KeyState(KEY_MOVEDOWN)); 
 		// 200 is the default cl_upspeed
 		if (!self.b_aiflags & AI_PRECISION)
-			self.movevect = self.movevect * 2; 
+			self.movevect = self.movevect * 2;
 		// 2 is the default cl_movespeedkey & bot always has +speed
+
+		// 003 tepid pacing: a low-competence agent moves at a fraction of full
+		// speed (timid). Horizontal only -- never weaken jumps/rocket-jumps
+		// (movevect_z). movevect persists between key-changes and bot_competence is
+		// static per run, so scaling here stays consistent every frame.
+		if (!self.ishuman)
+		{
+			ms = comp_lerp(THROTTLE_NOVICE, 1);
+			self.movevect_x = self.movevect_x * ms;
+			self.movevect_y = self.movevect_y * ms;
+		}
 	}
 	self.oldkeys = self.keys;
 
-	if (self.b_skill != 2) // use mouse emulation
+	if (cvar("bot_smooth_aim"))
 	{
-		anglespeed = 1.5 * real_frametime; 
+		// idledoom (watch feel): human-like view turning. Ease v_angle toward
+		// b_angle at a rate proportional to the angular error, capped — so a big
+		// off-target error produces a fast SWING that slows as it lines up (the
+		// "calibration"), instead of the robotic fixed-rate look-key turn that
+		// snaps and stops. bot_angle_set (smooth path) leaves v_angle to us.
+		// Tunable live: bot_turn_gain (responsiveness), bot_turn_max (deg/sec cap).
+		gain = cvar("bot_turn_gain");  if (gain <= 0) gain = 6;
+		maxr = cvar("bot_turn_max");   if (maxr <= 0) maxr = 300;
+		ry = angcomp(self.b_angle_y, self.v_angle_y) * gain;
+		if (ry > maxr) ry = maxr; else if (ry < (0 - maxr)) ry = 0 - maxr;
+		rx = angcomp(self.b_angle_x, self.v_angle_x) * gain;
+		if (rx > maxr) rx = maxr; else if (rx < (0 - maxr)) rx = 0 - maxr;
+		self.v_angle_y = self.v_angle_y + ry * real_frametime;
+		self.v_angle_x = self.v_angle_x + rx * real_frametime;
+	}
+	else if (self.b_skill != 2) // use mouse emulation
+	{
+		anglespeed = 1.5 * real_frametime;
 		// 1.5 is the default cl_anglespeedkey & bot always has +speed
-		self.v_angle_y = self.v_angle_y + anglespeed * CL_KeyState(KEY_LOOKLEFT) * 140; 
+		self.v_angle_y = self.v_angle_y + anglespeed * CL_KeyState(KEY_LOOKLEFT) * 140;
 		// 140 is default cl_yawspeed
-		self.v_angle_y = self.v_angle_y - anglespeed * CL_KeyState(KEY_LOOKRIGHT) * 140; 
+		self.v_angle_y = self.v_angle_y - anglespeed * CL_KeyState(KEY_LOOKRIGHT) * 140;
 		// 140 is default cl_yawspeed
-		self.v_angle_x = self.v_angle_x - anglespeed * CL_KeyState(KEY_LOOKUP) * 150; 
+		self.v_angle_x = self.v_angle_x - anglespeed * CL_KeyState(KEY_LOOKUP) * 150;
 		// 150 is default cl_pitchspeed
-		self.v_angle_x = self.v_angle_x + anglespeed * CL_KeyState(KEY_LOOKDOWN) * 150; 
+		self.v_angle_x = self.v_angle_x + anglespeed * CL_KeyState(KEY_LOOKDOWN) * 150;
 		// 150 is default cl_pitchspeed
 	}
 	else
