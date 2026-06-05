@@ -719,9 +719,45 @@ float(entity thing) priority_for_thing =
 	return thisp;
 };
 
+// idledoom: committed graph-node patrol target. Among nodes the just-completed
+// Dijkstra could REACH (.items != -1) beyond bot_patrol_dist, pick the
+// least-recently-chosen (patrol_stamp), farthest as the tie-break -- so the agent
+// tours the map instead of orbiting one spot. world if the graph is still too small.
+entity() bot_patrol_pick =
+{
+	local entity w, best;
+	local float oldest, mind, dist, bestdist;
+	mind = cvar("bot_patrol_dist"); if (mind <= 0) mind = 300;
+	oldest = time + 1;
+	bestdist = 0;
+	best = world;
+	w = way_head;
+	while (w)
+	{
+		if (w.items != -1)              // Dijkstra reached it (reachable from here)
+		if (w != self.current_way)
+		{
+			dist = vlen(w.origin - self.origin);
+			if (dist > mind)
+			{
+				if (w.patrol_stamp < oldest)
+				{
+					oldest = w.patrol_stamp; best = w; bestdist = dist;
+				}
+				else if (w.patrol_stamp == oldest && dist > bestdist)
+				{
+					best = w; bestdist = dist;
+				}
+			}
+		}
+		w = w._next;
+	}
+	return best;
+};
+
 void(float scope) bot_look_for_crap =
 {
-	local entity foe, best;
+	local entity foe, best, pwp;
 	local float thatp, bestp, dist;
 
 	if (scope == 1)
@@ -746,7 +782,29 @@ void(float scope) bot_look_for_crap =
 		foe = foe.chain;
 	}
 	if (best == world)
+	{
+		// No item/enemy goal -> committed graph-node patrol: Dijkstra-route to a
+		// reachable node and follow it; the no-goal loop re-picks on arrival or the
+		// 5s goal timeout. Only on the post-Dijkstra global pass (scope), where the
+		// .items costs are valid. Too-small graph -> hand back to roam to grow it.
+		if (scope && !cvar("bot_patrol_off"))
+		{
+			pwp = bot_patrol_pick();
+			if (pwp != world)
+			{
+				pwp.patrol_stamp = time;
+				target_add(pwp);
+				bot_get_path(pwp, FALSE);
+				self.b_aiflags = self.b_aiflags | AI_WAIT;
+			}
+			else
+			{
+				route_table = world;        // free the router
+				self.route_failed = TRUE;   // graph too small -> roam to grow it
+			}
+		}
 		return;
+	}
 	if (!target_onstack(best))
 	{	
 		target_add(best);

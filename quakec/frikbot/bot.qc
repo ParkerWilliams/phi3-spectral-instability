@@ -160,6 +160,7 @@ for all variables in the bot...
 .vector loop_org;    // 003: origin sampled at the last loop (net-progress) check
 .float  loop_time;   // 003: next time to evaluate the loop window
 .float  loop_boost;  // 003: while time < this, escalate exploration to break a loop
+.float  patrol_stamp;// 003: per-waypoint -- last time it was chosen as a patrol destination
 .float  boredom;     // boredom: rises while wandering w/o a fight, resets in combat
 .float  scan_time;   // next time to re-pick a view glance offset (look-around scan)
 .float  scan_dir;    // current view glance offset (deg) around the move heading

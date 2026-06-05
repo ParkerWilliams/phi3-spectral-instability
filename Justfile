@@ -56,6 +56,10 @@ watch: build-engine build-quakec
     @echo "  bot_loop_dist 150   break a loop if NET travel < this over ~2.5s (circling)"
     @echo "  bot_whisker_time 0  wall-avoidance look-ahead seconds (0 = competence-scaled);"
     @echo "                      reach = 48 + speed*time, so it grows with speed (dynamic)"
+    @echo "Navigation: COMMITTED graph-node patrol via the Dijkstra pathfinder ->"
+    @echo "  picks a reachable far node, routes to it AROUND walls, re-picks on arrival."
+    @echo "  bot_patrol_dist 300 min distance of a patrol target (longer = more committed)"
+    @echo "  bot_patrol_off 0    set 1 to fall back to the old radial roam"
 
 # Build all components
 build: build-engine build-quakec build-host
