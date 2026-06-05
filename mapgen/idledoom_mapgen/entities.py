@@ -24,9 +24,13 @@ MONSTER_CLASSES = ("monster_army", "monster_dog", "monster_knight")
 ITEM_CLASSES = ("item_health", "item_shells", "weapon_supershotgun")
 LIGHT_CLASS = "light"
 
-# Standing eye/origin offset above the floor (Quake player is ~24u origin
-# height); items/monsters share it so they rest on the floor.
-_STAND_OFFSET = 24
+# Origin offset above the floor. Must clear the player CLIP-HULL floor seam: the
+# standing hull bottom is -24, so in hull 1/2 the floor inflates up to z=24 and an
+# origin sitting exactly at +24 lands on the seam -> qbsp can't seed the hull fill
+# ("WARNING 19: no entities in empty space"), and the agent would fall through floors.
+# +40 puts the fill-seed entities clearly inside the collision-hull empty space; they
+# (and monsters/items, which droptofloor) settle onto the floor in-game.
+_STAND_OFFSET = 40
 _LIGHT_BRIGHTNESS = 200
 
 
