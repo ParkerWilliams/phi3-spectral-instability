@@ -597,9 +597,11 @@ entity() nearest_monster =
 // bot_exit_bias, bot_scan_amp (view look-around amplitude).
 void() frik_bot_roam =
 {
-	local vector ang, eye, bestdir, bestorg, va;
-	local float i, n, len, score, best, acc, aggr, bored_thresh, away, amp;
+	local vector ang, eye, bestdir, bestorg, va, edir;
+	local float i, n, len, score, best, acc, aggr, bored_thresh, away, amp, mom, pull;
 	local entity m;
+
+	m = nearest_monster();   // computed once: used by the bored charge AND the soft tug
 
 	aggr = cvar("bot_aggression");
 	if (aggr < 0) aggr = 0;
@@ -610,7 +612,6 @@ void() frik_bot_roam =
 	// acquisition lines up the shot once it's in sight, which resets boredom.
 	if (self.boredom > bored_thresh)
 	{
-		m = nearest_monster();
 		// Only CHARGE a monster we can actually SEE. A blind beeline at the nearest
 		// monster anywhere on the map (it may be behind a wall) drives the agent
 		// face-first into geometry and wedges it there forever -- boredom never
@@ -643,6 +644,23 @@ void() frik_bot_roam =
 	}
 
 	eye = self.origin + self.view_ofs;
+
+	// Two soft biases blended into the openness/frontier score (units, tunable live):
+	//   bot_momentum   -- reward continuing the current heading; penalize doubling
+	//                     back (a "return vector" ~180deg gets the full penalty).
+	//   bot_enemy_pull -- a gentle drift TOWARD the nearest monster through open
+	//                     space, so it seeks combat without clipping at walls (the
+	//                     LOS charge above takes the final approach once it's seen).
+	mom = cvar("bot_momentum");    if (mom < 0) mom = 0;
+	pull = cvar("bot_enemy_pull"); if (pull < 0) pull = 0;
+	edir = '0 0 0';
+	if (m != world && pull > 0)
+	{
+		edir = m.origin - eye;
+		edir_z = 0;
+		edir = normalize(edir);
+	}
+
 	best = -1;
 	bestdir = '0 0 0';
 	bestorg = eye;
@@ -654,7 +672,9 @@ void() frik_bot_roam =
 		makevectors(ang);
 		traceline(eye, eye + v_forward * 2300, TRUE, self);
 		len = vlen(trace_endpos - eye);
-		score = len + away * nearest_way_dist(trace_endpos);
+		score = len + away * nearest_way_dist(trace_endpos)
+		            + mom * (v_forward * self.last_movedir)   // anti-doubling-back
+		            + pull * (v_forward * edir);              // soft tug toward enemies
 		if (score > best)
 		{
 			best = score;
