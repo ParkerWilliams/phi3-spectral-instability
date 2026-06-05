@@ -29,6 +29,7 @@ from pathlib import Path
 from typing import Any
 
 from phi3geom.analysis.pooled_detector import fit_pooled_detector
+from phi3geom.dataset.adversarial import apply_adversariality
 from phi3geom.dataset.generation import FACTS, TEMPLATES, generate_event
 from phi3geom.dataset.manifest import write_manifest
 from phi3geom.dataset.matching import MatchingFailedError, cem_match
@@ -83,6 +84,8 @@ def _generate_candidate_events(
     n_per_bin: int,
     rng: random.Random,
     prompt_template_sha256: str,
+    adversariality: str = "none",
+    n_adversarial: int = 3,
 ) -> list[DocQAEvent]:
     candidates: list[DocQAEvent] = []
     for bin_id in BIN_IDS:
@@ -100,6 +103,10 @@ def _generate_candidate_events(
                 bin_id=bin_id,
                 rng=rng,
             )
+            if adversariality != "none":
+                event = apply_adversariality(
+                    event, adversariality, rng=rng, n_adversarial=n_adversarial,
+                )
             candidates.append(event)
     return candidates
 
@@ -239,6 +246,24 @@ def main(argv: list[str] | None = None) -> int:
         default=PILOT_TARGET_PER_CLASS,
         help="Target matched events per class per bin.",
     )
+    # Adversariality (raise the failure rate above the corpus's `none` baseline).
+    parser.add_argument(
+        "--adversariality",
+        choices=["none", "lexical", "sibling_entity", "self_contradiction"],
+        default="none",
+        help=(
+            "Distractor adversariality policy applied to every candidate. "
+            "`sibling_entity` injects same-predicate, different-subject sentences "
+            "(strongest existing lever) — recommended when `none` produces too "
+            "few failures for CEM matching."
+        ),
+    )
+    parser.add_argument(
+        "--n-adversarial",
+        type=int,
+        default=3,
+        help="Number of adversarial sentences injected per event. Default: 3.",
+    )
     # Resilient-checkpoint args (optional; enabled by passing --experiment-branch).
     parser.add_argument(
         "--experiment-branch",
@@ -302,8 +327,13 @@ def main(argv: list[str] | None = None) -> int:
     candidates = _generate_candidate_events(
         n_per_bin=args.n_per_bin, rng=rng,
         prompt_template_sha256=PROMPT_TEMPLATE_SHA256,
+        adversariality=args.adversariality,
+        n_adversarial=args.n_adversarial,
     )
-    print(f"[pilot] Generated {len(candidates)} candidate events")
+    print(
+        f"[pilot] Generated {len(candidates)} candidate events "
+        f"(adversariality={args.adversariality}, n={args.n_adversarial})"
+    )
 
     # 3. Load Phi-3 model + tokenizer.
     print("[pilot] Loading Phi-3-mini-128k-instruct (~8 GB GPU memory at fp16)...")
@@ -430,7 +460,7 @@ def main(argv: list[str] | None = None) -> int:
         lookback_window_length=256,
         feature_layout=FEATURE_NAMES,
         forman_ricci_convention="nan_with_median_imputation_and_indicator",
-        adversariality_policy_per_bin={b: "none" for b in BIN_IDS},
+        adversariality_policy_per_bin={b: args.adversariality for b in BIN_IDS},
         split_seed=split_seed,
         matching_seed_per_bin={b: seed_for_match(b) for b in BIN_IDS},
         constitution_version="1.0.0",

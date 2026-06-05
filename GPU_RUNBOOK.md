@@ -120,12 +120,21 @@ per-position attribution and FDA β(ℓ) work, not the pooled headline.
 
 Required: a fine-grained **GitHub PAT** with `contents: read+write` on this repo.
 
+> **Use `--adversariality sibling_entity` unless you have a reason not to.** The
+> 2026-06-04 pilot run with the default `none` policy got a **0.25% failure rate**
+> (2/796 events) — Phi-3 is too accurate on the synthetic templates with random
+> distractors for CEM matching or the pooled detector to be defined. The
+> `sibling_entity` policy injects same-predicate, different-subject sentences
+> ("Berlin is the capital of Germany" next to the correct evidence), forcing the
+> model to actually distinguish rather than pattern-match.
+
 ```bash
 export GITHUB_TOKEN=ghp_yourtokenhere
 mkdir -p reports
 # Convention for branch names: experiment/pilot/<utc-date>[-<host>]
 nohup bash scripts/run_pilot_resilient.sh \
     --experiment-branch experiment/pilot/$(date -u +%Y-%m-%d) \
+    --adversariality sibling_entity --n-adversarial 5 \
     > reports/pilot_run.log 2>&1 &
 tail -f reports/pilot_run.log
 ```
