@@ -61,8 +61,8 @@ float(float key) CL_KeyState =
 
 void() CL_KeyMove = // CL_BaseMove + CL_AdjustAngles
 {
-	local float anglespeed, gain, maxr, ry, rx, ms;
-	local vector view;
+	local float anglespeed, gain, maxr, ry, rx, ms, asp;
+	local vector view, flatv;
 	if (self.keys != self.oldkeys)
 	{
 		self.movevect = '0 0 0';
@@ -152,6 +152,27 @@ void() CL_KeyMove = // CL_BaseMove + CL_AdjustAngles
 		self.v_angle_z = -50;
 	self.v_angle_y = frik_anglemod(self.v_angle_y);
 
+	// 004 analog steering: when roam/goto committed a continuous world move direction
+	// this think (move_wish), drive the horizontal movevect DIRECTLY from it instead of
+	// the 8-way key quantization built above. The body then travels exactly along the
+	// whisker-corrected heading no matter where the (decoupled) view points, so small
+	// wall-clearance corrections aren't rounded away -- the root cause of the face-scrape.
+	// Projected onto the SAME flattened view basis the ground physics uses (SV_AirMove),
+	// so wishvel = asp * move_wish. Keys are still set (other systems read them); we only
+	// override movevect_x/y. movevect_z (jump/swim) stays key-derived. bot_analog_off
+	// disables it for live A/B bisection in watch.
+	if (!self.ishuman && self.move_wish != '0 0 0' && !cvar("bot_analog_off"))
+	{
+		flatv = self.v_angle;
+		flatv_x = 0;            // drop pitch
+		flatv_z = 0;            // drop roll -> unit, flat forward/right (matches physics)
+		makevectors(flatv);
+		asp = MOVE_ANALOG_SPEED;
+		if (!cvar("bot_throttle_off"))
+			asp = asp * comp_lerp(THROTTLE_NOVICE, 1);   // novice = timid, same as legacy
+		self.movevect_x = asp * (self.move_wish * v_forward);   // dot -> forward component
+		self.movevect_y = asp * (self.move_wish * v_right);     // dot -> side component
+	}
 };
 
 /*

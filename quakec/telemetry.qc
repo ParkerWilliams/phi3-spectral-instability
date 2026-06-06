@@ -56,6 +56,19 @@ float NAV_SAMPLE_INTERVAL = 2;   // seconds between nav samples
 float tel_nav_next_sample;       // next sim-time (since origin) to emit a sample
 float tel_boredom;               // mirror of the agent's .boredom (set by bot_nav_track)
 
+// Wall-contact (scrape) metric. bot_nav_track() counts, per frame in sim_mode, how
+// often the agent is moving on the ground (denominator) and how often a side wall is
+// flush against its hull while doing so (numerator) -- the signature of grinding its
+// face along walls. Cumulative; reset in Tel_LevelStart, snapshot in Tel_NavSample,
+// finalised in Tel_LevelEnd. The harness reports the ratio as traversal.wall_contact
+// (sims/idledoom_sim/traversal.py). Measures ACTUAL body-vs-wall contact, so it scores
+// the old quantized key drift and the new analog steering on equal footing.
+float SCRAPE_MOVE_MIN = 30;      // u/s horizontal speed counted as "moving" for the metric
+float SCRAPE_MARGIN   = 4;       // wall within (hull half-width + this) of center on a side
+                                 //   => flush against the hull (counts as a scrape frame)
+float tel_scrape_frames;         // moving-on-ground frames with a side wall flush
+float tel_scrape_move_frames;    // moving-on-ground frames total (denominator)
+
 // --- line builders -------------------------------------------------------
 // bprint takes one string per call in this codebase; we build a line with a
 // run of calls and terminate it with Tel_End. QuakeC is single-threaded within
@@ -107,6 +120,8 @@ void() Tel_LevelStart =
 	tel_nav_visited = 0;
 	tel_nav_total = 0;
 	tel_nav_lastorg = '0 0 0';
+	tel_scrape_frames = 0;
+	tel_scrape_move_frames = 0;
 	tel_nav_next_sample = NAV_SAMPLE_INTERVAL;   // first nav sample at ~t=NAV_SAMPLE_INTERVAL
 	Tel_Begin("level_start");
 	Tel_Str("map", mapname);
@@ -131,6 +146,8 @@ void(string outcome) Tel_LevelEnd =
 	Tel_Num("waypoints_visited", tel_nav_visited);
 	Tel_Num("distance_traveled", tel_nav_distance);
 	Tel_Num("reached_exit", outcome == "completed");
+	Tel_Num("scrape_frames", tel_scrape_frames);
+	Tel_Num("scrape_move_frames", tel_scrape_move_frames);
 	Tel_End();
 };
 
@@ -145,6 +162,8 @@ void() Tel_NavSample =
 	Tel_Num("waypoints", tel_nav_visited);
 	Tel_Num("distance", tel_nav_distance);
 	Tel_Num("boredom", tel_boredom);
+	Tel_Num("scrape_frames", tel_scrape_frames);
+	Tel_Num("scrape_move_frames", tel_scrape_move_frames);
 	Tel_End();
 };
 

@@ -43,6 +43,11 @@ class NavSample:
     waypoints: int
     distance: float
     boredom: float = 0.0  # agent restlessness at this sample (rises while wandering)
+    # Cumulative scrape counters (feature: wall-contact metric). The QuakeC side counts,
+    # per frame, how often the agent is moving on the ground (``scrape_move_frames``) and
+    # how often a side wall is flush against its hull while doing so (``scrape_frames``).
+    scrape_frames: float = 0.0
+    scrape_move_frames: float = 0.0
 
 
 def _num(value: Any) -> float:
@@ -64,6 +69,8 @@ def nav_samples(events: Iterable[ParsedEvent]) -> list[NavSample]:
                 waypoints=int(_num(d.get("waypoints"))),
                 distance=_num(d.get("distance")),
                 boredom=_num(d.get("boredom")),
+                scrape_frames=_num(d.get("scrape_frames")),
+                scrape_move_frames=_num(d.get("scrape_move_frames")),
             )
         )
     return out
@@ -116,6 +123,21 @@ def peak_boredom(s: list[NavSample]) -> float:
     return max((p.boredom for p in s), default=0.0)
 
 
+def wall_contact(s: list[NavSample]) -> float:
+    """Fraction of moving-on-ground time the agent spent flush against a side wall.
+
+    The scrape signal: a bot grinding its face along walls is in lateral wall contact
+    for much of its travel; one that keeps clearance is not. Counters are cumulative,
+    so the last sample holds the run totals (like ``final_waypoints``). Lower is better
+    — it should drop sharply when analog steering is on (``bot_analog_off 0``)."""
+    if not s:
+        return 0.0
+    moving = s[-1].scrape_move_frames
+    if moving <= 0:
+        return 0.0
+    return round(s[-1].scrape_frames / moving, 4)
+
+
 # Registry — add a metric by writing a function above and listing it here.
 TRAVERSAL_METRICS: dict[str, Callable[[list[NavSample]], float]] = {
     "extent_area": extent_area,
@@ -124,6 +146,7 @@ TRAVERSAL_METRICS: dict[str, Callable[[list[NavSample]], float]] = {
     "distance_at_15s": distance_at_15s,
     "final_waypoints": final_waypoints,
     "peak_boredom": peak_boredom,
+    "wall_contact": wall_contact,
 }
 
 

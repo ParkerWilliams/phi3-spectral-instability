@@ -82,6 +82,10 @@ _STATS: tuple[BotStat, ...] = (
     # the per-axis stats above over time. Fresh-game default 0.0 (a tepid newbie);
     # sim configs pin it to 1.0 so nav/combat metrics aren't throttled.
     BotStat("bot_competence", "float", 0.0, 0.0, 1.0),
+    # Debug/measurement toggle (feature 004 locomotion). 0 (default) = analog steering
+    # on; 1 = legacy 8-way key quantization. Registered here so the wall-scrape A/B
+    # (stats.traversal.wall_contact with analog on vs off) is runnable from a sim config.
+    BotStat("bot_analog_off", "bool", False),
 )
 
 BOT_STATS: dict[str, BotStat] = {s.name: s for s in _STATS}

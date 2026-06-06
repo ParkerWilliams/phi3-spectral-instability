@@ -17,6 +17,7 @@ from idledoom_sim.traversal import (
     nav_samples,
     peak_boredom,
     visited_cells,
+    wall_contact,
     waypoints_at_15s,
 )
 
@@ -81,6 +82,37 @@ def test_peak_boredom_tracks_max_then_reset() -> None:
 def test_nav_samples_reads_boredom_from_event_data() -> None:
     s = nav_samples([ParsedEvent(2.0, "nav", {"x": 0, "y": 0, "waypoints": 1, "boredom": 7})])
     assert s[0].boredom == 7.0
+
+
+def test_wall_contact_is_scrape_over_moving_fraction() -> None:
+    # Cumulative counters; the LAST sample holds run totals (like final_waypoints).
+    # 40 of 200 moving-on-ground frames were flush to a wall => 0.20 spent scraping.
+    s = [
+        NavSample(2.0, 0, 0, 1, 50, scrape_frames=5, scrape_move_frames=50),
+        NavSample(20.0, 0, 0, 9, 900, scrape_frames=40, scrape_move_frames=200),
+    ]
+    assert wall_contact(s) == 0.20
+
+
+def test_wall_contact_zero_when_never_moving() -> None:
+    # No moving frames => 0.0, and never a ZeroDivisionError.
+    s = [NavSample(2.0, 0, 0, 0, 0, scrape_frames=0, scrape_move_frames=0)]
+    assert wall_contact(s) == 0.0
+    assert wall_contact([]) == 0.0
+
+
+def test_nav_samples_reads_scrape_counters_from_event_data() -> None:
+    s = nav_samples(
+        [
+            ParsedEvent(
+                2.0,
+                "nav",
+                {"x": 0, "y": 0, "waypoints": 1, "scrape_frames": 12, "scrape_move_frames": 60},
+            )
+        ]
+    )
+    assert s[0].scrape_frames == 12.0
+    assert s[0].scrape_move_frames == 60.0
 
 
 def test_compute_traversal_runs_the_full_registry() -> None:

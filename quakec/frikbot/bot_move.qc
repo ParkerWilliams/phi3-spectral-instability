@@ -498,18 +498,30 @@ void() frik_movetogoal =
 	way = normalize(way);
 	way = frik_whiskers(way);		// 003: anticipatory anti-scrape
 	self.keys = self.keys & 960 + frik_KeysForDir(way);
+	self.move_wish = way;			// 004: analog steer target (consumed by CL_KeyMove)
 
 	frik_dodge_obstruction();
 	frik_recognize_plat(TRUE);
+
+	// Reactive dodge rewrote the keys to escape a wall whiskers didn't clear -- let those
+	// keys drive (legacy path) rather than the now-stale analog wish into the wall.
+	if (self.b_aiflags & AI_OBSTRUCTED)
+		self.move_wish = '0 0 0';
 
 	if (self.b_aiflags & AI_PRECISION)
 	{
 		g = angcomp(self.v_angle_x, self.b_angle_x);
 		if (fabs(g) > 10)
+		{
 			self.keys = self.keys & 960;
+			self.move_wish = '0 0 0';	// hold still to line up the shot
+		}
 		g = angcomp(self.v_angle_y, self.b_angle_y);
 		if (fabs(g) > 10)
+		{
 			self.keys = self.keys & 960;
+			self.move_wish = '0 0 0';
+		}
 	}
 };
 
@@ -524,11 +536,15 @@ float(vector weird) frik_walkmove =
 	}
 	weird = frik_whiskers(weird);		// 003: anticipatory anti-scrape
  	self.keys = self.keys & 960 + frik_KeysForDir(weird);
+	self.move_wish = weird;			// 004: analog steer target (consumed by CL_KeyMove)
 
 	frik_dodge_obstruction();
 	frik_recognize_plat(TRUE);
 	if (self.b_aiflags & AI_OBSTRUCTED)
+	{
+		self.move_wish = '0 0 0';	// dodge rewrote the keys -- let them drive
 		return FALSE;
+	}
 	else
 		return TRUE;
 };
@@ -620,7 +636,12 @@ vector() bot_pick_frontier =
 	acc = cvar("bot_map_awareness");
 	if (acc < 0) acc = 0;
 	if (acc > 1) acc = 1;
-	n = 12 + floor(acc * 12);
+	// 004: finer angular resolution (24..48 rays, ~15deg..7.5deg) so NARROW corridor
+	// openings aren't missed between ray angles -- the agent finds hallways instead of
+	// churning until a scan happens to line up. Scales with bot_map_awareness (a sharper
+	// agent spots passages: a competence axis). Scans are gated, so the extra traces are
+	// cheap.
+	n = 24 + floor(acc * 24);
 
 	away = cvar("bot_explore_bias");
 	if (away <= 0) away = 1;

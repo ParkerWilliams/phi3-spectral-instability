@@ -968,7 +968,8 @@ float stagger_think;
 // are FrikBot's own.
 void() bot_nav_track =
 {
-	local vector d;
+	local vector d, vel, dir, side;
+	local float sp, hw;
 	if (tel_nav_lastorg != '0 0 0')
 	{
 		d = self.origin - tel_nav_lastorg;
@@ -982,6 +983,31 @@ void() bot_nav_track =
 		tel_nav_visited = tel_nav_visited + 1;
 	}
 	tel_nav_total = waypoints;
+
+	// Wall-contact (scrape) metric: while moving on the ground, is a side wall flush
+	// against the hull? Two lateral traces perpendicular to travel, out to half-width +
+	// margin from center; a hit on either side counts the frame as a scrape. Cheap (<=2
+	// traces) and ratio-based, so it's robust to the AI tick cadence.
+	if (self.flags & FL_ONGROUND)
+	{
+		vel = self.velocity;
+		vel_z = 0;
+		sp = vlen(vel);
+		if (sp > SCRAPE_MOVE_MIN)
+		{
+			tel_scrape_move_frames = tel_scrape_move_frames + 1;
+			dir = vel * (1 / sp);          // unit horizontal travel direction
+			side_x = dir_y * -1;           // left perpendicular (flat)
+			side_y = dir_x;
+			side_z = 0;
+			hw = self.maxs_x + SCRAPE_MARGIN;   // wall within this of center => flush
+			traceline(self.origin, self.origin + side * hw, TRUE, self);
+			if (trace_fraction == 1)
+				traceline(self.origin, self.origin - side * hw, TRUE, self);
+			if (trace_fraction < 1)
+				tel_scrape_frames = tel_scrape_frames + 1;
+		}
+	}
 };
 
 void() BotAI =
@@ -1020,6 +1046,7 @@ void() BotAI =
 		self.button0 = floor(random() * 2);
 		self.button2 = 0;
 		self.keys = 0;
+		self.move_wish = '0 0 0';	// 004: don't analog-drive a corpse
 		self.b_aiflags = 0;
 		ClearMyRoute();
 		self.target1 = self.target2 = self.target3 = self.target4 = self.enemy = world;
@@ -1051,7 +1078,11 @@ void() BotAI =
 
 	self.button2 = 0;
 	self.button0 = 0;
-	
+	// 004 analog steer: cleared each think (AFTER the stagger gate, so it persists across
+	// the faster CL_KeyMove/physics frames between thinks). Only roam/goto re-set it; every
+	// other branch (combat, keys=0, wait) leaves it '0 0 0' -> CL_KeyMove uses legacy keys.
+	self.move_wish = '0 0 0';
+
 
 	// target1 is like goalentity in normal Quake monster AI.
 	// it's the bot's most immediate target

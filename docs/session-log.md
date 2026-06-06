@@ -3,6 +3,53 @@
 Rolling state summary so work survives session/crash loss (CLAUDE.md convention).
 Newest entry on top. Keep entries short: what's true now, what's next, gotchas.
 
+## 2026-06-06 — Analog-steering wall-scrape fix + wall_contact scrape metric on feat/procedural-maps
+
+Parker: bot STILL scrapes its face along walls despite the frontier-ray bump (that bump —
+`n = 12+acc*12` → `24+acc*24` in `bot_pick_frontier`, the pre-existing uncommitted change
+on this branch — did NOT help). Root-caused the scrape to the **actuation layer, not
+pathing**: the whiskers' continuous steering never reached velocity because (a)
+`frik_KeysForDir` quantizes the wish-dir to 8 view-relative key sectors (no strafe key
+under 30°), (b) `CL_KeyMove` rebuilds `movevect` only when keys CHANGE, and (c) `wishvel =
+v_right*movevect_y + v_forward*movevect_x` is recomputed against the CURRENT (swept) view
+each frame, so the body weaves with the eyes. The ray bump didn't help precisely because
+the bug is BELOW path-selection.
+
+**Fix — analog steering** (bot.qc, bot_ai.qc, bot_move.qc, bot_phys.qc): roam/goto stamp a
+continuous world wish-dir `self.move_wish` (cleared each think in `BotAI` AFTER the stagger
+gate so it persists across the faster physics frames; cleared on dodge/precision/death).
+`CL_KeyMove`, when `move_wish` is set, drives `movevect_x/y` directly by projecting
+`move_wish` onto the flattened view basis the physics uses → `wishvel = speed*move_wish`
+regardless of view. Kills quantization + change-gating + view-coupled drift at once. Keys
+still set (dodge/plat/precision read them); `movevect_z` untouched. Kill-switch
+`bot_analog_off` (default 0 = on), registered in `botstats.py` so it's settable from a sim
+config. Combat (bot_fight.qc) also moves via `frik_walkmove` → benefits; its stop-to-aim is
+a mutually-exclusive `else` so `move_wish` stays clear there.
+
+**Metric — wall_contact** (telemetry.qc, bot_ai.qc `bot_nav_track`, traversal.py): per
+frame in sim_mode, while moving on the ground, two lateral `traceline`s (±perp to velocity)
+out to hull-half-width + 4u; a hit either side = a scrape frame. Cumulative
+`tel_scrape_frames`/`tel_scrape_move_frames` reset at level start, snapshot in every `nav`
+event, finalised on `level_end`. Python traversal registry exposes `wall_contact =
+scrape_frames/move_frames` (lower = better). schema_version stays 1 (additive). telemetry.md
++ bot-stats.md updated.
+
+Verified on droplet: progs.dat compiles clean (no errors; only pre-existing Q206/Q302
+warnings); sims pytest **72/72**, ruff+mypy clean. CAN'T run engine/sim here. **Next
+(LOCAL):** A/B the fix — `cd sims && uv run harness.py run --config configs/current.toml
+--bot.bot_analog_off 1` (old) vs `--bot.bot_analog_off 0` (new), compare
+`stats.traversal.wall_contact`; and `just watch lq_e1m1` toggling `bot_analog_off` live to
+eyeball it. **Re-baseline SC-003/SC-004** (analog changes paths even at competence 1.0).
+Watch for: combat strafing feeling different; corner overshoot if `MOVE_ANALOG_SPEED`=400
+fights the whiskers. **ALL UNCOMMITTED** — working tree only, nothing pushed; must
+commit+push before pulling locally.
+
+Telemetry-dataset idea (human gameplay data → natural feel) — researched (deep-research,
+verified) + **SHELVED**: no clean Quake-native natural-movement dataset (Quake demos =
+speedruns + need a custom parser; CS:GO data = wrong physics + GPLv2-incompatible /
+license-unresolved). Hand-tuning + the wall_contact metric is the path. Details in memory
+`telemetry-dataset-feel-shelved`.
+
 ## 2026-06-05 — Motion competence spine + locomotion feel (Slice A) on feat/motion-competence
 
 Reframed "change the pathfinding" → **human-like motion that visibly improves**. New

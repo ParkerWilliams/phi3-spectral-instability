@@ -171,6 +171,9 @@ for all variables in the bot...
 .float  scan_dir;    // current view glance offset (deg) around the move heading
 .float  dwell_time;  // 003: time until which a tepid agent pauses on a sharp turn
 .vector last_movedir;// 003: previous chosen move heading (turn detection for dwell)
+.vector move_wish;   // 004 analog steer: continuous world move dir set by roam/goto each
+                     // think, consumed by CL_KeyMove to drive movevect directly (bypasses
+                     // the 8-way key quantization). '0 0 0' => use the legacy key path.
 
 // --------defines-----
 float SVC_UPDATENAME	= 13;
@@ -271,6 +274,8 @@ float WHISK_T_NOVICE	= 0.30;	// look-ahead seconds at competence 0 (reacts later
 float WHISK_T_VET	= 0.55;	// look-ahead seconds at competence 1 (anticipates earlier)
 float WHISKER_STRENGTH	= 0.35;	// continuous wall-clearance steer gain (off a side wall)
 float THROTTLE_NOVICE	= 0.6;	// novice horizontal move scale (timid shuffle); vet 1.0
+float MOVE_ANALOG_SPEED	= 400;	// 004 analog steer: ground wish-speed (cl_forwardspeed 200
+				// * speedkey 2). Engine caps to sv_maxspeed, so this just means "run".
 float DWELL_NOVICE	= 0.5;	// novice pause (s) on a sharp turn; veteran 0 (flows)
 float TURN_DWELL_DOT	= 0.64;	// cos(~50deg): heading change past this triggers a dwell
 float NAV_STALE_SECS	= 3;	// graph not growing this long => escape the explored area
