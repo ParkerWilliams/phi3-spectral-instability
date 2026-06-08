@@ -120,21 +120,22 @@ per-position attribution and FDA β(ℓ) work, not the pooled headline.
 
 Required: a fine-grained **GitHub PAT** with `contents: read+write` on this repo.
 
-> **Use `--adversariality sibling_entity` unless you have a reason not to.** The
-> 2026-06-04 pilot run with the default `none` policy got a **0.25% failure rate**
-> (2/796 events) — Phi-3 is too accurate on the synthetic templates with random
-> distractors for CEM matching or the pooled detector to be defined. The
-> `sibling_entity` policy injects same-predicate, different-subject sentences
-> ("Berlin is the capital of Germany" next to the correct evidence), forcing the
-> model to actually distinguish rather than pattern-match.
+> **Use `--corpus hotpotqa` unless you have a specific reason not to.** The
+> 2026-06-04 pilot on the synthetic corpus got a **0.25% failure rate** (2/796
+> events) — Phi-3 is too accurate on the Wikidata templates for CEM matching or
+> the pooled detector to be defined. HotpotQA is multi-hop QA where Phi-3-mini's
+> documented ~30–40% EM accuracy gives a ~60–70% natural failure rate, with
+> evidence positions marked at the sentence level. The synthetic corpus
+> (`--corpus synthetic`, optionally + `--adversariality sibling_entity`) is
+> kept for reproducibility tests but isn't the recommended pilot path anymore.
 
 ```bash
 export GITHUB_TOKEN=ghp_yourtokenhere
 mkdir -p reports
-# Convention for branch names: experiment/pilot/<utc-date>[-<host>]
+# Convention for branch names: experiment/pilot/<utc-date>[-<host>][-<corpus>]
 nohup bash scripts/run_pilot_resilient.sh \
-    --experiment-branch experiment/pilot/$(date -u +%Y-%m-%d) \
-    --adversariality sibling_entity --n-adversarial 5 \
+    --experiment-branch experiment/pilot/$(date -u +%Y-%m-%d)-hotpot \
+    --corpus hotpotqa \
     > reports/pilot_run.log 2>&1 &
 tail -f reports/pilot_run.log
 ```

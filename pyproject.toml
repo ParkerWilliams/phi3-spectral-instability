@@ -43,6 +43,12 @@ dependencies = [
   # huggingface_hub <1.0 to match the 4.x transformers line and the
   # whoami/model_info/HfApi surface used by check_hf_auth + pin_model_revision.
   "huggingface_hub>=0.24,<1.0",
+  # HuggingFace `datasets` for loading HotpotQA (and any other open-source
+  # DocQA corpus we add). The 2026-06-04 pilot showed the synthetic corpus
+  # produces a ~0.25% Phi-3 failure rate, too low to fit the v2.0.0 pooled
+  # detector; HotpotQA's documented ~30-40% EM gives us a real natural
+  # failure rate.
+  "datasets>=2.18,<4.0",
   "numpy>=1.26",
   "scipy>=1.11",
   "scikit-learn>=1.4",

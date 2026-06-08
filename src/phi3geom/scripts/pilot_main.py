@@ -264,6 +264,21 @@ def main(argv: list[str] | None = None) -> int:
         default=3,
         help="Number of adversarial sentences injected per event. Default: 3.",
     )
+    # Corpus selector — `synthetic` is the original Wikidata-template generator;
+    # `hotpotqa` pulls from the HuggingFace HotpotQA dataset (multi-hop QA where
+    # Phi-3-mini's ~30-40% EM gives a usable natural failure rate).
+    parser.add_argument(
+        "--corpus",
+        choices=["synthetic", "hotpotqa"],
+        default="synthetic",
+        help="Candidate-event corpus. Default: synthetic (low natural fail rate).",
+    )
+    parser.add_argument(
+        "--hotpotqa-split",
+        type=str,
+        default="train",
+        help="HotpotQA split to draw from when --corpus=hotpotqa. Default: train.",
+    )
     # Resilient-checkpoint args (optional; enabled by passing --experiment-branch).
     parser.add_argument(
         "--experiment-branch",
@@ -324,16 +339,32 @@ def main(argv: list[str] | None = None) -> int:
     # 2. Generate candidate events.
     split_seed = seed_for_split("v1")
     rng = random.Random(split_seed)
-    candidates = _generate_candidate_events(
-        n_per_bin=args.n_per_bin, rng=rng,
-        prompt_template_sha256=PROMPT_TEMPLATE_SHA256,
-        adversariality=args.adversariality,
-        n_adversarial=args.n_adversarial,
-    )
-    print(
-        f"[pilot] Generated {len(candidates)} candidate events "
-        f"(adversariality={args.adversariality}, n={args.n_adversarial})"
-    )
+    if args.corpus == "synthetic":
+        candidates = _generate_candidate_events(
+            n_per_bin=args.n_per_bin, rng=rng,
+            prompt_template_sha256=PROMPT_TEMPLATE_SHA256,
+            adversariality=args.adversariality,
+            n_adversarial=args.n_adversarial,
+        )
+        print(
+            f"[pilot] Generated {len(candidates)} candidate events from synthetic "
+            f"corpus (adversariality={args.adversariality}, n={args.n_adversarial})"
+        )
+    elif args.corpus == "hotpotqa":
+        from phi3geom.dataset.hotpotqa import load_hotpotqa_events
+
+        n_total = args.n_per_bin * len(BIN_IDS)
+        candidates = load_hotpotqa_events(
+            n=n_total, rng=rng,
+            prompt_template_sha256=PROMPT_TEMPLATE_SHA256,
+            split=args.hotpotqa_split,
+        )
+        print(
+            f"[pilot] Loaded {len(candidates)} HotpotQA candidates from "
+            f"split={args.hotpotqa_split} (bin assigned post-hoc from measured distance)"
+        )
+    else:  # pragma: no cover — argparse choices forbid this
+        raise ValueError(f"unknown --corpus value: {args.corpus!r}")
 
     # 3. Load Phi-3 model + tokenizer.
     print("[pilot] Loading Phi-3-mini-128k-instruct (~8 GB GPU memory at fp16)...")
@@ -423,6 +454,64 @@ def main(argv: list[str] | None = None) -> int:
         except MatchingFailedError as exc:
             print(f"[pilot] {exc}", file=sys.stderr)
             strata_by_bin[bin_id] = []
+
+    # 5b. Pre-fit dataset sanity check. The 2026-06-04 run crashed here with
+    #     n_samples=0 because Phi-3's 0.25% fail rate left CEM with ~4 matched
+    #     events — wasted ~62 GPU-hours of extraction. Write a clear diagnostic
+    #     and exit cleanly instead.
+    n_fails_matched = sum(1 for e in matched_events if e.is_fail)
+    n_controls_matched = len(matched_events) - n_fails_matched
+    n_min_per_class = 10  # train_test_split with stratify=True needs both classes
+    if min(n_fails_matched, n_controls_matched) < n_min_per_class:
+        n_fails_all = sum(1 for e in labeled if e.is_fail)
+        diag = {
+            "n_candidates": len(candidates),
+            "n_extracted_successfully": len(labeled),
+            "n_matched": len(matched_events),
+            "n_fails_matched": n_fails_matched,
+            "n_controls_matched": n_controls_matched,
+            "n_fails_in_full_extraction": n_fails_all,
+            "n_controls_in_full_extraction": len(labeled) - n_fails_all,
+            "fail_rate_full": n_fails_all / max(len(labeled), 1),
+            "n_min_per_class_required": n_min_per_class,
+            "matched_per_bin": {
+                b: sum(1 for e in matched_events if e.bin_id == b) for b in BIN_IDS
+            },
+            "corpus": args.corpus,
+            "adversariality": args.adversariality,
+            "diagnosis": (
+                "Failure rate too imbalanced for CEM matching. "
+                "If fail_rate_full is near 0, the corpus is too easy "
+                "(try --corpus hotpotqa or stronger --adversariality). "
+                "If near 1, the corpus is too hard or the gold answers / EM "
+                "normalization are mismatched."
+            ),
+        }
+        args.reports_dir.mkdir(parents=True, exist_ok=True)
+        diag_path = args.reports_dir / "dataset_diagnostic.json"
+        diag_path.write_text(json.dumps(diag, indent=2, sort_keys=True))
+        print(
+            f"[pilot] ABORT: insufficient matched events "
+            f"(fails={n_fails_matched}, controls={n_controls_matched}; "
+            f"need ≥{n_min_per_class} of each). "
+            f"See {diag_path} for full breakdown.",
+            file=sys.stderr,
+        )
+        if ckpt_config is not None:
+            _do_checkpoint(
+                ckpt_config,
+                event_ids=[e.event_id for e in labeled],
+                processed=len(candidates),
+                total=len(candidates),
+                resumed=resumed,
+                log_path=args.log_path,
+                reports_dir=args.reports_dir,
+                message=(
+                    f"abort: dataset diagnostic "
+                    f"(fails={n_fails_matched}, controls={n_controls_matched})"
+                ),
+            )
+        return 2
 
     # 6. Pool ALL matched events into one distance-blind fit (Principle III,
     #    constitution v2.0.0). The detector never sees the bin or distance.
