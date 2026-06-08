@@ -107,7 +107,7 @@ Harness-set run controls, **not** player-facing tunables and **not** clamped lik
 | `bot_scan_amp` | float | how far the view glances off the move heading while exploring (deg, default 35) — the "look around" scan. Movement is steered independently. **Live-tunable** |
 | `bot_explore_bias` | float | radial-scan weight on heading toward UNEXPLORED space vs just the most-open ray (default 1; scaled by `bot_map_awareness`). **Live-tunable** |
 | `bot_exit_bias` | float | extra unexplored-weight added when bored, so the agent leaves the area instead of doing laps (default 3). **Live-tunable** |
-| `bot_analog_off` | int/bool | `0` (default) = analog steering: roam/goto drive `movevect` directly from the continuous wish-direction (no 8-way key quantization). `1` = legacy quantized keys. Registered in the harness catalogue so the wall-scrape A/B (`stats.traversal.wall_contact`, analog on vs off) is runnable from a sim config. **Live-tunable** |
+| `bot_analog_off` | int/bool | `0` (default) = analog steering: roam/goto drive `movevect` directly from the continuous wish-direction (no 8-way key quantization). `1` = legacy quantized keys. Registered in the harness catalogue so the watchability A/B (`stats.traversal.boring_view` / `pacing`, analog on vs off — use `configs/motion.toml`) is runnable from a config. **Live-tunable** |
 
 ## Implementation status (feature 001)
 

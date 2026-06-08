@@ -12,12 +12,13 @@ from idledoom_sim.telemetry import ParsedEvent, aggregate
 from idledoom_sim.traversal import (
     TRAVERSAL_METRICS,
     NavSample,
+    boring_view,
     compute_traversal,
     extent_area,
     nav_samples,
+    pacing,
     peak_boredom,
     visited_cells,
-    wall_contact,
     waypoints_at_15s,
 )
 
@@ -84,35 +85,51 @@ def test_nav_samples_reads_boredom_from_event_data() -> None:
     assert s[0].boredom == 7.0
 
 
-def test_wall_contact_is_scrape_over_moving_fraction() -> None:
-    # Cumulative counters; the LAST sample holds run totals (like final_waypoints).
-    # 40 of 200 moving-on-ground frames were flush to a wall => 0.20 spent scraping.
+def test_boring_view_is_time_fraction() -> None:
+    # Cumulative time counters; the LAST sample holds run totals. 6s of sustained
+    # wall-stare out of 30s watched => 0.2 of the watch spent in the boring slide.
     s = [
-        NavSample(2.0, 0, 0, 1, 50, scrape_frames=5, scrape_move_frames=50),
-        NavSample(20.0, 0, 0, 9, 900, scrape_frames=40, scrape_move_frames=200),
+        NavSample(2.0, 0, 0, 1, 50, boring_view_time=1.0, watch_time=10.0),
+        NavSample(30.0, 0, 0, 9, 900, boring_view_time=6.0, watch_time=30.0),
     ]
-    assert wall_contact(s) == 0.20
+    assert boring_view(s) == 0.2
 
 
-def test_wall_contact_zero_when_never_moving() -> None:
-    # No moving frames => 0.0, and never a ZeroDivisionError.
-    s = [NavSample(2.0, 0, 0, 0, 0, scrape_frames=0, scrape_move_frames=0)]
-    assert wall_contact(s) == 0.0
-    assert wall_contact([]) == 0.0
+def test_pacing_is_time_fraction() -> None:
+    # 9s spent running back and forth (high path, low net progress) out of 30s.
+    s = [NavSample(30.0, 0, 0, 9, 900, pace_time=9.0, watch_time=30.0)]
+    assert pacing(s) == 0.3
 
 
-def test_nav_samples_reads_scrape_counters_from_event_data() -> None:
+def test_watchability_metrics_zero_without_watch_time() -> None:
+    # No watched time => 0.0, never a ZeroDivisionError.
+    s = [NavSample(2.0, 0, 0, 0, 0, watch_time=0.0)]
+    assert boring_view(s) == 0.0
+    assert pacing(s) == 0.0
+    assert boring_view([]) == 0.0
+    assert pacing([]) == 0.0
+
+
+def test_nav_samples_reads_watchability_counters_from_event_data() -> None:
     s = nav_samples(
         [
             ParsedEvent(
-                2.0,
+                30.0,
                 "nav",
-                {"x": 0, "y": 0, "waypoints": 1, "scrape_frames": 12, "scrape_move_frames": 60},
+                {
+                    "x": 0,
+                    "y": 0,
+                    "waypoints": 9,
+                    "boring_view_time": 6.0,
+                    "pace_time": 9.0,
+                    "watch_time": 30.0,
+                },
             )
         ]
     )
-    assert s[0].scrape_frames == 12.0
-    assert s[0].scrape_move_frames == 60.0
+    assert s[0].boring_view_time == 6.0
+    assert s[0].pace_time == 9.0
+    assert s[0].watch_time == 30.0
 
 
 def test_compute_traversal_runs_the_full_registry() -> None:

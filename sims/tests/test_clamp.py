@@ -34,9 +34,9 @@ def test_bool_string_values_coerce_correctly() -> None:
     assert clamp_bot_value("bot_rocket_jump", "1") is True
 
 
-def test_bot_analog_off_registered_as_bool_for_scrape_ab() -> None:
-    # The wall_contact A/B needs bot_analog_off settable via sim config — the catalogue
-    # rejects unknown bot_* keys — and it's a 0/1 toggle (0 = analog steering on).
+def test_bot_analog_off_registered_as_bool_for_watchability_ab() -> None:
+    # The boring_view/pacing A/B needs bot_analog_off settable via sim config — the
+    # catalogue rejects unknown bot_* keys — and it's a 0/1 toggle (0 = analog steering on).
     assert clamp_bot_value("bot_analog_off", "1") is True
     assert clamp_bot_value("bot_analog_off", "0") is False
 

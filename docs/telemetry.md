@@ -70,17 +70,19 @@ inconsistent telemetry is painful to clean up later.
 ### Event types
 
 - `level_start` — `{ "map": "e1m1", "seed": 12345 }`
-- `level_end` — `{ "outcome": "completed", "time_sec": 118.2, "waypoints_total": 60, "waypoints_visited": 42, "distance_traveled": 18450, "reached_exit": 1, "scrape_frames": 88, "scrape_move_frames": 540 }`
+- `level_end` — `{ "outcome": "completed", "time_sec": 118.2, "waypoints_total": 60, "waypoints_visited": 42, "distance_traveled": 18450, "reached_exit": 1, "boring_view_time": 4.2, "pace_time": 7.8, "watch_time": 118.2 }`
   (the navigation-coverage fields are carried here, analogous to `secrets_total`
   on `level_start`; the harness folds them into the summary `stats` — feature 002.
-  `scrape_*` are the cumulative wall-contact counters — see `nav` below)
-- `nav` — `{ "x": 512, "y": -128, "waypoints": 7, "distance": 1840, "scrape_frames": 12, "scrape_move_frames": 60 }` — periodic
-  (~every 2s) agent position + cumulative coverage counters. `scrape_move_frames`
-  counts per-frame how often the agent is moving on the ground; `scrape_frames` how
-  often a side wall is flush against its hull while doing so — their ratio is the
-  `wall_contact` scrape metric. The harness derives **all** traversal metrics from
-  this time series (`stats.traversal`), so metrics can be added/swapped without
-  rebuilding QuakeC. See `sims/idledoom_sim/traversal.py`.
+  The `*_time` fields are the cumulative watchability counters — see `nav` below)
+- `nav` — `{ "x": 512, "y": -128, "waypoints": 7, "distance": 1840, "boring_view_time": 0.7, "pace_time": 1.2, "watch_time": 30.0 }` — periodic
+  (~every 2s) agent position + cumulative coverage + watchability counters. While the
+  agent is moving on the ground and out of combat, `boring_view_time` accumulates time
+  the *view* is buried in a near surface (sustained ≥0.7s — the zoomed-in texture slide)
+  and `pace_time` accumulates back-and-forth/re-tread time (high path, low net progress);
+  `watch_time` is the denominator. Their ratios are the `boring_view` / `pacing` metrics.
+  The harness derives **all** traversal metrics from this time series (`stats.traversal`),
+  so metrics can be added/swapped without rebuilding QuakeC. See
+  `sims/idledoom_sim/traversal.py`.
 - `kill` — `{ "victim": "monster_army", "weapon": "super_shotgun", "distance": 320 }`
 - `death` — `{ "cause": "rocket_splash_self", "killer": "self" }`
 - `shot` — `{ "weapon": "shotgun", "target": "monster_army | null" }`
@@ -156,9 +158,11 @@ the harness computes a registry of metrics from that stream into the additive
 `stats.traversal` object (still `schema_version 1`). Current metrics: `extent_area`,
 `visited_cells`, `waypoints_at_15s` / `distance_at_15s` (exploration *rate* — the
 ones that discriminate competence despite saturation), `final_waypoints`,
-`peak_boredom`, and `wall_contact` (fraction of moving-on-ground time spent flush
-against a side wall — the locomotion-quality / face-scrape signal; lower is better,
-and it should drop with analog steering on). Switch
+`peak_boredom`, and the **watchability** signals `boring_view` (fraction of watched
+time in a sustained, idle wall-stare — the zoomed-in texture slide) and `pacing`
+(fraction spent running back and forth / re-treading). The watchability pair measures
+the *fun-to-watch* quality — what the camera shows + repetition, not body position;
+lower is better. Switch
 which one is authoritative in analysis via `compare --metric stats.traversal.<name>`;
 add one by registering a function in `traversal.py`. Picking the *primary*
 progression-driving metric is deliberately deferred — we expect to revisit this.

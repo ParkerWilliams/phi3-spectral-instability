@@ -968,12 +968,14 @@ float stagger_think;
 // are FrikBot's own.
 void() bot_nav_track =
 {
-	local vector d, vel, dir, side;
-	local float sp, hw;
+	local vector d, eye, net;
+	local float dt, sp, idle;
+
+	d = '0 0 0';
 	if (tel_nav_lastorg != '0 0 0')
 	{
 		d = self.origin - tel_nav_lastorg;
-		d_z = 0;   // horizontal distance only
+		d_z = 0;   // horizontal only
 		tel_nav_distance = tel_nav_distance + vlen(d);
 	}
 	tel_nav_lastorg = self.origin;
@@ -984,29 +986,57 @@ void() bot_nav_track =
 	}
 	tel_nav_total = waypoints;
 
-	// Wall-contact (scrape) metric: while moving on the ground, is a side wall flush
-	// against the hull? Two lateral traces perpendicular to travel, out to half-width +
-	// margin from center; a hit on either side counts the frame as a scrape. Cheap (<=2
-	// traces) and ratio-based, so it's robust to the AI tick cadence.
-	if (self.flags & FL_ONGROUND)
+	// --- watchability ("boring to watch") metrics (004) -------------------------
+	// dt = real elapsed since the last track (robust to the AI-tick cadence). Skip the
+	// first call and any big gap (level load / pause) so they don't pollute the totals.
+	dt = time - self.last_track_time;
+	self.last_track_time = time;
+	if (dt <= 0 || dt > 1)
+		return;
+	tel_watch_time = tel_watch_time + dt;
+
+	// "nothing interesting happening": moving, on the ground, not in combat. Speed is
+	// origin-derived (vlen(d)/dt) -- the same signal the distance metric already trusts.
+	sp = vlen(d) / dt;
+	idle = (sp > WATCH_MOVE_MIN) && (self.flags & FL_ONGROUND) && (self.enemy == world);
+
+	// 1) boring_view -- the view buried in a near surface, sustained >= BORING_MIN_SEC.
+	//    Trace along where the agent is LOOKING (v_angle) = what the watch camera shows.
+	if (idle)
 	{
-		vel = self.velocity;
-		vel_z = 0;
-		sp = vlen(vel);
-		if (sp > SCRAPE_MOVE_MIN)
+		eye = self.origin + self.view_ofs;
+		makevectors(self.v_angle);
+		traceline(eye, eye + v_forward * BORING_VIEW_DIST, TRUE, self);
+		if (trace_fraction < 1)
 		{
-			tel_scrape_move_frames = tel_scrape_move_frames + 1;
-			dir = vel * (1 / sp);          // unit horizontal travel direction
-			side_x = dir_y * -1;           // left perpendicular (flat)
-			side_y = dir_x;
-			side_z = 0;
-			hw = self.maxs_x + SCRAPE_MARGIN;   // wall within this of center => flush
-			traceline(self.origin, self.origin + side * hw, TRUE, self);
-			if (trace_fraction == 1)
-				traceline(self.origin, self.origin - side * hw, TRUE, self);
-			if (trace_fraction < 1)
-				tel_scrape_frames = tel_scrape_frames + 1;
+			self.boring_run = self.boring_run + dt;
+			if (self.boring_run >= BORING_MIN_SEC)
+				tel_boring_view_time = tel_boring_view_time + dt;
 		}
+		else
+			self.boring_run = 0;
+	}
+	else
+		self.boring_run = 0;
+
+	// 2) pacing -- over each PACE_WINDOW: lots of path but little net progress (while
+	//    idle) => running back and forth / re-treading the same ground.
+	if (self.pace_anchor_time == 0)
+	{
+		self.pace_anchor = self.origin;
+		self.pace_anchor_time = time;
+	}
+	if (idle)
+		self.pace_path = self.pace_path + vlen(d);
+	if (time - self.pace_anchor_time >= PACE_WINDOW)
+	{
+		net = self.origin - self.pace_anchor;
+		net_z = 0;
+		if (self.pace_path > PACE_MIN_PATH && vlen(net) < PACE_MIN_NET)
+			tel_pace_time = tel_pace_time + (time - self.pace_anchor_time);
+		self.pace_anchor = self.origin;
+		self.pace_anchor_time = time;
+		self.pace_path = 0;
 	}
 };
 

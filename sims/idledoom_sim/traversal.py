@@ -43,11 +43,14 @@ class NavSample:
     waypoints: int
     distance: float
     boredom: float = 0.0  # agent restlessness at this sample (rises while wandering)
-    # Cumulative scrape counters (feature: wall-contact metric). The QuakeC side counts,
-    # per frame, how often the agent is moving on the ground (``scrape_move_frames``) and
-    # how often a side wall is flush against its hull while doing so (``scrape_frames``).
-    scrape_frames: float = 0.0
-    scrape_move_frames: float = 0.0
+    # Cumulative watchability time counters (feature: "boring to watch" metrics). The
+    # QuakeC side accumulates, while the agent is moving/on-ground/out-of-combat:
+    # ``boring_view_time`` (view buried in a near surface, sustained — the sliding
+    # texture), ``pace_time`` (running back and forth — high path, low net progress),
+    # both over ``watch_time`` (total tracked time, the denominator).
+    boring_view_time: float = 0.0
+    pace_time: float = 0.0
+    watch_time: float = 0.0
 
 
 def _num(value: Any) -> float:
@@ -69,8 +72,9 @@ def nav_samples(events: Iterable[ParsedEvent]) -> list[NavSample]:
                 waypoints=int(_num(d.get("waypoints"))),
                 distance=_num(d.get("distance")),
                 boredom=_num(d.get("boredom")),
-                scrape_frames=_num(d.get("scrape_frames")),
-                scrape_move_frames=_num(d.get("scrape_move_frames")),
+                boring_view_time=_num(d.get("boring_view_time")),
+                pace_time=_num(d.get("pace_time")),
+                watch_time=_num(d.get("watch_time")),
             )
         )
     return out
@@ -123,19 +127,33 @@ def peak_boredom(s: list[NavSample]) -> float:
     return max((p.boredom for p in s), default=0.0)
 
 
-def wall_contact(s: list[NavSample]) -> float:
-    """Fraction of moving-on-ground time the agent spent flush against a side wall.
-
-    The scrape signal: a bot grinding its face along walls is in lateral wall contact
-    for much of its travel; one that keeps clearance is not. Counters are cumulative,
-    so the last sample holds the run totals (like ``final_waypoints``). Lower is better
-    — it should drop sharply when analog steering is on (``bot_analog_off 0``)."""
+def _watch_fraction(s: list[NavSample], attr: str) -> float:
+    """Cumulative ``attr`` time over total watched time (last sample holds run totals).
+    0.0 when nothing was watched yet — never a ZeroDivisionError."""
     if not s:
         return 0.0
-    moving = s[-1].scrape_move_frames
-    if moving <= 0:
+    watch = s[-1].watch_time
+    if watch <= 0:
         return 0.0
-    return round(s[-1].scrape_frames / moving, 4)
+    return round(float(getattr(s[-1], attr)) / watch, 4)
+
+
+def boring_view(s: list[NavSample]) -> float:
+    """Fraction of watched time the agent spent in a sustained, idle wall-stare.
+
+    The "boring to watch" signal: moving on the ground, out of combat, with the view
+    buried in a near surface for >= ~0.7s — the zoomed-in texture sliding across the
+    screen. Lower = more watchable. Body proximity never triggers it (box-jumps and
+    corner-cuts don't count); it's purely about what the camera shows."""
+    return _watch_fraction(s, "boring_view_time")
+
+
+def pacing(s: list[NavSample]) -> float:
+    """Fraction of watched time the agent spent running back and forth / re-treading.
+
+    The repetition signal: moving a lot of path but making little net progress over a
+    window (pacing a hallway, circling a room). Lower = more watchable."""
+    return _watch_fraction(s, "pace_time")
 
 
 # Registry — add a metric by writing a function above and listing it here.
@@ -146,7 +164,8 @@ TRAVERSAL_METRICS: dict[str, Callable[[list[NavSample]], float]] = {
     "distance_at_15s": distance_at_15s,
     "final_waypoints": final_waypoints,
     "peak_boredom": peak_boredom,
-    "wall_contact": wall_contact,
+    "boring_view": boring_view,
+    "pacing": pacing,
 }
 
 

@@ -1,0 +1,19 @@
+# Watchability A/B config (feature 004 motion-feel).
+#
+# Forces nav regeneration so the agent actually ROAMS. Without this, a stale
+# data/maps/<map>.way loads as WM_LOADED and the roam/motion behaviours don't fire
+# -> the bot sits at spawn (distance 0) and the watchability metrics read 0 trivially.
+#
+# Use to compare analog steering off vs on against the boring_view / pacing metrics:
+#   uv run harness.py run --config configs/motion.toml --bot.bot_analog_off 1   # legacy
+#   uv run harness.py run --config configs/motion.toml --bot.bot_analog_off 0   # the fix
+# then compare stats.traversal.boring_view and stats.traversal.pacing (lower = better).
+map = "lq_e1m1"
+seed = 1
+time_limit = 60
+sim_nav_regen = true
+
+[bot]
+# Pin veteran so the throttle/dwell feel curve is inert and the A/B isolates the
+# analog-steering change (see docs/bot-stats.md).
+bot_competence = 1.0

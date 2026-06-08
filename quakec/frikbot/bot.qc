@@ -174,6 +174,11 @@ for all variables in the bot...
 .vector move_wish;   // 004 analog steer: continuous world move dir set by roam/goto each
                      // think, consumed by CL_KeyMove to drive movevect directly (bypasses
                      // the 8-way key quantization). '0 0 0' => use the legacy key path.
+.float  boring_run;      // 004 watchability: current sustained wall-stare run length (s)
+.float  last_track_time; // 004 watchability: time of last bot_nav_track (for real dt)
+.vector pace_anchor;     // 004 watchability: back-and-forth window start position
+.float  pace_anchor_time;// 004 watchability: back-and-forth window start time
+.float  pace_path;       // 004 watchability: path travelled since the window anchor
 
 // --------defines-----
 float SVC_UPDATENAME	= 13;
