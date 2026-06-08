@@ -43,6 +43,11 @@ dependencies = [
   # huggingface_hub <1.0 to match the 4.x transformers line and the
   # whoami/model_info/HfApi surface used by check_hf_auth + pin_model_revision.
   "huggingface_hub>=0.24,<1.0",
+  # hf_transfer: when RunPod (or any HF-friendly image) sets
+  # HF_HUB_ENABLE_HF_TRANSFER=1, huggingface_hub REQUIRES this package or
+  # downloads fail with a noisy ValueError. Cheap install, optional behavior,
+  # avoids a paper cut on fresh pods.
+  "hf_transfer>=0.1",
   # HuggingFace `datasets` for loading HotpotQA (and any other open-source
   # DocQA corpus we add). The 2026-06-04 pilot showed the synthetic corpus
   # produces a ~0.25% Phi-3 failure rate, too low to fit the v2.0.0 pooled

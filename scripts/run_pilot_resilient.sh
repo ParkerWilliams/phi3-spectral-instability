@@ -61,5 +61,16 @@ echo "[resilient] Auth OK."
 git config user.email >/dev/null 2>&1 || git config user.email "pilot@runpod.local"
 git config user.name  >/dev/null 2>&1 || git config user.name  "Pilot Runner"
 
+# --- 5b. HF_HUB_ENABLE_HF_TRANSFER fallback ---
+# RunPod's PyTorch template sets HF_HUB_ENABLE_HF_TRANSFER=1; if the
+# `hf_transfer` package isn't installed (older pods predating its addition to
+# deps), HF downloads fail loudly. Silently unset rather than fail.
+if [ -n "${HF_HUB_ENABLE_HF_TRANSFER:-}" ]; then
+  if ! python -c "import hf_transfer" >/dev/null 2>&1; then
+    echo "[resilient] HF_HUB_ENABLE_HF_TRANSFER=1 set but hf_transfer not installed; unsetting."
+    unset HF_HUB_ENABLE_HF_TRANSFER
+  fi
+fi
+
 # --- 6. Hand off. pilot_main does restore + periodic + final checkpoint. ---
 exec bash scripts/run_pilot.sh "$@"
