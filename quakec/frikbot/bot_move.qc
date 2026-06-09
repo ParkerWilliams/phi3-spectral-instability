@@ -418,6 +418,16 @@ blah
 // bot_competence: novices react late and hug walls, veterans see the corner early
 // and ease around. Horizontal only; never touches the view (move/view stay
 // decoupled). Returns an adjusted unit world direction.
+// 004 leap sensor: vertical sibling of frik_whiskers. Classifies the geometry ahead in
+// `movedir` (LEDGE_UP / GAP_CROSS / PIT) against the bot's real jump arc and presses jump
+// in the launch window. Pure perception + actuation (whiskers own horizontal steering).
+// Stub for Task 1 -- wired in but inert; logic lands in Tasks 2-3.
+void(vector movedir) frik_leap_sense =
+{
+	self.leap_class = LEAP_NONE;
+	self.leap_edge = FALSE;
+};
+
 vector(vector wishdir) frik_whiskers =
 {
 	local vector eye, fwd, rgt, c, vel;
@@ -496,6 +506,7 @@ void() frik_movetogoal =
 	}
 
 	way = normalize(way);
+	frik_leap_sense(way);			// 004: perceive + jump for ledges/gaps (Task 1 stub)
 	way = frik_whiskers(way);		// 003: anticipatory anti-scrape
 	self.keys = self.keys & 960 + frik_KeysForDir(way);
 	self.move_wish = way;			// 004: analog steer target (consumed by CL_KeyMove)
@@ -534,6 +545,7 @@ float(vector weird) frik_walkmove =
 		self.keys = self.keys & 960;	// 003: junction hesitation -- stop, keep looking
 		return TRUE;
 	}
+	frik_leap_sense(weird);			// 004: perceive + jump for ledges/gaps (Task 1 stub)
 	weird = frik_whiskers(weird);		// 003: anticipatory anti-scrape
  	self.keys = self.keys & 960 + frik_KeysForDir(weird);
 	self.move_wish = weird;			// 004: analog steer target (consumed by CL_KeyMove)

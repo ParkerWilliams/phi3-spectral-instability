@@ -179,6 +179,8 @@ for all variables in the bot...
 .vector pace_anchor;     // 004 watchability: back-and-forth window start position
 .float  pace_anchor_time;// 004 watchability: back-and-forth window start time
 .float  pace_path;       // 004 watchability: path travelled since the window anchor
+.float  leap_class;  // 004 leap sensor: last frik_leap_sense result (LEAP_NONE/LEDGE/GAP/PIT)
+.float  leap_edge;   // 004 leap sensor: TRUE while an un-landable drop (PIT) is dead ahead
 
 // --------defines-----
 float SVC_UPDATENAME	= 13;
@@ -289,6 +291,24 @@ float NAV_STALE_SECS	= 3;	// graph not growing this long => escape the explored 
 float MOMENTUM_DEFAULT   = 450;  // bot_momentum: anti-doubling-back strength
 float ENEMY_PULL_DEFAULT = 400;  // bot_enemy_pull: soft tug toward the nearest monster
 float STALL_DIST_DEFAULT = 32;   // bot_stall_dist: hop if horizontal travel < this / ~0.4s
+
+// 004 leap sensor (frik_leap_sense). Grounded in the bot's real jump arc
+// (apex ~= jumpvel^2 / 2*gravity ~= 270^2/1600 ~= 45u). All overridable live via the
+// bot_leap_* cvars; defaults baked here. Tuned by eye in `just watch` (feel, not metrics).
+float LEAP_NONE  = 0;
+float LEAP_LEDGE = 1;
+float LEAP_GAP   = 2;
+float LEAP_PIT   = 3;
+float LEAP_STEP_MAX  = 18;   // <= this auto-steps (Quake), no jump needed
+float LEAP_UP_MAX    = 44;   // tallest ledge a standing jump lands on (just under apex)
+float LEAP_AHEAD     = 28;   // base horizontal probe distance (~ a stride); + speed*lookahead
+float LEAP_GAP_MIN   = 40;   // a forward drop wider than this is a gap worth considering
+float LEAP_GAP_MAX   = 224;  // farthest landing a running jump reaches (calibrate by eye)
+float LEAP_FALL_PROBE = 72;  // how far down we look for floor ahead (none => a drop)
+float LEAP_CLEAR_H   = 52;   // standing clearance required above a candidate landing
+float LEAP_RUN_MIN   = 80;   // min horizontal speed to commit a gap jump
+float LEAP_T_NOVICE  = 0.12; // look-ahead seconds at competence 0 (perceives late)
+float LEAP_T_VET     = 0.42; // look-ahead seconds at competence 1 (perceives early)
 // Lightweight repeat/loop detector (catches "moving but circling / doubling back"):
 float LOOP_WINDOW        = 2.5;  // s: net-progress check window
 float LOOP_MIN_PROGRESS  = 150;  // u: bot_loop_dist default -- net travel below => looping
@@ -359,6 +379,7 @@ void()				NavAutoSave;   // T009: persist a generated graph (bot_way.qc)
 float(entity e)			bot_can_rj;
 void()				bot_jump;
 void()				frik_bot_roam;
+void(vector movedir)		frik_leap_sense;
 float(vector weird)		frik_walkmove;
 void()				frik_movetogoal;
 void()				frik_obstacles;
