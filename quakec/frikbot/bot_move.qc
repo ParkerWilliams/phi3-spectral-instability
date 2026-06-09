@@ -498,9 +498,29 @@ void(vector movedir) frik_leap_sense =
 			far = far + 24;
 		}
 		self.leap_class = LEAP_PIT;          // no landing in reach
-		self.leap_edge = TRUE;               // Task 5 steers away from this
+		self.leap_edge = TRUE;               // steer away (frik_leap_avoid)
 		return;
 	}
+};
+
+// 004: turn a wishdir away from a pit dead ahead. Samples the floor a stride out to the
+// left and right of `movedir` and steers toward whichever side still has ground; if both
+// sides are also drops, back off (reverse) so the agent never walks off the edge.
+vector(vector movedir) frik_leap_avoid =
+{
+	local vector flat, lft;
+	flat = movedir; flat_z = 0; flat = normalize(flat);
+	makevectors(vectoangles(flat));
+	lft = normalize(v_right) * -1;
+	traceline(self.origin + (flat - v_right) * LEAP_AHEAD,
+		(self.origin + (flat - v_right) * LEAP_AHEAD) - '0 0 1' * LEAP_FALL_PROBE, TRUE, self);
+	if (trace_fraction < 1)
+		return normalize(flat + lft);      // left has ground -> veer left
+	traceline(self.origin + (flat + v_right) * LEAP_AHEAD,
+		(self.origin + (flat + v_right) * LEAP_AHEAD) - '0 0 1' * LEAP_FALL_PROBE, TRUE, self);
+	if (trace_fraction < 1)
+		return normalize(flat - lft);      // right has ground -> veer right
+	return flat * -1;                          // both sides drop -> back off
 };
 
 vector(vector wishdir) frik_whiskers =
@@ -581,8 +601,14 @@ void() frik_movetogoal =
 	}
 
 	way = normalize(way);
-	frik_leap_sense(way);			// 004: perceive + jump for ledges/gaps (Task 1 stub)
-	way = frik_whiskers(way);		// 003: anticipatory anti-scrape
+	frik_leap_sense(way);			// 004: perceive + jump for ledges/gaps
+	if (self.leap_class != LEAP_LEDGE)	// reachable ledge: go straight at it (no veer)
+	{
+		if (self.leap_edge)
+			way = frik_leap_avoid(way);	// pit ahead: steer away from the drop
+		else
+			way = frik_whiskers(way);	// 003: anticipatory anti-scrape
+	}
 	self.keys = self.keys & 960 + frik_KeysForDir(way);
 	self.move_wish = way;			// 004: analog steer target (consumed by CL_KeyMove)
 
@@ -620,8 +646,14 @@ float(vector weird) frik_walkmove =
 		self.keys = self.keys & 960;	// 003: junction hesitation -- stop, keep looking
 		return TRUE;
 	}
-	frik_leap_sense(weird);			// 004: perceive + jump for ledges/gaps (Task 1 stub)
-	weird = frik_whiskers(weird);		// 003: anticipatory anti-scrape
+	frik_leap_sense(weird);			// 004: perceive + jump for ledges/gaps
+	if (self.leap_class != LEAP_LEDGE)	// reachable ledge: go straight at it (no veer)
+	{
+		if (self.leap_edge)
+			weird = frik_leap_avoid(weird);	// pit ahead: steer away from the drop
+		else
+			weird = frik_whiskers(weird);	// 003: anticipatory anti-scrape
+	}
  	self.keys = self.keys & 960 + frik_KeysForDir(weird);
 	self.move_wish = weird;			// 004: analog steer target (consumed by CL_KeyMove)
 

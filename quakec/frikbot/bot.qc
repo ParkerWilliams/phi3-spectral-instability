@@ -380,6 +380,7 @@ float(entity e)			bot_can_rj;
 void()				bot_jump;
 void()				frik_bot_roam;
 void(vector movedir)		frik_leap_sense;
+vector(vector movedir)		frik_leap_avoid;
 float(vector weird)		frik_walkmove;
 void()				frik_movetogoal;
 void()				frik_obstacles;
