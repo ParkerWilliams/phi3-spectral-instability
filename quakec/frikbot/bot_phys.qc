@@ -591,7 +591,8 @@ void() bot_stuck_check =
 		if (vlen(d) < STUCK_MIN_DIST)
 		{
 			self.b_angle_y = frik_anglemod(self.b_angle_y + 90 + random() * 180);
-			bot_jump();
+			// 004: no reflexive hop -- frik_leap_sense owns jumping. Wedged with
+			// nothing leapable ahead is a PATHING problem: turn + re-route only.
 			self.target1 = self.target2 = self.target3 = self.target4 = world;
 			self.route_failed = 1;    // BotAI -> frik_bot_roam picks a new frontier
 			if (self.current_way)
@@ -602,38 +603,13 @@ void() bot_stuck_check =
 	self.stuck_time = time + STUCK_WINDOW;
 };
 
-// idledoom (003): quick stall hop. If the agent's horizontal position barely
-// changes over a short window while NOT fighting, try a jump -- clears steps, low
-// ledges, and lips the radial roam can't otherwise path over. Lighter than the
-// full bot_stuck_check turn-around. Tunable/off via bot_stall_dist (0 = off; watch
-// sets 24). Bots only; left alone in combat (holding position is intentional).
+// 004: REMOVED. This was the reflexive 0.4s "I'm not moving, hop" -- the cosmetic spasm.
+// frik_leap_sense (bot_move.qc) is now the sole traversal jump authority: it hops only at
+// real, reachable ledges/gaps. Kept as an empty stub so the call site and the
+// bot_stall_dist cvar / stall_org / stall_time fields need no churn this pass.
 void() bot_stall_jump =
 {
-	local vector d;
-	local float md;
-	if (self.ishuman)
-		return;
-	if (self.health < 1)
-		return;
-	if (self.enemy != world)
-		return;                       // fighting: standing/strafing is intentional
-	if (!(self.flags & FL_ONGROUND))
-		return;                       // already airborne
-	md = cvar("bot_stall_dist");
-	if (!md) md = STALL_DIST_DEFAULT;     // baked default
-	if (md < 0)
-		return;                       // explicitly disabled
-	if (time < self.stall_time)
-		return;                       // evaluate once per window
-	if (self.stall_org != '0 0 0')
-	{
-		d = self.origin - self.stall_org;
-		d_z = 0;
-		if (vlen(d) < md)
-			bot_jump();
-	}
-	self.stall_org = self.origin;
-	self.stall_time = time + 0.4;
+	return;
 };
 
 void() PostPhysics =
