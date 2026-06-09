@@ -424,7 +424,7 @@ blah
 void(vector movedir) frik_leap_sense =
 {
 	local vector flat, ahead, top, landing;
-	local float sp, t, reach, h, fwd_frac;
+	local float sp, t, reach, h, fwd_frac, far;
 
 	self.leap_class = LEAP_NONE;
 	self.leap_edge = FALSE;
@@ -472,6 +472,34 @@ void(vector movedir) frik_leap_sense =
 				}
 			}
 		}
+	}
+
+	// ---- GAP / PIT: does the floor drop away just ahead? ----
+	ahead = self.origin + flat * LEAP_AHEAD;
+	traceline(ahead, ahead - '0 0 1' * LEAP_FALL_PROBE, TRUE, self);
+	if (trace_fraction >= 1)             // no floor within fall-probe => a drop ahead
+	{
+		far = LEAP_GAP_MIN;
+		while (far <= LEAP_GAP_MAX)
+		{
+			landing = self.origin + flat * far;
+			traceline(landing + '0 0 16', landing - '0 0 1' * LEAP_FALL_PROBE, TRUE, self);
+			if (trace_fraction < 1)
+			{
+				// landable far side at a height the jump can still reach?
+				if (trace_endpos_z <= self.origin_z + LEAP_UP_MAX)
+				{
+					self.leap_class = LEAP_GAP;
+					if (sp >= LEAP_RUN_MIN)     // need run speed; commit at the edge
+						bot_jump();
+					return;
+				}
+			}
+			far = far + 24;
+		}
+		self.leap_class = LEAP_PIT;          // no landing in reach
+		self.leap_edge = TRUE;               // Task 5 steers away from this
+		return;
 	}
 };
 
