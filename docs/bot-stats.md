@@ -108,6 +108,10 @@ Harness-set run controls, **not** player-facing tunables and **not** clamped lik
 | `bot_explore_bias` | float | radial-scan weight on heading toward UNEXPLORED space vs just the most-open ray (default 1; scaled by `bot_map_awareness`). **Live-tunable** |
 | `bot_exit_bias` | float | extra unexplored-weight added when bored, so the agent leaves the area instead of doing laps (default 3). **Live-tunable** |
 | `bot_analog_off` | int/bool | `0` (default) = analog steering: roam/goto drive `movevect` directly from the continuous wish-direction (no 8-way key quantization). `1` = legacy quantized keys. Registered in the harness catalogue so the watchability A/B (`stats.traversal.boring_view` / `pacing`, analog on vs off — use `configs/motion.toml`) is runnable from a config. **Live-tunable** |
+| `bot_leap_off` | int | `1` = disable the leap sensor (`frik_leap_sense`) for an A/B against the old behavior; `0` (default) = on |
+| `bot_leap_up` | float | tallest ledge (units above feet) the agent will jump onto; `0`/unset = baked 44 (≈ standing-jump apex). **Live-tunable** |
+| `bot_leap_gap` | float | farthest far-side landing (units) the agent will leap a gap to; `0`/unset = baked 224. **Live-tunable** |
+| `bot_leap_run` | float | min horizontal speed to commit a gap jump; `0`/unset = baked 80. **Live-tunable** |
 
 ## Implementation status (feature 001)
 

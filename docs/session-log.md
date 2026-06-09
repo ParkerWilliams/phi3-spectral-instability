@@ -3,6 +3,36 @@
 Rolling state summary so work survives session/crash loss (CLAUDE.md convention).
 Newest entry on top. Keep entries short: what's true now, what's next, gotchas.
 
+## 2026-06-09 — Real-time leap sensor (purposeful jumping) — on feat/leap-sensor
+
+**Why (Parker, watching):** the bot's jumping read wrong — won't jump when it should (grinds
+ledges), jumps with no purpose, and spasms in place. Root cause: zero perception of leapable
+geometry; every jump was *reactive* (`bot_stall_jump` 0.4s hop, `bot_stuck_check` turn+jump).
+Brainstormed → Approach A (real-time sensor). Spec
+`docs/superpowers/specs/2026-06-09-leap-sensor-design.md`; plan
+`docs/superpowers/plans/2026-06-09-leap-sensor.md`. Branch off `fix/wall-scrape-analog` (needs
+competence + whiskers + analog), isolated from the mapgen substrate.
+
+**Shipped (6 tasks, each compile-clean — 27 warnings, no new; engine UNRUN, droplet can't):**
+`frik_leap_sense(movedir)` in `bot_move.qc` — vertical sibling of `frik_whiskers`. Traces
+classify the geometry ahead vs the bot's real jump arc into **LEDGE_UP** (landable top in
+18–44u), **GAP_CROSS** (landable far side within a running jump), **PIT** (no landing → don't
+jump). Jumps only in the launch window. Competence-scales the look-ahead (`comp_lerp`). Now the
+**sole** traversal jump authority: `bot_stall_jump` deleted (the cosmetic spasm), `bot_stuck_check`
+keeps turn/re-route but lost its jump. Whisker precedence: a reachable ledge suppresses the
+whisker veer (go straight + jump); a pit calls `frik_leap_avoid` to steer away. Live cvars
+`bot_leap_off/up/gap/run` (bot-stats.md). Commits `e65f656`..(this) on `feat/leap-sensor`.
+
+**EVAL = by eye (Parker's call; not metrics):** `just watch lq_e1m1` and `lq_e1m2` (verticality).
+Look for: hops purposefully onto ledges, clears gaps, avoids pits, **no more spasming**. Sweep
+`bot_competence 0→1`; tune `bot_leap_up/gap/run` live in `~`. **The thresholds WILL need
+eyeball-tuning — that iteration is the work.** If a leap never fires, the risk is trace geometry,
+not thresholds: temporarily `bprint` `self.leap_class` per think to confirm classification.
+
+**Deferred (in plan):** competence height-cap + pre-jump hesitation (add at tuning if the low end
+doesn't read as "learning"); combat dodge-jumps, item/secret reach-jumps, rocket-jump/bunny-hop,
+nav-graph jump-links.
+
 ## 2026-06-08 — Watchability metrics (boring_view/pacing) + the sim is too noisy to judge motion feel — on fix/wall-scrape-analog
 
 **Replaced the wall_contact metric** (from the 06-06 entry below). It was the wrong proxy:

@@ -424,7 +424,7 @@ blah
 void(vector movedir) frik_leap_sense =
 {
 	local vector flat, ahead, top, landing;
-	local float sp, t, reach, h, fwd_frac, far;
+	local float sp, t, reach, h, fwd_frac, far, up_max, gap_max, run_min;
 
 	self.leap_class = LEAP_NONE;
 	self.leap_edge = FALSE;
@@ -440,6 +440,11 @@ void(vector movedir) frik_leap_sense =
 		return;
 	flat = normalize(flat);
 
+	// live overrides (0/unset => baked default), so they can be tuned in ~ during watch
+	up_max = cvar("bot_leap_up");   if (up_max <= 0) up_max = LEAP_UP_MAX;
+	gap_max = cvar("bot_leap_gap"); if (gap_max <= 0) gap_max = LEAP_GAP_MAX;
+	run_min = cvar("bot_leap_run"); if (run_min <= 0) run_min = LEAP_RUN_MIN;
+
 	// Competence-scaled look-ahead: veteran perceives earlier/farther (mirrors whiskers).
 	sp = vlen(self.velocity);
 	t = comp_lerp(LEAP_T_NOVICE, LEAP_T_VET);
@@ -452,12 +457,12 @@ void(vector movedir) frik_leap_sense =
 	{
 		// drop a probe from above-and-just-past the lip to find the top surface
 		ahead = self.origin + flat * (reach * fwd_frac + 8);
-		top = ahead; top_z = self.origin_z + LEAP_UP_MAX;
-		traceline(top, top - '0 0 1' * (LEAP_UP_MAX + 40), TRUE, self);
+		top = ahead; top_z = self.origin_z + up_max;
+		traceline(top, top - '0 0 1' * (up_max + 40), TRUE, self);
 		if (trace_fraction < 1 && trace_fraction > 0)
 		{
 			h = trace_endpos_z - (self.origin_z + VEC_HULL_MIN_z);  // ledge height above feet
-			if (h > LEAP_STEP_MAX && h <= LEAP_UP_MAX)
+			if (h > LEAP_STEP_MAX && h <= up_max)
 			{
 				// standing clearance above the candidate landing?
 				landing = trace_endpos; landing_z = landing_z + 1;
@@ -480,17 +485,17 @@ void(vector movedir) frik_leap_sense =
 	if (trace_fraction >= 1)             // no floor within fall-probe => a drop ahead
 	{
 		far = LEAP_GAP_MIN;
-		while (far <= LEAP_GAP_MAX)
+		while (far <= gap_max)
 		{
 			landing = self.origin + flat * far;
 			traceline(landing + '0 0 16', landing - '0 0 1' * LEAP_FALL_PROBE, TRUE, self);
 			if (trace_fraction < 1)
 			{
 				// landable far side at a height the jump can still reach?
-				if (trace_endpos_z <= self.origin_z + LEAP_UP_MAX)
+				if (trace_endpos_z <= self.origin_z + up_max)
 				{
 					self.leap_class = LEAP_GAP;
-					if (sp >= LEAP_RUN_MIN)     // need run speed; commit at the edge
+					if (sp >= run_min)     // need run speed; commit at the edge
 						bot_jump();
 					return;
 				}
