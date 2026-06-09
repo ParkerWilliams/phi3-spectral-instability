@@ -421,11 +421,58 @@ blah
 // 004 leap sensor: vertical sibling of frik_whiskers. Classifies the geometry ahead in
 // `movedir` (LEDGE_UP / GAP_CROSS / PIT) against the bot's real jump arc and presses jump
 // in the launch window. Pure perception + actuation (whiskers own horizontal steering).
-// Stub for Task 1 -- wired in but inert; logic lands in Tasks 2-3.
 void(vector movedir) frik_leap_sense =
 {
+	local vector flat, ahead, top, landing;
+	local float sp, t, reach, h, fwd_frac;
+
 	self.leap_class = LEAP_NONE;
 	self.leap_edge = FALSE;
+
+	if (cvar("bot_leap_off"))            // debug kill-switch (default off => sensor on)
+		return;
+	if (!(self.flags & FL_ONGROUND))     // decide leaps from the ground only
+		return;
+	if (self.enemy != world)             // combat owns movement this pass (deferred)
+		return;
+	flat = movedir; flat_z = 0;
+	if (flat == '0 0 0')
+		return;
+	flat = normalize(flat);
+
+	// Competence-scaled look-ahead: veteran perceives earlier/farther (mirrors whiskers).
+	sp = vlen(self.velocity);
+	t = comp_lerp(LEAP_T_NOVICE, LEAP_T_VET);
+	reach = LEAP_AHEAD + sp * t;
+
+	// ---- LEDGE_UP: an obstacle ahead with a landable top in (STEP_MAX, UP_MAX] ----
+	traceline(self.origin, self.origin + flat * reach, TRUE, self);
+	fwd_frac = trace_fraction;
+	if (fwd_frac < 1)
+	{
+		// drop a probe from above-and-just-past the lip to find the top surface
+		ahead = self.origin + flat * (reach * fwd_frac + 8);
+		top = ahead; top_z = self.origin_z + LEAP_UP_MAX;
+		traceline(top, top - '0 0 1' * (LEAP_UP_MAX + 40), TRUE, self);
+		if (trace_fraction < 1 && trace_fraction > 0)
+		{
+			h = trace_endpos_z - (self.origin_z + VEC_HULL_MIN_z);  // ledge height above feet
+			if (h > LEAP_STEP_MAX && h <= LEAP_UP_MAX)
+			{
+				// standing clearance above the candidate landing?
+				landing = trace_endpos; landing_z = landing_z + 1;
+				traceline(landing, landing + '0 0 1' * LEAP_CLEAR_H, TRUE, self);
+				if (trace_fraction > 0.9)
+				{
+					self.leap_class = LEAP_LEDGE;
+					// launch window: only commit once close to the lip
+					if (fwd_frac * reach < LEAP_AHEAD)
+						bot_jump();
+					return;
+				}
+			}
+		}
+	}
 };
 
 vector(vector wishdir) frik_whiskers =
