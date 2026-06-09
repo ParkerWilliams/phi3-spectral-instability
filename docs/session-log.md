@@ -3,6 +3,50 @@
 Rolling state summary so work survives session/crash loss (CLAUDE.md convention).
 Newest entry on top. Keep entries short: what's true now, what's next, gotchas.
 
+## 2026-06-08 — Watchability metrics (boring_view/pacing) + the sim is too noisy to judge motion feel — on fix/wall-scrape-analog
+
+**Replaced the wall_contact metric** (from the 06-06 entry below). It was the wrong proxy:
+body-proximity counted GOOD contact (box-jumps, corner-cuts) and *penalised* the more-direct
+analog bot (first A/B showed analog 2× "worse" — a metric artifact). Reframed around the real
+goal (Parker; memory `fun-to-watch-north-star`): the bot must be **fun to WATCH** — face-scraping
+is bad because it's BORING (a zoomed-in wall texture sliding across the screen). New metrics score
+the CAMERA + behaviour, not body position:
+- **boring_view**: fraction of watched time the view-ray (`v_angle`) is buried in a near surface
+  (<128u), sustained ≥0.7s, while moving + on-ground + not in combat. The sliding-texture stare.
+- **pacing**: fraction with lots of path but little net progress over 4s windows — back-and-forth /
+  re-treading.
+Both QC-accumulated in `bot_nav_track` over `watch_time`, emitted on nav+level_end, computed as
+`stats.traversal.{boring_view,pacing}` (lower=better). Python built test-first (73 pass, ruff+mypy
+clean); progs compiles clean. Committed `d4b227e` on **fix/wall-scrape-analog** (after the analog
+fix `705ed81`), pushed. `wall_contact` removed; `configs/motion.toml` added.
+
+**Two findings while measuring:**
+1. **Stationary-bot bug = stale `.way`.** `just sim`/current.toml don't force regen, so an existing
+   `data/maps/<map>.way` loads as WM_LOADED and the roam/motion behaviours DON'T fire → bot sits at
+   spawn (distance 0), metrics trivially 0/null. Fix: `configs/motion.toml` sets `sim_nav_regen=true`.
+   **Beware: this silently affects ANY sim motion measurement.**
+2. **The sim is RNG-noise-dominated → motion-feel A/B is inconclusive.** `boring_view`, 5 runs each
+   (lq_e1m1, motion.toml): legacy (`bot_analog_off=1`) mean ~0.036, analog (`=0`) mean ~0.039, but
+   within-mode spread 0.0–0.10 (SD ~0.034) swamps the gap; same config swings run to run. The analog
+   fix tests **NEUTRAL**. Root cause: `sim_seed` not wired to the engine RNG (feature-001 R6).
+   **Single-run sim A/Bs are meaningless for motion feel until there's determinism; `just watch` is
+   the arbiter.** Memory `sim-motion-ab-needs-determinism`.
+
+**Analog wall-scrape fix status:** sound but unproven — sim can't convict or acquit; watch eyeball
+NOT yet run. Justified as a more-correct actuation (continuous steering reaching the wheels vs being
+rounded away by the 8-way keys). **Decision deferred:** keep + open PR (on those grounds + a watch
+check) or hold.
+
+**Next / deferred:**
+- **WATCH test**: `just watch lq_e1m1`, toggle `bot_analog_off` — the honest arbiter of the face-grind.
+- **Repeatability unlock (Parker's idea, deferred "catch up on pathfinding later"):** auto-generate
+  the nav `.way` from mapgen — cheap, `MapModel` already holds rooms + edges (MST+loops) + corridors;
+  it's ~a serializer + node placement. Role fork OPEN (memory `sim-motion-ab-needs-determinism`):
+  (A) repeatable sim substrate [recommended], (B) replace runtime discovery + reframe competence as
+  traversal *quality* [needs ADR vs 0003], (C) answer-key to score discovered nav. Tension: nav is a
+  progression axis.
+- Human-telemetry-for-natural-movement idea: researched + **SHELVED** (memory `telemetry-dataset-feel-shelved`).
+
 ## 2026-06-06 — Analog-steering wall-scrape fix + wall_contact scrape metric on feat/procedural-maps
 
 Parker: bot STILL scrapes its face along walls despite the frontier-ray bump (that bump —
