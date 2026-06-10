@@ -1,0 +1,21 @@
+{
+  "adversariality_policy": "none",
+  "bin_id": "B1",
+  "cem_stratum_id": "bridge|high|4+",
+  "distractor_density": 0.8,
+  "distractor_density_coarsening": "high",
+  "document": "Jack O'Diamonds is a musical play with music by Noel Gay and book and lyrics by Clifford Grey and H.F. Maltby. It opened at London's Gaiety Theatre on 25 February 1935. Noel Gay (15 July 1898 \u2013 4 March 1954) was born Reginald Moxon Armitage. He also used the name Stanley Hill professionally. He was a successful British composer of popular music of the 1930s and 1940s whose output comprised 45 songs as well as the music for 28 films and 26 London shows. Sheridan Morley has commented that he was \"the closest Britain ever came to a local Irving Berlin\". The Sun Has Got His Hat On is a song by Noel Gay and Ralph Butler. It is known for its appearance in the 1985 version of the musical \"Me and My Girl\", and was originally recorded in 1932 by two popular UK dance bands \u2013 Ambrose and his Orchestra, with vocals by Sam Browne, and by the Henry Hall BBC Dance Orchestra with vocals by Val Rosing. Me and My Girl is a musical with music by Noel Gay and its original book and lyrics by Douglas Furber and L. Arthur Rose. The musical is set in the late 1930s and tells the story of an unapologetically unrefined cockney gentleman named Bill Snibson, who learns that he is the 14th heir to the Earl of Hareford. The action is set in Hampshire, Mayfair and Lambeth. Timothy Hines is an American film director, writer and producer. Best known for his adaptation of the H. G. Wells novel \"The War of the Worlds\", he has a background in directing television commercials and short films. In 1999, he founded the independent film production company Pendragon Pictures with his colleague Susan Goforth. To date, they have produced three films together H.G. Wells' The War of the Worlds (2005), War of the Worlds \u2013 The True Story (2011) and 10 Days in a Madhouse (2015) \"We Don't Know Where We're Going (Until We're There!)\" is a popular song written by British composer Noel Gay and lyricist Ralph Butler, and published in 1944. \"Run Rabbit Run\" is a song written by Noel Gay and Ralph Butler. The music was by Noel Gay and the song was originally sung by Flanagan and Allen. Susan Goforth is an American actress and producer. Her work includes stage roles in \"Guys and Dolls\", \"Me and My Girl\", \"Singin' in the Rain\", \"A Chorus Line\" and \"Follies\". In 1999, she and her colleague Timothy Hines formed Pendragon Pictures, based in Seattle, Washington. \"The Lambeth Walk\" is a song from the 1937 musical \"Me and My Girl\" (with book and lyrics by Douglas Furber and L. Arthur Rose and music by Noel Gay). The song takes its name from a local street Lambeth Walk once notable for its street market and working class culture in Lambeth, an area of London. Letting in the Sunshine is a 1933 British comedy crime film directed by Lupino Lane and starring Albert Burdon, Renee Gadd and Molly Lamont. It was based on a story by Anthony Asquith. The film was made by British International Pictures at Elstree Studios. The sets were designed by the art director David Rawnsley. The theme song \"Letting in the Sunshine\" was written by the composer Noel Gay.",
+  "event_id": "60c4828e05486758cfccb4284393de6a127973547fe8a6cd75d65ccb2e8e0d1a",
+  "evidence_distance_tokens": 233,
+  "evidence_position_token_idx": 408,
+  "gold_answer": "Me and My Girl",
+  "gold_answer_length_coarsening": "4+",
+  "gold_answer_length_tokens": 4,
+  "gold_answer_normalized": "me and my girl",
+  "is_fail": false,
+  "model_generation": "Me and My Girl",
+  "model_generation_normalized": "me and my girl",
+  "per_event_seed": 72157,
+  "question": "What musical with music by Noel Gay did Susan Goforth perform in?",
+  "question_template_id": "bridge"
+}

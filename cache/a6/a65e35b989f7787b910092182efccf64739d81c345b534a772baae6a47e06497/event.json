@@ -1,0 +1,21 @@
+{
+  "adversariality_policy": "none",
+  "bin_id": "B1",
+  "cem_stratum_id": "bridge|high|2-3",
+  "distractor_density": 0.8,
+  "distractor_density_coarsening": "high",
+  "document": "Sailors Three (released in the US as Three Cockeyed Sailors) is a 1940 British war comedy film directed by Walter Forde and starring Tommy Trinder, Claude Hulbert and Carla Lehmann. This was cockney music hall comedian Trinder's debut for Ealing, the studio with which he was to become most closely associated. It concerns three British sailors who accidentally find themselves aboard a German ship during the Second World War. Hotel Sahara is a 1951 British war comedy film directed by Ken Annakin and starring Yvonne De Carlo, Peter Ustinov and David Tomlinson. It was produced and co-written by George Hambley Brown. Dad's Army is a 1971 British war comedy film and the first film adaptation of the BBC television sitcom \"Dad's Army\". Directed by Norman Cohen, it was filmed between series three and four and was based upon material from the early episodes of the television series. The film tells the story of the Home Guard platoon's formation and their subsequent endeavours at a training exercise. Hannibal Brooks is a 1969 British war comedy film directed by Michael Winner and written by Ian La Frenais and Dick Clement based on a story by Winner and Tom Wright. The film follows a prisoner of war attempt's to escape from Nazi Germany to Switzerland during World War II, accompanied by an Asian elephant. It stars Oliver Reed, Michael J. Pollard and Wolfgang Preiss. The beginning is based on the experiences of the writer Tom Wright who, while a prisoner of war, worked at Munich Zoo to care for their elephant \"Lucy\". It has also been attributed to the true story of Olga the elephant rescued from Vienna Zoo in 1944. The title is a reference to the Carthaginian military commander Hannibal who led an army of war elephants over the Alps. Walmington-on-Sea is a fictional seaside resort that is the setting of \"Dad's Army\", including the BBC Television sitcom, the BBC Radio 4 series and two feature films (1971 and 2016). The Square Peg is a 1959 British war comedy film starring Norman Wisdom and directed by John Paddy Carstairs. Norman Wisdom plays two different characters: a man who digs and repairs roads, and a Nazi general. Dad's Army is a 2016 British war comedy film, based on the BBC television sitcom \"Dad's Army\". Directed by Oliver Parker, set in 1944, after the events depicted in the television series. The story sees Catherine Zeta-Jones play an elegant journalist, reporting on the Walmington-on-Sea Home Guard platoon. MI5 then detects a German spy hiding in the fictional British town. Johnny English Reborn is a 2011 British action comedy film parodying the James Bond secret agent genre. The film is the sequel to \"Johnny English\" (2003), and stars Rowan Atkinson reprising his role as the title character and directed by Oliver Parker. The film is the second installment of the \"Johnny English film series\". St Trinian's 2: The Legend of Fritton's Gold is a 2009 British adventure comedy film directed by Oliver Parker and Barnaby Thompson, both of who directed the previous film in the series. It is the seventh in a long running series of films based on the works of cartoonist Ronald Searle, and the second film produced since the franchise was rebooted in 2007. Josser in the Army is a 1932 British war comedy film directed by Norman Lee and starring Ernie Lotinga, Betty Norton, Jack Hobbs. It was part of the Josser series of films featuring Lotinga. It was made at Elstree Studios by British International Pictures.",
+  "event_id": "a65e35b989f7787b910092182efccf64739d81c345b534a772baae6a47e06497",
+  "evidence_distance_tokens": 335,
+  "evidence_position_token_idx": 397,
+  "gold_answer": "Dad's Army",
+  "gold_answer_length_coarsening": "2-3",
+  "gold_answer_length_tokens": 2,
+  "gold_answer_normalized": "dad's army",
+  "is_fail": false,
+  "model_generation": "Dad's Army",
+  "model_generation_normalized": "dad's army",
+  "per_event_seed": 48186,
+  "question": "What is the name of this 2016 British war comedy film, directed by Oliver Parker, the setting of which is Walmington-on-Sea?",
+  "question_template_id": "bridge"
+}

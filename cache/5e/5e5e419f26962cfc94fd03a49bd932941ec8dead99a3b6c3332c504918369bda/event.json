@@ -1,0 +1,21 @@
+{
+  "adversariality_policy": "none",
+  "bin_id": "B2",
+  "cem_stratum_id": "bridge|high|1",
+  "distractor_density": 0.8,
+  "distractor_density_coarsening": "high",
+  "document": "The BMW F30/F31/F34/F35 series is the sixth generation of the BMW 3 Series range of entry-level luxury cars. It was launched in late 2011 as the successor to the E90 3 Series. The body styles of the sixth generation 3 Series range are: The BMW 3 Series Gran Turismo (also referred to as \"3 Series GT\") is the 5-door fastback body style of the 3 Series model range. Although it features a rear hatchback, the 3 Series GT is not considered a successor to the 1993-2004 3 Series Compact 3-door hatchbacks. The BMW 4 Series is a range of coup\u00e9, convertible and fastback models manufactured by the German automaker BMW since 2013. It was unveiled at the North American International Auto Show in January 2013 in Detroit. The BMW M3 is a high-performance version of the BMW 3 Series, developed by BMW in-house motorsport division, BMW M GmbH. M3 models have been derived from the E30, E36, E46, E90/E92/E93 and F80. The BMW X3 is a compact luxury crossover SUV manufactured by German automaker BMW since 2003. Based on the BMW 3 Series platform, and now in its third generation, BMW markets the crossover as a \"Sports Activity Vehicle\", the company's proprietary descriptor for its X-line of vehicles. The first generation X3 was designed by BMW in conjunction with Magna Steyr of Graz, Austria\u2014who also manufactured all X3s under contract to BMW. BMW manufactures the second generation X3 at their Spartanburg plant in South Carolina, United States. The BMW F32/F33/F36 series is the first generation of the BMW 4 Series range of entry-level luxury cars. It was launched in 2014 as the successor to the E92/E93 coupe/convertible models of the fifth-generation 3 Series range. The F32/F33/F36 is produced alongside - and shares many features with - the F30 3 Series. The body styles of the first generation 4 Series range are: The BMW M4 is a high-performance version of the BMW 4 Series automobile developed by BMW's motorsport division, the BMW M GmbH. Part of the renumbering that splits the 3 Series coupe and convertible models to the 4 Series (to further differentiate it from the 3 Series), the M4 replaced the M3 Coupe and Convertible models. Upgrades over the standard BMW 4-Series include: a very powerful and responsive, twin turbocharged engine; improved handling, suspension, and braking systems; aerodynamic body enhancements; interior/exterior accents with the tri-colour \"M\" (Motorsport) badging; the significantly reduced weight compared to the standard 4 series and its predecessor with an all-new stiffer chassis and extensive use of carbon fiber, especially the roof of the car. The BMW X1 is a compact luxury crossover SUV manufactured and marketed worldwide by BMW since 2009. The first generation model, based on the BMW 3 Series, was available with rear-wheel-drive (\"sDrive\") and all-wheel-drive (\"xDrive\") configurations. The second generation, based on BMW's compact UKL platform, is available with front-wheel-drive (\"sDrive\") and all-wheel-drive (\"xDrive\"). Joji Nagashima (born 1955; \u6c38\u5cf6\u8b72\u4e8c) of Munich, Germany is an automobile designer for BMW. Nagashima was born in Tokyo and educated in Japan. He is best known for the exterior designs of the E36 and E90 versions of the BMW 3 Series, the E39 version of the BMW 5 Series, and the Z3 Roadster. He has been granted 22 patents in car design (as of Nov. 2007). The BMW 3 Series Compact is a 3-door hatchback version of the BMW 3 Series, which was produced from 1993 and 2004. Initially based on the E36 platform, it switched to the E46 platform in 2001.",
+  "event_id": "5e5e419f26962cfc94fd03a49bd932941ec8dead99a3b6c3332c504918369bda",
+  "evidence_distance_tokens": 573,
+  "evidence_position_token_idx": 284,
+  "gold_answer": "2011",
+  "gold_answer_length_coarsening": "1",
+  "gold_answer_length_tokens": 1,
+  "gold_answer_normalized": "2011",
+  "is_fail": true,
+  "model_generation": "1993",
+  "model_generation_normalized": "1993",
+  "per_event_seed": 23774,
+  "question": "Between the BMW 3 series and BMW 4 series, which year was the earlier one released?",
+  "question_template_id": "bridge"
+}

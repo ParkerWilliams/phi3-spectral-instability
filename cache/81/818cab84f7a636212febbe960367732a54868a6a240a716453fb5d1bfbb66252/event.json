@@ -1,0 +1,21 @@
+{
+  "adversariality_policy": "none",
+  "bin_id": "B1",
+  "cem_stratum_id": "bridge|high|2-3",
+  "distractor_density": 0.8,
+  "distractor_density_coarsening": "high",
+  "document": "Michael Higgs (born 14 February 1962) is a British actor best known for prominent roles in two long-running television series: Eddie Santini in ITV1's \"The Bill\", and Andy Hunter in \"EastEnders\" and his 8 episode stretch as Dr Thomas Waugh in \"Bad Girls\". Dr Thomas Rowley (24 Aug 1796 \u2013 11 November 1877) was a successful headmaster of Bridgnorth Grammar School between 1821 and 1850. He was a member of the Canterbury Association, was Dean-designate for the yet to be built ChristChurch Cathedral in Christchurch, New Zealand, but he never emigrated. Reverend Dr Thomas Meredith D.D, F.T.C.D. (1777\u20131819) was an Anglo-Irish clergyman, Doctor of Divinity, Fellow of Trinity College, Dublin, and a distinguished mathematician who gave his findings before the Royal Irish Academy in Dublin. He is best remembered for his association with the poet Charles Wolfe and as the subject of a ghost story related in \"True Irish Ghost Stories\" and \"Memorials to the Dead\". He was succeeded at Ardtrea by the orientalist, Edward Hincks. Bond sheep are an Australian sheep breed that was developed around 1909 near Lockhart, New South Wales by Thomas Bond when he mated Saxon-Peppin Merino ewes to stud Lincoln rams for primarily wool production. The resulting progeny was selected on the basis that they would be more suited to the Riverina environment. Initially these sheep were known as \u2018the Commercial Corriedale\u2019. Dr Thomas Bond FRCS, MB BS (London), (1841\u20131901) was a British surgeon considered by some to be the first offender profiler, and best known for his association with the notorious Jack the Ripper murders of 1888. Dr Thomas Duncan Greenlees FRSE (1859\u20131929) was a British physician strongly linked to South Africa. He headed the Medical Association of South Africa for many years and was Inspector of Asylums for the Cape of Good Hope. He did much to promote the de-stigmatisation of insanity. The Very Reverend Dr Thomas Boleyn, also known for ease as Thomas Boleyn II, was the Master of Gonville Hall, Cambridge from 1454 to 1472. He was the eldest surviving son of Geoffrey Boleyn (d. 1440) yeoman of Salle, Norfolk and brother of Sir Jeffery Boleyn, Lord Mayor of London. He was also the great grand uncle of Anne Boleyn, Queen consort of England. The Rev. Dr Thomas Henry Stokoe DD (18338December 1903), known as T. H. Stokoe and as Dr Stokoe, was an English clergyman, schoolmaster, author and headmaster. Jack the Ripper is the best-known name for an unidentified serial killer generally believed to have been active in the largely impoverished areas in and around the Whitechapel district of London in 1888. The name \"Jack the Ripper\" originated in a letter written by someone claiming to be the murderer that was disseminated in the media. The letter is widely believed to have been a hoax and may have been written by journalists in an attempt to heighten interest in the story and increase their newspapers' circulation. In both the criminal case files and contemporary journalistic accounts, the killer was called \"the Whitechapel Murderer\" and \"Leather Apron\". Love in the Ruins (subtitle:The Adventures of a Bad Catholic at a Time Near the End of the World) is a novel of speculative or science fiction by author Walker Percy from 1971. It follows its main character, Dr Thomas More, namesake and descendant of Sir Thomas More (author of \"Utopia\"), a psychiatrist in a small town in Louisiana called Paradise.",
+  "event_id": "818cab84f7a636212febbe960367732a54868a6a240a716453fb5d1bfbb66252",
+  "evidence_distance_tokens": 114,
+  "evidence_position_token_idx": 506,
+  "gold_answer": "Whitechapel Murderer",
+  "gold_answer_length_coarsening": "2-3",
+  "gold_answer_length_tokens": 2,
+  "gold_answer_normalized": "whitechapel murderer",
+  "is_fail": true,
+  "model_generation": "Jack the Ripper",
+  "model_generation_normalized": "jack the ripper",
+  "per_event_seed": 81984,
+  "question": "Dr Thomas Bond is best known for his association with a killer called the what?",
+  "question_template_id": "bridge"
+}

@@ -1,0 +1,21 @@
+{
+  "adversariality_policy": "none",
+  "bin_id": "B1",
+  "cem_stratum_id": "bridge|high|1",
+  "distractor_density": 0.8,
+  "distractor_density_coarsening": "high",
+  "document": "Bellissima (1951) is an Italian neorealism film by Italian director Luchino Visconti. The film, which is a satire of the film industry, was shot at the Cinecitt\u00e0 studios. Alessandro Blasetti, a contemporary film director, appears as himself. Bellissima is the only feature film in Visconti's oeuvre with a predominantly comic tone. Luchino Visconti is a 1999 Italian documentary film about the filmmaker Luchino Visconti and directed by Carlo Lizzani. It stars Claudia Cardinale. Senso is a 1954 Italian historical melodrama film, an adaptation of Camillo Boito's Italian novella \"Senso\" by the Italian director Luchino Visconti, with Alida Valli as Livia Serpieri and Farley Granger as Lieutenant Franz Mahler. The Leopard (Italian: \"Il Gattopardo\" ] ) is a novel by Giuseppe Tomasi di Lampedusa that chronicles the changes in Sicilian life and society during the \"Risorgimento\". Published posthumously in 1958 by Feltrinelli, after two rejections by the leading Italian publishing houses Mondadori and Einaudi, it became the top-selling novel in Italian history and is considered one of the most important novels in modern Italian literature. In 1959, it won Italy's highest award for fiction, the Strega Prize. In 2012, \"The Observer\" named it as one of \"the 10 best historical novels\". The novel was also made into an award-winning 1963 film of the same name, directed by Luchino Visconti and starring Burt Lancaster, Claudia Cardinale and Alain Delon. Conversation Piece (Italian: Gruppo di famiglia in un interno ) is a 1974 film by Italian director Luchino Visconti. The Innocent (Italian: L'innocente ) was the last film made by Italian director Luchino Visconti. Released in 1976, the film is based on the novel \"The Intruder\" by Gabriele d'Annunzio. It was distributed in the U.S. by Analysis Film Releasing Corp. The Leopard (Italian: \"Il Gattopardo\" , \"The Serval\"; alternative title: \"Le Gu\u00e9pard\") is a 1963 Italian epic period drama film by director Luchino Visconti, based on Giuseppe Tomasi di Lampedusa's novel of the same name. Visconti is the family name of two important Italian noble dynasties of the Middle Ages. There are two distinct Visconti families: the first one (chronologically) in the Republic of Pisa in the mid twelfth century who achieved prominence first in Pisa, then in Sardinia, where they became rulers of Gallura. The second family rose to power in Milan, where they ruled from 1277 to 1447, and where several collateral branches still exist. Pope Gregory X, who reigned from 1271 to 1276, was a member of the Visconti family of Milan. The renowned film director Luchino Visconti was a scion of this latter family's Visconti of Modrone branch. The Stranger (Italian: \"Lo straniero\" ) is a 1967 film by Italian film director Luchino Visconti, based on Albert Camus' novel \"L'\u00c9tranger\", with Marcello Mastroianni. The serval (\"Leptailurus serval\"), also known as the tierboskat, is a wild cat found in Africa. It is the sole member of the genus \"Leptailurus\" and was first described by German naturalist Johann Christian Daniel von Schreber in 1776. Eighteen subspecies are recognised. The serval is a slender, medium-sized cat that stands at the shoulder and weighs . It is characterised by a small head, large ears, a golden-yellow to buff coat spotted and striped with black, and a short, black-tipped tail. The serval has the longest legs of any cat relative to its body size.",
+  "event_id": "91c1b68a4ea48f88f5c98b27dfdc2b75b457e8ec17d93385c812feeac3135f9d",
+  "evidence_distance_tokens": 191,
+  "evidence_position_token_idx": 470,
+  "gold_answer": "Africa",
+  "gold_answer_length_coarsening": "1",
+  "gold_answer_length_tokens": 1,
+  "gold_answer_normalized": "africa",
+  "is_fail": false,
+  "model_generation": "Africa",
+  "model_generation_normalized": "africa",
+  "per_event_seed": 15355,
+  "question": "The Leopard, in Italian, The Serval, a 1963 Italian epic period drama film by director Luchino Visconti, the serval (\"Leptailurus serval\"), also known as the tierboskat, is a wild cat found in which continent?",
+  "question_template_id": "bridge"
+}

@@ -1,0 +1,8 @@
+{
+  "auroc": 0.31,
+  "auroc_ci_lower": 0.09890109890109892,
+  "auroc_ci_upper": 0.5714285714285714,
+  "beats_chance": false,
+  "n_events_held_out": 20,
+  "n_events_train": 80
+}

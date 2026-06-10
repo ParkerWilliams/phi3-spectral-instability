@@ -1,0 +1,21 @@
+{
+  "adversariality_policy": "none",
+  "bin_id": "B1",
+  "cem_stratum_id": "bridge|high|2-3",
+  "distractor_density": 0.8,
+  "distractor_density_coarsening": "high",
+  "document": "The men's changquan competition at the 2014 Asian Games in Incheon, South Korea was held on 20 September at the Ganghwa Dolmens Gymnasium. Taekwondo at the 2014 Asian Games was held in Incheon, South Korea from September 30 to 3 October 2014. Men's and women's competitions had eight weight categories for each gender. All competition took place at the Ganghwa Dolmens Gymnasium. Each country was limited to having 6 men and 6 women. Wushu was contested by both men and women at the 2014 Asian Games in Incheon, South Korea from September 20 to 24, 2014. All events were held at the Ganghwa Dolmens Gymnasium. The men's sanda 75 kilograms competition at the 2014 Asian Games in Incheon, South Korea was held from 21 September to 24 September at the Ganghwa Dolmens Gymnasium. The men's Taijiquan / Taijijian all-round competition at the 2014 Asian Games in Incheon, South Korea was held on 23 September at the Ganghwa Dolmens Gymnasium. The men's sanda 70 kilograms competition at the 2014 Asian Games in Incheon, South Korea was held from 21 September to 24 September at the Ganghwa Dolmens Gymnasium. The women's Nanquan / Nandao all-round competition at the 2014 Asian Games in Incheon, South Korea was held on 20 September at the Ganghwa Dolmens Gymnasium. The men's sanda 65 kilograms competition at the 2014 Asian Games in Incheon, South Korea will be held from 20 September to 24 September at the Ganghwa Dolmens Gymnasium. Ganghwa Dolmens Gymnasium is an indoor arena in Incheon, South Korea. It has hosted numerous international tournaments such as the taekwondo and wushu events of the 2014 Asian Games. The women's changquan competition at the 2014 Asian Games in Incheon, South Korea was held on 23 September at the Ganghwa Dolmens Gymnasium.",
+  "event_id": "5a5de2414f392161fe547059c55603ec52fe371db71ebb5e74b1c3bb49d215a3",
+  "evidence_distance_tokens": 73,
+  "evidence_position_token_idx": 271,
+  "gold_answer": "September 30",
+  "gold_answer_length_coarsening": "2-3",
+  "gold_answer_length_tokens": 2,
+  "gold_answer_normalized": "september 30",
+  "is_fail": true,
+  "model_generation": "September 20, 2014",
+  "model_generation_normalized": "september 20, 2014",
+  "per_event_seed": 69515,
+  "question": "Ganghwa Dolmens Gymnasium held the 2014 events that started on what date?",
+  "question_template_id": "bridge"
+}

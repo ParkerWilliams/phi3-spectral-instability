@@ -1,0 +1,56 @@
+{
+  "B1": {
+    "is_compromised": false,
+    "n_strata": 7,
+    "n_strata_with_matches": 5,
+    "total_ctrl_pool": 100,
+    "total_fail_pool": 96,
+    "total_matched_pairs": 72,
+    "yield_pct": 75.0
+  },
+  "B2": {
+    "is_compromised": true,
+    "n_strata": 0,
+    "n_strata_with_matches": 0,
+    "total_ctrl_pool": 0,
+    "total_fail_pool": 0,
+    "total_matched_pairs": 0,
+    "yield_pct": 0.0
+  },
+  "B3": {
+    "is_compromised": true,
+    "n_strata": 0,
+    "n_strata_with_matches": 0,
+    "total_ctrl_pool": 0,
+    "total_fail_pool": 0,
+    "total_matched_pairs": 0,
+    "yield_pct": 0.0
+  },
+  "B4": {
+    "is_compromised": true,
+    "n_strata": 0,
+    "n_strata_with_matches": 0,
+    "total_ctrl_pool": 0,
+    "total_fail_pool": 0,
+    "total_matched_pairs": 0,
+    "yield_pct": 0.0
+  },
+  "B5": {
+    "is_compromised": true,
+    "n_strata": 0,
+    "n_strata_with_matches": 0,
+    "total_ctrl_pool": 0,
+    "total_fail_pool": 0,
+    "total_matched_pairs": 0,
+    "yield_pct": 0.0
+  },
+  "B6": {
+    "is_compromised": true,
+    "n_strata": 0,
+    "n_strata_with_matches": 0,
+    "total_ctrl_pool": 0,
+    "total_fail_pool": 0,
+    "total_matched_pairs": 0,
+    "yield_pct": 0.0
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "adversariality_policy": "none",
+  "bin_id": "B1",
+  "cem_stratum_id": "comparison|high|4+",
+  "distractor_density": 0.8,
+  "distractor_density_coarsening": "high",
+  "document": "Dentist in the Chair is a 1960 British comedy film, directed by Don Chaffey and starring Bob Monkhouse, Ronnie Stevens, Eric Barker and Vincent Ball. The screenplay was written by Val Guest, and based on a novel by Matthew Finch. Additional scenes were written by Bob Monkhouse and George Wadmore. The Golden Shot was a British television game show produced by ATV for ITV between 1 July 1967 and 13 April 1975, based on the German TV show \"Der goldene Schu\u00df\". It is most commonly associated with host Bob Monkhouse, though, three other presenters also hosted the show during its lifetime. Hostess Anne Aston was on hand to read out the scores achieved by the contestants, and each month a \"Maid of the Month\", usually a glamour model of the era, would demonstrate the prizes and announce the contestants. When Bob Monkhouse returned to present the show in 1974, he was joined by co-hostess (to Anne Aston) Wei Wei Wong, recently seen in \"The Man with the Golden Gun\" and an ex-member of the \"Young Generation\" and \"Second Generation\" dance troupes. This was one of the earliest regular appearances by an East Asian woman on British TV. The Bob Monkhouse Show was an entertainment, variety and talk show presented by Bob Monkhouse. The Mysterious Mr. Wong is a tongue-in-cheek 1934 mystery film starring Bela Lugosi as a powerful Fu Manchu type criminal mastermind of the Chinatown underworld, and Wallace Ford as a wisecracking reporter. The film is based on Harry Stephen Keeler's 1928 short story \"The Strange Adventure of the Twelve Coins of Confucius\" one of three stories in Keeler's book \"Sing Sing Nights\". Despite the name of the title character and being directed by William Nigh, it has no relation to Monogram Pictures later Mr Wong film series. The character of Mr. Wong does not appear in the original story. The Bob Monkhouse Hour was a British televised variety show from 1958 which was fronted by the comedian Bob Monkhouse, and featured musical stars of the day, contemporary comedians, and various other variety acts. Celebrity Squares is a British comedy game show based on the American comedy game show \"Hollywood Squares\". It first ran from 20 July 1975 to 7 July 1979 and was hosted by Bob Monkhouse, then from 8 January 1993 to 3 January 1997 and was also hosted by Monkhouse. Harry Stephen Keeler (November 3, 1890 \u2013 January 22, 1967) was a prolific but little-known American author of mysteries and science fiction. Robert Alan \"Bob\" Monkhouse, OBE (1 June 1928 \u2013 29 December 2003) was an English entertainer and comedian. My Pal Bob was a United Kingdom television sitcom originally shown in ten episodes from 1957 to 1958. Written by Bob Monkhouse and Denis Goodwin, the show starred Bob Monkhouse and narrated by Denis Goodwin. All recording of the episodes was thought be destroyed until it was discovered that Monkhouse had kept a number episodes from shows including \"My Pal Bob\" in his own private archive. Sing Sing Nights is a 1934 American film directed by Lewis D. Collins, based on the 1927 novel by American Author Harry Stephen Keeler (Hutchinson 1927, Dutton 1928, Ward & Lock 1929).",
+  "event_id": "925e120c3636985b2351668d6f5df4fdfaed7fee8d5f2814268ce1f0793364c0",
+  "evidence_distance_tokens": 184,
+  "evidence_position_token_idx": 434,
+  "gold_answer": "Robert Alan \"Bob\" Monkhouse",
+  "gold_answer_length_coarsening": "4+",
+  "gold_answer_length_tokens": 4,
+  "gold_answer_normalized": "robert alan \"bob\" monkhouse",
+  "is_fail": true,
+  "model_generation": "Bob Monkhouse",
+  "model_generation_normalized": "bob monkhouse",
+  "per_event_seed": 9899,
+  "question": "Which man was a comedian, Harry Stephen Keeler or Bob Monkhouse?",
+  "question_template_id": "comparison"
+}

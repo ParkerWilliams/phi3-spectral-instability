@@ -1,0 +1,21 @@
+{
+  "adversariality_policy": "none",
+  "bin_id": "B1",
+  "cem_stratum_id": "bridge|high|1",
+  "distractor_density": 0.8,
+  "distractor_density_coarsening": "high",
+  "document": "The Last Laugh (German: \"Der letzte Mann (The Last Man)\" ) is a 1924 German silent film directed by German director F. W. Murnau from a screenplay written by Carl Mayer. The film stars Emil Jannings and Maly Delschaft. In German, the title means, \"The last man.\" Andrew David Keltie Arnott \u2013 the Reverend David Arnott MA BD \u2013 is a retired minister of the Church of Scotland who was the Moderator of the General Assembly of the Church of Scotland for 2011-2012. David Arnott is an American actor, screenwriter and musical composer living in Southern California. Among his credits, Arnott co-wrote \"The Last Action Hero\", and starred in \"The Last Man\" with Jeri Ryan. David is a member of the legendary \"Pad O' Guys\" screenwriting group, including Shane Black and Fred Dekker, and is the son of banjo player Peter R. Arnott. He also provided additional voices in \"Happy Feet Two\" and \"Finding Dory\". \"To the Last Man\" is the third episode of the second series of the British science fiction television series \"Torchwood\", which was first broadcast on BBC Two on 30 January 2008. The episode was written by returning series guest writer, Helen Raynor, directed by Andy Goddard and produced by Richard Stokes. As with all episodes of \"Torchwood\"' s first two series, \"To the Last Man\" featured series regulars John Barrowman, Eve Myles, Burn Gorman, Naoko Mori and Gareth David Lloyd, with Mori's character Toshiko Sato given the main focus. The Last Man is a 2000 film by Harry Ralston starring David Arnott, Jeri Ryan and Dan Montgomery. Jeri Lynn Ryan (born Jeri Lynn Zimmermann; February 22, 1968) is a German actress best known for her role as the Borg Seven of Nine on \"\", for which she was nominated four times for a Saturn Award and won in 2001. CrissCross is a 1992 American drama film directed by Chris Menges and written by Scott Sommer, based on his homonymous novel. It stars Goldie Hawn, Arliss Howard, Keith Carradine, Steve Buscemi, and David Arnott. David Arnott is an American actor, screenwriter and composer. Last Man Standing is the 39th studio album released by American recording artist, pianist, and rock and roll pioneer Jerry Lee Lewis in September 2006. The album consists of duets between Lewis and some of the biggest names in both rock and country music, past and present. The title derives from the generation of 1950s Sun Studios recording artists such as Johnny Cash, Roy Orbison, Charlie Rich, Carl Perkins, and Elvis Presley, all of whom have died, leaving Lewis the \"last man standing\". Following the success of the album, a DVD \"Last Man Standing Live\" was released featuring similar duets with famous artists. The Adventures of Ford Fairlane is a 1990 American action comedy film directed by Renny Harlin and written by David Arnott, James Cappe, and Daniel Waters based on a story by Arnott and Cappe. The film stars comedian Andrew Dice Clay as the title character, Ford Fairlane, a \"Rock n' Roll Detective\", whose beat is the music industry in Los Angeles. True to his name, Ford drives a 1957 Ford Fairlane 500 Skyliner in the film.",
+  "event_id": "b22d0069647b4a59e0c27b4bb947f85a324ee042afadc8e48e48955e74f7625c",
+  "evidence_distance_tokens": 369,
+  "evidence_position_token_idx": 304,
+  "gold_answer": "German",
+  "gold_answer_length_coarsening": "1",
+  "gold_answer_length_tokens": 1,
+  "gold_answer_normalized": "german",
+  "is_fail": false,
+  "model_generation": "German",
+  "model_generation_normalized": "german",
+  "per_event_seed": 39025,
+  "question": " What national;ity was the actress who worked with David Arnott in \"The Last Man\"?",
+  "question_template_id": "bridge"
+}

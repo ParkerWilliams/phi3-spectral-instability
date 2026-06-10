@@ -1,0 +1,21 @@
+{
+  "adversariality_policy": "none",
+  "bin_id": "B2",
+  "cem_stratum_id": "bridge|high|1",
+  "distractor_density": 0.8,
+  "distractor_density_coarsening": "high",
+  "document": "Maurizio D'Ancora, born Rodolfo Gucci (1912\u20131983) was an Italian actor and entrepreneur, who appeared in more than forty films. He was spotted by the director Alfred Lind who gave him his film debut in 1929. The same year he appeared in Mario Camerini's \"Rails\" which really launched his career. He was married to the actress Sandra Ravel. He was one of the fourth sons of Guccio Gucci, founder of The Fashion House of Gucci. Born in Galliate, Novara, after some experiences as a chorist in 1984 Biolcati won the Castrocaro Music Festival, which got her the chance to compete at the 35th edition of the Sanremo Music Festival, where she placed third in the \"Newcomers\" section with the song \"Innamoratevi come me\". The same year, she also competed at the World Popular Song Festival in Tokyo, with the song \"C\u2019\u00e8 ancora cielo\". Produced by Pooh, in 1986 she won the Newcomers section of the Sanremo Festival with the song \"Grande grande amore\", and she came back to the Festival two more times, competing in the \"Big Artists\" section in 1987 and 1990. Rails (Italian: Rotaie) is a 1929 Italian drama film directed by Mario Camerini and starring K\u00e4the von Nagy, Maurizio D'Ancora and Daniele Crespi. It was originally made as a silent film, but sound was later added. It was made at a time when the Italian film industry had dramatically declined in size, and was one of only a handful of films released that year. Guccio Gucci (26 March 1881 \u2013 2 January 1953) was an Italian businessman and fashion designer, the founder of The Fashion House of Gucci. Maurizio Vitali (born on March 17, 1957) was an Italian Grand Prix motorcycle road racer. His best year was in 1984 when he finished fourth in the 125cc world championship. Maurizio Massimiani (born September 22, 1953 in Scandriglia) is a former Italian Grand Prix motorcycle road racer. His best year was in 1979 when he finished second in the 125cc world championship. Born in Genoa, de Mari was an illegitimate child. According to some sources his paternity was attributed to Domenico de Mari, patrician of Genoa, brother of Teodorina and uncle of Maurizio Cybo. Now it looks likely that Maurizio (d. April 1491) was his father, his mother an unknown Spanish lady. Benedetto of Savoy (Benedetto Maria Maurizio; 21 June 1741 \u2013 4 January 1808) was an Italian nobleman and military leader, who was prince of Savoy and Duke of Chablais. He was born in the reign of his father Charles Emmanuel III, King of Sardinia. He married his niece and was the owner of the \"Palazzo Chiablese\" in Turin; the two did not have descendants. The International GTSprint Series was a grand tourer-style sports car racing founded in 2010 by FG Group, led by Maurizio Flammini, and afterwards by Superstars World of Racing SpA, a company managed by the same group. The series born under the name of Superstars GTSprint and took the current name the following year, and was canceled before the 2014 season due to lack of entries. Luca Vitali (born 30 March 1992) is an Italian motorcycle racer. His father, Maurizio Vitali, is a former motorcycle racer. He currently competes in the European Superstock 1000 Championship for aboard an Aprilia RSV4. He previously competed in the 125cc World Championship, the FIM CEV International Moto2 Championship, the CIV Stock 600 Championship, the CIV 125GP Championship and the European Superstock 600 Championship.",
+  "event_id": "a1277a48ed1091c31e15c9c2653c607f9d1cb17e01ca162086a99c613854e188",
+  "evidence_distance_tokens": 542,
+  "evidence_position_token_idx": 270,
+  "gold_answer": "1881",
+  "gold_answer_length_coarsening": "1",
+  "gold_answer_length_tokens": 1,
+  "gold_answer_normalized": "1881",
+  "is_fail": false,
+  "model_generation": "1881",
+  "model_generation_normalized": "1881",
+  "per_event_seed": 32800,
+  "question": "What year was the father of Maurizio D'Ancora born?",
+  "question_template_id": "bridge"
+}

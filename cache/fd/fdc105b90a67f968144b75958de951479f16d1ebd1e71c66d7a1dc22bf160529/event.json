@@ -1,0 +1,21 @@
+{
+  "adversariality_policy": "none",
+  "bin_id": "B1",
+  "cem_stratum_id": "bridge|high|2-3",
+  "distractor_density": 0.8,
+  "distractor_density_coarsening": "high",
+  "document": "Jake Spanner, Private Eye is a 1989 American television crime film written and directed by Lee H. Katzin and starring Robert Mitchum and Ernest Borgnine. Debbie Burton was an American singer. She is best known for dubbing the singing voice of the young Baby Jane Hudson (played by child actress Julie Allred) in the 1962 film \"What Ever Happened to Baby Jane? \", singing the song \"I've Written a Letter to Daddy\". Burton also sang a duet with Bette Davis, the rock and roll song \"What Ever Happened to Baby Jane?\" , written by Frank DeVol and Lukas Heller. It was released as a promotional single, with Burton's rendition of \"I've Written a Letter to Daddy\" on the flipside. An instrumental version of \"What Ever Happened to Baby Jane?\" can be heard in the movie. The Shopping Bag Lady is a 1975 American short film directed by Bert Salzman and starring Mildred Dunnock. Restraining Order is a 1999 crime thriller film directed by Lee H. Katzin and starring Eric Roberts and Hannes Jaenicke. What Ever Happened to Aunt Alice? is a 1969 American thriller film directed by Lee H. Katzin with Bernard Girard (uncredited), and starring Geraldine Page, Ruth Gordon, Rosemary Forsyth, Robert Fuller and Mildred Dunnock. The screenplay by Theodore Apstein, based on the novel \"The Forbidden Garden\" by Ursula Curtiss, focuses on an aging Arizona widow who hires elderly female housekeepers and cons them out of their money before murdering them. What Ever Happened to... is a 1991 American made-for-television thriller drama film directed by David Greene and adapted for the small screen by Brian Taggert, based on the novel \"What Ever Happened to Baby Jane? \" by Henry Farrell and the 1962 theatrical film of the same name. It stars real-life sisters Lynn Redgrave as Baby Jane Hudson and Vanessa Redgrave as Blanche Hudson, in the roles previously played by Bette Davis and Joan Crawford in the 1962 adaptation. Heaven with a Gun is a 1969 American western film starring Glenn Ford. directed by Lee H. Katzin. Mildred Dorothy Dunnock (January 25, 1901 \u2013 July 5, 1991) was an American theater, film and television actress. The Salzburg Connection is a 1972 American DeLuxe Color thriller film directed by Lee H. Katzin, starring Barry Newman and Anna Karina in Panavision. It is based on a novel by Helen MacInnes. The Party Crashers is a 1958 American drama film directed by Bernard Girard and written by Bernard Girard and Dan Lundberg. The film stars Mark Damon, Bobby Driscoll, Connie Stevens, Frances Farmer (in her last feature film role), Doris Dowling, and Gary Gray. The film was released in September 1958, by Paramount Pictures.",
+  "event_id": "fdc105b90a67f968144b75958de951479f16d1ebd1e71c66d7a1dc22bf160529",
+  "evidence_distance_tokens": 212,
+  "evidence_position_token_idx": 358,
+  "gold_answer": "July 5, 1991",
+  "gold_answer_length_coarsening": "2-3",
+  "gold_answer_length_tokens": 3,
+  "gold_answer_normalized": "july 5, 1991",
+  "is_fail": false,
+  "model_generation": "July 5, 1991",
+  "model_generation_normalized": "july 5, 1991",
+  "per_event_seed": 85282,
+  "question": "What Ever Happened to Aunt Alice?, is a 1969 American thriller film directed by Lee H. Katzin with Bernard Girard, and starring Mildred Dorothy Dunnock, was an American theater, film and television actress, and passed away on which date?",
+  "question_template_id": "bridge"
+}

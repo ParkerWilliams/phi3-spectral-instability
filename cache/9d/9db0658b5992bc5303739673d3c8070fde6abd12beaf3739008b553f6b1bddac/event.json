@@ -1,0 +1,21 @@
+{
+  "adversariality_policy": "none",
+  "bin_id": "B1",
+  "cem_stratum_id": "bridge|high|1",
+  "distractor_density": 0.8,
+  "distractor_density_coarsening": "high",
+  "document": "Ogre is a board wargame first released in 1977 as the first Metagaming Concepts Microgame, designed by Steve Jackson. Monsters! Monsters! is a role-playing game first published by Metagaming Concepts in 1976. Howard M. Thompson is an American wargame designer and founder of Metagaming Concepts. His first game was \"Stellar Conquest\", a popular and well-designed simulation of interstellar warfare. Melee is a simple man-to-man combat boardgame designed by Steve Jackson, and released in 1977 by Metagaming Concepts. WarpWar was the fourth microgame published by games company Metagaming Concepts in 1977. Lynn Willis (died January 18, 2013) was a wargame and role-playing game designer, best known for his work with Metagaming Concepts, Game Designers' Workshop (GDW), and Chaosium. G.E.V. is a board wargame first published by Metagaming Concepts in 1978. The Fantasy Trip (TFT) is a role-playing game that was designed by Steve Jackson and was published by Metagaming Concepts. Metagaming Concepts, later known simply as Metagaming, was a company that published board games from 1974 to 1983. It was founded and owned by Howard Thompson, who designed the company's first game, \"Stellar Conquest\". The company also invented Microgames and published Steve Jackson's first designs, including \"Ogre\", \"G.E.V.\" and \"The Fantasy Trip\". Annihilator & One World is a 1980 package of two board wargames published by Metagaming Concepts.",
+  "event_id": "9db0658b5992bc5303739673d3c8070fde6abd12beaf3739008b553f6b1bddac",
+  "evidence_distance_tokens": 117,
+  "evidence_position_token_idx": 167,
+  "gold_answer": "1976",
+  "gold_answer_length_coarsening": "1",
+  "gold_answer_length_tokens": 1,
+  "gold_answer_normalized": "1976",
+  "is_fail": false,
+  "model_generation": "1976",
+  "model_generation_normalized": "1976",
+  "per_event_seed": 51799,
+  "question": "When did Metagaming Concepts publish Monsters! Monsters!?",
+  "question_template_id": "bridge"
+}

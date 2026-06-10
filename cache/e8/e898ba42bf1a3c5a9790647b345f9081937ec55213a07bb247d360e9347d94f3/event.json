@@ -1,0 +1,21 @@
+{
+  "adversariality_policy": "none",
+  "bin_id": "B2",
+  "cem_stratum_id": "comparison|med|1",
+  "distractor_density": 0.6,
+  "distractor_density_coarsening": "med",
+  "document": "Galanthus nivalis, the snowdrop or common snowdrop, is the best-known and most widespread of the 20 species in its genus, \"Galanthus\". Snowdrops are among the first bulbs to bloom in spring and can form impressive carpets of white in areas where they are native or have been naturalised. They should not be confused with the snowflakes, in the genera \"Leucojum\" and \"Acis\". Galanthus (snowdrop; Greek \"g\u00e1la\" \"milk\", \"\u00e1nthos\" \"flower\") is a small genus of about 20 species of bulbous perennial herbaceous plants in the family Amaryllidaceae. The plants have two linear leaves and a single small white drooping bell shaped flower with six petal-like (petaloid) tepals in two circles (whorls). The smaller inner petals have green markings. Galanthus elwesii (Elwes's snowdrop, greater snowdrop) is one of a number of species of the genus \"Galanthus\", herbaceous, perennial, bulbous plants belonging to the family Amaryllidaceae. It is a native of the Caucasus. Waratah (\"Telopea\") is an Australian-endemic genus of five species of large shrubs or small trees, native to the southeastern parts of Australia (New South Wales, Victoria and Tasmania). The most well-known species in this genus is \"Telopea speciosissima\", which has bright red flowers and is the NSW state emblem. The waratah is a member of the plant family Proteaceae, a family of flowering plants distributed in the Southern Hemisphere. The key diagnostic feature of Proteaceae is the inflorescence, which is often very large, brightly coloured and showy, consisting of many small flowers densely packed into a compact head or spike. Species of waratah boast such inflorescences ranging from 6\u201315 cm in diameter with a basal ring of coloured bracts. The leaves are spirally arranged, 10\u201320 cm long and 2\u20133 cm broad with entire or serrated margins. The name \"waratah\" comes from the Eora Aboriginal people, the original inhabitants of the Sydney area. Alloxylon flammeum, commonly known as the Queensland tree waratah or red silky oak, is a medium-sized tree of the family Proteaceae found in the Queensland tropical rain forests of northeastern Australia. It has shiny green elliptical leaves up to 18 cm (7.2 in) long, and prominent orange-red inflorescences that appear from August to October, followed by rectangular woody seed pods that ripen in February and March. Juvenile plants have large (up to 25 cm (10 in) long) deeply lobed pinnate leaves. Previously known as \"Oreocallis wickhamii\", the initial specimen turned out to be a different species to the one cultivated and hence a new scientific name was required. Described formally by Peter Weston and Mike Crisp in 1991, \"A. flammeum\" was designated the type species of the genus \"Alloxylon\". This genus contains the four species previously classified in \"Oreocallis\" that are found in Australasia.",
+  "event_id": "e898ba42bf1a3c5a9790647b345f9081937ec55213a07bb247d360e9347d94f3",
+  "evidence_distance_tokens": 463,
+  "evidence_position_token_idx": 178,
+  "gold_answer": "Galanthus",
+  "gold_answer_length_coarsening": "1",
+  "gold_answer_length_tokens": 1,
+  "gold_answer_normalized": "galanthus",
+  "is_fail": false,
+  "model_generation": "Galanthus",
+  "model_generation_normalized": "galanthus",
+  "per_event_seed": 42373,
+  "question": "Which genus has more species, Waratah or Galanthus?",
+  "question_template_id": "comparison"
+}

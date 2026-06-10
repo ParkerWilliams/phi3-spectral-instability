@@ -1,0 +1,21 @@
+{
+  "adversariality_policy": "none",
+  "bin_id": "B1",
+  "cem_stratum_id": "comparison|high|2-3",
+  "distractor_density": 0.8,
+  "distractor_density_coarsening": "high",
+  "document": "The Tarnished Angels is a 1958 black-and-white American CinemaScope drama film directed by Douglas Sirk starring Rock Hudson, Robert Stack, Dorothy Malone, Jack Carson and Robert Middleton. The screenplay by George Zuckerman is based on the 1935 novel \"Pylon\" by William Faulkner. Imitation of Life is a 1959 American romantic drama film directed by Douglas Sirk, produced by Ross Hunter and released by Universal International, starring Lana Turner and John Gavin. It was Sirk's final Hollywood film and dealt with issues of race, class and gender. Douglas Sirk (born Hans Detlef Sierck; 26 April 1897 \u2013 14 January 1987) was a German film director best known for his work in Hollywood melodramas of the 1950s. Mystery Submarine is a 1950 American war film directed by Douglas Sirk starring Macdonald Carey, M\u00e4rta Tor\u00e9n and Robert Douglas. Sleep, My Love is a 1948 film noir mystery film directed by Douglas Sirk starring Claudette Colbert, Robert Cummings and Don Ameche. Schlu\u00dfakkord (\"Final Accord\" or better \"Final Chord\"; sometimes anglicised Schlussakkord) is a German film melodrama of the Nazi period, the first melodrama directed by Detlef Sierck, who later had a career in Hollywood as Douglas Sirk and specialised in melodramas. It was made under contract for Universum Film AG (UFA), stars Lil Dagover and Willy Birgel and also features Maria von Tasnady, and premi\u00e8red in 1936. It shows stylistic features later developed by Sierck/Sirk and makes symbolic and thematic use of music. Magnificent Obsession is a 1954 Technicolor drama romantic film directed by Douglas Sirk starring Jane Wyman and Rock Hudson. The screenplay was written by Robert Blees and Wells Root, after the 1929 book \"Magnificent Obsession\" by Lloyd C. Douglas. The film was produced by Ross Hunter. Sirk sometimes claimed that the story was based distantly on the Greek legend of Alcestis. Has Anybody Seen My Gal? 1952 comedy film directed by Douglas Sirk and starring Piper Laurie, Rock Hudson, Charles Coburn, and Gigi Perreau. Set in the 1920s, the film leans heavily on period detail, such as flappers, the Charleston and raccoon coats. It is named for the jazz song \"Has Anybody Seen My Gal? \" which was a hit for The California Ramblers during the '20s. Though the song is sung during the movie, its lyrics have no particular relation to the plot. A Time to Love and a Time to Die is a 1958 Eastmancolor CinemaScope drama war film directed by Douglas Sirk and starring John Gavin. It is based on the book by the German author, Erich Maria Remarque, set on the Eastern Front, and in Nazi Germany. The film was dubbed \"All Quiet on the Eastern Front\". Jennifer Chambers Lynch (born April 7, 1968) is an American film director and screenwriter. She is also known as the author of the book \"The Secret Diary of Laura Palmer\".",
+  "event_id": "c42434cf67b4cd10f7ec30fc0245265bda766fae4e959423d11171e7254f58bd",
+  "evidence_distance_tokens": 44,
+  "evidence_position_token_idx": 454,
+  "gold_answer": "film director",
+  "gold_answer_length_coarsening": "2-3",
+  "gold_answer_length_tokens": 2,
+  "gold_answer_normalized": "film director",
+  "is_fail": false,
+  "model_generation": "Film Director",
+  "model_generation_normalized": "film director",
+  "per_event_seed": 4913,
+  "question": "Jennifer Lynch and Douglas Sirk, have which mutual occupation?",
+  "question_template_id": "comparison"
+}

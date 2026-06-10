@@ -1,0 +1,21 @@
+{
+  "adversariality_policy": "none",
+  "bin_id": "B2",
+  "cem_stratum_id": "comparison|high|2-3",
+  "distractor_density": 0.8,
+  "distractor_density_coarsening": "high",
+  "document": "The Script are an Irish rock band formed in 2008 in Dublin, Ireland. It consists of lead vocalist and keyboardist Danny O'Donoghue, lead guitarist Mark Sheehan, and drummer Glen Power. The band moved to London after signing to Sony Label Group imprint Phonogenic and released its eponymous d\u00e9but album, \"The Script\", in August 2008, preceded by the successful singles \"The Man Who Can't Be Moved\" and \"Breakeven\". The album peaked at number one in both Ireland and the UK. Their next three albums, \"Science & Faith\" (2010), \"#3\" (2012) and \"No Sound Without Silence\" (2014), all topped the album charts in Ireland and the UK, while \"Science & Faith\" reached number three in the US. Hit singles from the albums include \"For the First Time\", \"Nothing\", \"Hall of Fame\" and \"Superheroes\". The band's fifth studio album, \"Freedom Child\", was released on September 1, 2017 and features the UK Top 20 single \"Rain\". K 2.0 is the fifth studio album by English psychedelic raga rock band Kula Shaker. Recorded in 2015 at State Of The Ark, London, England and The Tea Rooms, Lompret, Belgium. Released on 12 February 2016 on CD, vinyl and digital download. Kula Shaker are an English psychedelic rock band. Led by frontman Crispian Mills, the band came to prominence during the Post-Britpop era of the late 1990s. The band enjoyed commercial success in the UK between 1996 and 1999, notching up a number of Top 10 hits on the UK Singles Chart, including \"Tattva\", \"Hey Dude\", \"Govinda\", \"Hush\", and \"Sound of Drums\". The band's debut album, \"K\", reached No. 1 on the UK Albums Chart. The following is a comprehensive discography of Kula Shaker, an English psychedelic rock band formed in 1995. Kula Shaker has released four major studio albums, as well as numerous singles with extensive b-sides, music videos, and EPs. The band has also contributed to film soundtracks and TV advertisements. Paul Winter-Hart (born 19 September 1971 in Hammersmith, London, England) is the drummer for the English band, Kula Shaker. He is noted for being more reserved in interviews and grew up in East Pennard, Somerset. The Jeevas were an English rock band. Its members were Crispian Mills (vocals, guitar), Andy Nixon (drums), and Dan McKinna (bass). Mills was previously the vocalist of Kula Shaker. Nixon and McKinna were previous members of Straw. Mills rejoined Kula Shaker in late 2005, and The Jeevas disbanded. Alonza George Bevan (born 24 October 1970, Hounslow, Middlesex) is best known as the bassist for the English rock band Kula Shaker. Revenge of the King is an EP by Kula Shaker, released on 31 March 2006, the first Kula Shaker release since the band reformed. It was originally only available as a download from iTunes; later it was released as a limited edition 10\" vinyl EP, sold only at concerts and through the band's website. It was subsequently released in Japan on CD with an additional bonus track and the alternate title, \"Garage EP\". \"Hush\" is a song written by American composer and musician Joe South, for recording artist Billy Joe Royal, whose single peaked at number 52 on the \"Billboard\" Hot 100 on 28 October 11 November 1967, and #45 in Canada. Deep Purple and Kula Shaker have also had hits with covers of the song. Tattva : The Very Best Of Kula Shaker 2007 is a best-of double album released in 2007 by the record label Music Club. It includes all the tracks from Kula Shaker's first two albums and a handful of previously released non-album tracks. It is not an official 'best of' and the band have asked fans not to buy it.",
+  "event_id": "4712cf430f8d54ebf1e348e0521d28f74d76178ed9344d70a5a6fae526486c8b",
+  "evidence_distance_tokens": 697,
+  "evidence_position_token_idx": 202,
+  "gold_answer": "rock band",
+  "gold_answer_length_coarsening": "2-3",
+  "gold_answer_length_tokens": 2,
+  "gold_answer_normalized": "rock band",
+  "is_fail": true,
+  "model_generation": "Rock bands",
+  "model_generation_normalized": "rock bands",
+  "per_event_seed": 43185,
+  "question": "The Script and Kula Shaker, are which type of group?",
+  "question_template_id": "comparison"
+}

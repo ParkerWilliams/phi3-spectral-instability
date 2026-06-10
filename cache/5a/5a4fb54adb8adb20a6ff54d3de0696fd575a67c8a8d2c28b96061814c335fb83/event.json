@@ -1,0 +1,21 @@
+{
+  "adversariality_policy": "none",
+  "bin_id": "B1",
+  "cem_stratum_id": "bridge|high|2-3",
+  "distractor_density": 0.8,
+  "distractor_density_coarsening": "high",
+  "document": "A Little Love is the debut studio album by Hong Kong-based artist Fiona Fung, under the label Sony Music. Zh\u01d0 y\u012bn d\u0101ngsh\u00ed t\u00e0i j\u01d0nzh\u0101ng (\u53ea\u56e0\u7576\u6642\u592a\u7dca\u5f35) is the second studio album release by the Hong Kong-based indie pop band my little airport in 2005. \"Song of Depression\" (\u5931\u843d\u6cae\u55aa\u6b4c) was inspired by songwriter Ah P's reading of Dazai Osamu. Do U Know is the 3rd studio album by Hong Kong-based singer Janice Vidal, released on 21 November 2006. The album is named after Diana Ross's Theme from Mahogany (Do You Know Where You're Going To), which Vidal covers on the album. The album contains songs in both Cantonese and English. The music videos on this album are extracts from the musical film A Melody Looking. Los V\u00e1squez is a Chilean pop rock duo formed in Coyhaique, Chile. Formed by Italo V\u00e1squez and Enzo V\u00e1squez. The duo became popular in 2010 with the song \"Tu me haces falta\" from the album \"Contigo pop y cebolla\". The Duals were an American surf rock duo formed in Los Angeles, California, in 1961. Much of the collaboration's music capitalized on the style of music popularized in Southern California in the early 1960s. They reached the national charts with their song \"Stick Shift\" which became the Duals' only Top 40 hit. A studio album named after the Duals' hit song was released the following year. Grace & Charm is Hong Kong Cantopop singer Kelly Chen's Cantonese studio album. It was released on 22 December 2004 by Go East Entertainment with a VCD containing two music videos, \"\u7d19\u9189\u91d1\u8ff7\" (Lost In Paradise) and \"\u60c5\u4eba\u6230\" (Lovers' War). The album features nine new Cantonese tracks and a Mandarin version of the track \"\u5b8c\u7f8e\u95dc\u4fc2\" (Perfect Relationship). The lead single of the album, \"\u7d19\u9189\u91d1\u8ff7\" (Lost In Paradise) was the theme song for Chen's \"Lost In Paradise Live Concert Tour\" on 24 December 2004 at Hong Kong Coliseum. Several songs from the album were used in promotional campaigns: \"\u60c5\u4eba\u6230\" (Lovers' War) was the theme song for Asia Game Show in 2004, and \"\u5b8c\u7f8e\u95dc\u4fc2\" (Perfect Relationship) was the promotional song for Hong Kong-based jeweler 3D Gold for which Chen is also the spokesperson. Beautiful World is the fourth studio album by Connie Talbot. It was released on 26 November 2012 by Hong Kong-based Evolution Media Ltd's \"Evosound\" label. It charted at number 1 in Taiwan. Soler is a Hong Kong-based rock duo originally from Macau formed by twin brothers Julio Acconci (vocals/bass) and Dino Acconci (vocals/guitar), Soler made their Hong Kong debut in early 2005. Royal Blood are an English rock duo formed in Brighton in 2013. The band's sound is reminiscent of and rooted in modern blues rock, hard rock, garage rock, stoner rock and psychedelic rock. Their first album \"Royal Blood\" was released in August 2014. Canto is the fifth studio album (sixth album overall including the live album \"Unplugged at Kafka\") by C-rock band Soler. It performed successfully on the Hong Kong charts. The title of the album is a play on words, referring to \"canto\", Italian for \"I sing\", and referring to \"Canto\", a popular slang for Cantonese language, as the album is \"sung\" entirely in \"Cantonese\". The album deviated from the heavy rock elements of their previous album \"X2\", by employing a new funk and indie elements driven by acoustic guitar.",
+  "event_id": "5a4fb54adb8adb20a6ff54d3de0696fd575a67c8a8d2c28b96061814c335fb83",
+  "evidence_distance_tokens": 78,
+  "evidence_position_token_idx": 526,
+  "gold_answer": "\"I sing\"",
+  "gold_answer_length_coarsening": "2-3",
+  "gold_answer_length_tokens": 2,
+  "gold_answer_normalized": "\"i sing\"",
+  "is_fail": true,
+  "model_generation": "Canto",
+  "model_generation_normalized": "canto",
+  "per_event_seed": 48208,
+  "question": "What is the Italian translation of the fifth studio album by the Hong Kong-based rock duo formed by Julio Acconci and Dino Acconci? ",
+  "question_template_id": "bridge"
+}

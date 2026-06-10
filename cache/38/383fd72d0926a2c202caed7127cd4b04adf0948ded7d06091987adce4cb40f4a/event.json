@@ -1,0 +1,21 @@
+{
+  "adversariality_policy": "none",
+  "bin_id": "B1",
+  "cem_stratum_id": "comparison|low|1",
+  "distractor_density": 0.0,
+  "distractor_density_coarsening": "low",
+  "document": "Istor-o-Nal or \u0907\u0938\u094d\u0924\u094b\u0930-\u0913-\u0928\u0932 is the third highest mountain in the Hindu Kush, in the Chitral District of the North-West Frontier Province of Pakistan. It is the 68th highest independent peak in the world. It crowns a massif with eleven peaks of elevation more than 7000 m . The peak is located a few kilometres northeast of Tirich Mir (the highest mountain in the Hindu Kush), across the Tirich Glacier. Because Istor-o-Nal is behind the higher peak of Tirich Mir from many viewpoints, it is not easily visible and therefore not well known. Karjiang is a mountain in Tibet, located near the Bhutan\u2013China border. The highest peak of the Karjiang group is Karjiang I or Karjiang South, with an elevation of 7221 m ; it remains unclimbed. Other peaks include Karjiang North (7196 m), Karjiang II/Central (7045 m), Karjiang III or Taptol Kangri (6820 m) and the top of the north-eastern shoulder (6400 m).",
+  "event_id": "383fd72d0926a2c202caed7127cd4b04adf0948ded7d06091987adce4cb40f4a",
+  "evidence_distance_tokens": 87,
+  "evidence_position_token_idx": 126,
+  "gold_answer": "yes",
+  "gold_answer_length_coarsening": "1",
+  "gold_answer_length_tokens": 1,
+  "gold_answer_normalized": "yes",
+  "is_fail": true,
+  "model_generation": "Yes, Karjiang is higher than Istor-o-Nal.",
+  "model_generation_normalized": "yes, karjiang is higher than istor-o-nal",
+  "per_event_seed": 26402,
+  "question": "Is Karjiang higher than Istor-o-Nal?",
+  "question_template_id": "comparison"
+}

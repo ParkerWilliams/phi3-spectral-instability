@@ -1,0 +1,21 @@
+{
+  "adversariality_policy": "none",
+  "bin_id": "B1",
+  "cem_stratum_id": "bridge|high|4+",
+  "distractor_density": 0.8,
+  "distractor_density_coarsening": "high",
+  "document": "St Charles Catholic Sixth Form College is a Roman Catholic sixth form college located in the Royal Borough of Kensington and Chelsea, in Central London, England. It was originally Cardinal Manning Boys School, founded in 1955 and became St Charles Catholic Sixth Form College in 1990 following a reorganisation of the Catholic education system within the Archdiocese. Spelthorne College was a single-campus sixth form college on High Street, Ashford, Surrey, England. It was formed in 1975 as a successor to Ashford Sixth Form College and Sunbury Sixth Form College. Its campus was founded in 1911 as Ashford County Grammar School, which became a sixth form college in 1965. In 2007 Spelthorne College merged with Brooklands College in Weybridge. Sir John Deane's Sixth Form College is a sixth form college in Northwich, Cheshire, UK. It was formerly Sir John Deane's Grammar School, which was founded in 1557. The City of Stoke-on-Trent Sixth Form College is a mixed sixth form college on Leek Road, Stoke-on-Trent. It opened its new building on Leek Road in September 2010 having previously been located on Victoria Road, Fenton. The college is also known as Stoke-on-Trent Sixth Form College, and - prior to its relocation - Fenton Sixth Form College. Three Rivers Academy Sixth Form College is a Sixth Form College located in Walton-on-Thames, in the Elmbridge district of Surrey. Three Rivers Academy Sixth Form college is part of Three Rivers Academy. Rochdale Sixth Form College is a Sixth Form College opened in September 2010. The Sixth Form College campus is situated next to Hopwood Hall College in Rochdale, Greater Manchester, England, forming an educational quarter in the town. Rochdale is the first sixth form college to be opened in the UK since 2004, and the 93rd sixth form college in the country. The college is a member of the Sixth Form College Association (SFCA) and the Association of Colleges (AoC). Birkenhead Sixth Form College is a centre of academic excellence, specialising in A Level & BTEC education and is rated as 'Outstanding' by Ofsted. It is Wirral\u2019s specialist Sixth Form College and is one of just 94 specialist sixth form colleges across England. It is also the only sixth form college in Wirral with teachers that are specialists in A-Level provision. Alton College is a sixth form college located in Alton, Hampshire, England. As well as being a sixth form, the college provides an adult education service to the local population as well as catering for students with disabilities from nearby Treloar College. It was built in 1978 and was one of the first institutions in the UK to be a purpose-built sixth form college. Lowestoft Sixth Form College is a sixth-form college in the town of Lowestoft in the English county of Suffolk. The college opened in September 2011, replacing sixth form provision in the existing high schools in Lowestoft. The college is a member of the Sixth Form College Association, Association of Colleges and the Association of Colleges Eastern Region. The principal is Yolanda Botham. Students come to Lowestoft Sixth Form College mainly from high schools in the local area of North Suffolk and South Norfolk. Edwin Haslam (1932 \u2013 3 October 2013) was an organic chemist and an author of books on polyphenols. He was an alumnus of Sir John Deane's College in Northwich, Cheshire, United Kingdom and was for many years Professor of Organic Chemistry at the University of Sheffield.",
+  "event_id": "13594bf1c9e1e72fe2169921431387ea37b21dd810f68f3aa9291b94755b48b6",
+  "evidence_distance_tokens": 29,
+  "evidence_position_token_idx": 568,
+  "gold_answer": "Northwich, Cheshire, United Kingdom",
+  "gold_answer_length_coarsening": "4+",
+  "gold_answer_length_tokens": 4,
+  "gold_answer_normalized": "northwich, cheshire, united kingdom",
+  "is_fail": true,
+  "model_generation": "Northwich",
+  "model_generation_normalized": "northwich",
+  "per_event_seed": 40353,
+  "question": "Edwin Haslam was an organic chemist that graduated from a sixth form college located in?",
+  "question_template_id": "bridge"
+}
