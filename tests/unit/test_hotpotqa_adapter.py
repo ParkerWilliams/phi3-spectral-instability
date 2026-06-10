@@ -157,3 +157,73 @@ def test_handles_empty_supporting_facts_gracefully():
     )
     n_words = len(event.document.split())
     assert event.evidence_position_token_idx == n_words
+
+
+# ---------------------------------------------------------------------------
+# Lookback-floor filter (added 2026-06-10 after the 62% skip rate finding)
+# ---------------------------------------------------------------------------
+
+def _long_example(n_paragraphs=4, words_per_sentence=10, sents_per_paragraph=15):
+    """Build a HotpotQA-shaped dict whose total doc word count is controlled."""
+    return {
+        "question": "?",
+        "answer": "yes",
+        "context": {
+            "title": [f"Title{i}" for i in range(n_paragraphs)],
+            "sentences": [
+                [" ".join(["w"] * words_per_sentence) + "."]
+                * sents_per_paragraph
+                for _ in range(n_paragraphs)
+            ],
+        },
+        "supporting_facts": {"title": ["Title0"], "sent_id": [0]},
+        "type": "bridge",
+        "level": "medium",
+    }
+
+
+def test_meets_floor_true_for_long_doc():
+    """4 paragraphs × 15 sentences × 10 words = 600 words >> 350 default."""
+    from phi3geom.dataset.hotpotqa import (
+        DEFAULT_MIN_DOC_WORDS,
+        hotpotqa_meets_lookback_floor,
+    )
+    assert hotpotqa_meets_lookback_floor(_long_example()) is True
+    # The default floor is 350; verify we built > 350 words above.
+    assert DEFAULT_MIN_DOC_WORDS == 350
+
+
+def test_meets_floor_false_for_short_doc():
+    """1 paragraph × 5 sentences × 5 words = 25 words << 350."""
+    from phi3geom.dataset.hotpotqa import hotpotqa_meets_lookback_floor
+    short = _long_example(
+        n_paragraphs=1, words_per_sentence=5, sents_per_paragraph=5,
+    )
+    assert hotpotqa_meets_lookback_floor(short) is False
+
+
+def test_meets_floor_respects_custom_threshold():
+    """A 100-word doc passes a min_doc_words=50 floor but fails a 200 floor."""
+    from phi3geom.dataset.hotpotqa import hotpotqa_meets_lookback_floor
+    medium = _long_example(
+        n_paragraphs=1, words_per_sentence=10, sents_per_paragraph=10,
+    )  # ~100 words
+    assert hotpotqa_meets_lookback_floor(medium, min_doc_words=50) is True
+    assert hotpotqa_meets_lookback_floor(medium, min_doc_words=200) is False
+
+
+def test_meets_floor_handles_legacy_tuple_schema():
+    """Same filter works on the list-of-tuples context schema."""
+    from phi3geom.dataset.hotpotqa import hotpotqa_meets_lookback_floor
+    legacy = {
+        "question": "?",
+        "answer": "yes",
+        "context": [
+            [f"T{i}", [" ".join(["w"] * 10) + "."] * 15]
+            for i in range(4)
+        ],
+        "supporting_facts": [["T0", 0]],
+        "type": "bridge",
+        "level": "easy",
+    }
+    assert hotpotqa_meets_lookback_floor(legacy) is True

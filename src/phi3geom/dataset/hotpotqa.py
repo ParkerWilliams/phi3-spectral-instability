@@ -190,28 +190,75 @@ def hotpotqa_to_event(
     )
 
 
+# Conservative word-count floor: the pipeline's lookback window needs
+# ``t_answer_commit ≥ 256`` tokens. With the prompt preamble + question (~50
+# tokens) and BPE expansion (~0.75 word→1 token average), a document of
+# ~350 words reliably produces a prompt safely above the 256-token floor.
+# The 2026-06-09 pilot skipped 554/900 candidates here at GPU extraction
+# time; filtering at adapter time saves GPU dollars on the re-run.
+DEFAULT_MIN_DOC_WORDS = 350
+
+
+def hotpotqa_meets_lookback_floor(
+    example: dict, *, min_doc_words: int = DEFAULT_MIN_DOC_WORDS,
+) -> bool:
+    """Return ``True`` iff the example's concatenated document has at least
+    ``min_doc_words`` words (pre-tokenization).
+
+    Used by :func:`load_hotpotqa_events` to drop too-short HotpotQA examples
+    *before* they hit the GPU and trigger the pipeline's lookback-window
+    skip (``RuntimeError: prompt_len < 256``).
+    """
+    paragraphs = _iter_paragraphs(example["context"])
+    total_words = sum(
+        sum(len(s.split()) for s in sentences) for _, sentences in paragraphs
+    )
+    return total_words >= min_doc_words
+
+
 def load_hotpotqa_events(
     *,
     n: int,
     rng: random.Random,
     prompt_template_sha256: str,
     split: str = "train",
+    min_doc_words: int = DEFAULT_MIN_DOC_WORDS,
 ) -> list[DocQAEvent]:
     """Load ``n`` HotpotQA examples (deterministically sampled) as DocQAEvents.
 
+    Examples whose concatenated document is shorter than ``min_doc_words``
+    are silently skipped so they don't waste GPU on the pipeline's
+    lookback-window check. Oversamples the HF split to compensate.
+
     Imports ``datasets`` lazily so unit tests of the converter don't need it.
+
+    Raises:
+        RuntimeError: If fewer than ``n`` examples pass the filter (try a
+            larger split or lower ``min_doc_words``).
     """
     from datasets import load_dataset
 
     ds = load_dataset("hotpot_qa", "distractor", split=split)
     indices = list(range(len(ds)))
     rng.shuffle(indices)
-    indices = indices[:n]
-    return [
-        hotpotqa_to_event(
-            example=ds[i],
+    events: list[DocQAEvent] = []
+    for i in indices:
+        if len(events) >= n:
+            break
+        example = ds[i]
+        if not hotpotqa_meets_lookback_floor(
+            example, min_doc_words=min_doc_words
+        ):
+            continue
+        events.append(hotpotqa_to_event(
+            example=example,
             prompt_template_sha256=prompt_template_sha256,
             per_event_seed=i,
+        ))
+    if len(events) < n:
+        raise RuntimeError(
+            f"Only {len(events)}/{n} HotpotQA examples passed the "
+            f"min_doc_words={min_doc_words} floor (split {split!r} has "
+            f"{len(ds)} examples). Lower the floor or use a larger split."
         )
-        for i in indices
-    ]
+    return events
