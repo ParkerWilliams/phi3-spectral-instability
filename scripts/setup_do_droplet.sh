@@ -72,11 +72,18 @@
   echo "===================================================================="
   python -m pytest tests/unit tests/contract -q
 
-  echo
-  echo "===================================================================="
-  echo "=== 8. GPU integration test (expect 2 passed, ~25 min)"
-  echo "===================================================================="
-  PHI3_RUN_GPU_TESTS=1 python -m pytest tests/integration/test_pilot_pipeline.py -s
+  if [ "${SKIP_GPU_TEST:-0}" != "1" ]; then
+    echo
+    echo "===================================================================="
+    echo "=== 8. GPU integration test (expect 2 passed, ~25 min)"
+    echo "===     (set SKIP_GPU_TEST=1 to skip — pilot's own forward pass"
+    echo "===      will catch broken-GPU situations early anyway)"
+    echo "===================================================================="
+    PHI3_RUN_GPU_TESTS=1 python -m pytest tests/integration/test_pilot_pipeline.py -s
+  else
+    echo
+    echo "=== 8. GPU integration test SKIPPED (SKIP_GPU_TEST=1) ==="
+  fi
 )
 
 # After the subshell — these affect the user's shell since we're sourced.
@@ -91,6 +98,33 @@ echo "===================================================================="
 echo "  venv:    $VIRTUAL_ENV"
 echo "  cwd:     $(pwd)"
 echo "  branch:  $(git branch --show-current)"
-echo
-echo "Next: export your GITHUB_TOKEN, then launch the pilot."
-echo "(Paste your launch block.)"
+
+# Auto-launch the pilot if a real-looking GITHUB_TOKEN is set.
+if [ -n "${GITHUB_TOKEN:-}" ] && [ "${#GITHUB_TOKEN}" -ge 30 ]; then
+  echo
+  echo "===================================================================="
+  echo "=== AUTO-LAUNCHING PILOT (GITHUB_TOKEN detected, length ${#GITHUB_TOKEN})"
+  echo "===================================================================="
+  mkdir -p reports
+  B="experiment/pilot/$(date -u +%Y-%m-%d)-hotpot"
+  nohup bash scripts/run_pilot_resilient.sh \
+      --experiment-branch "$B" \
+      --corpus hotpotqa \
+      > reports/pilot_run.log 2>&1 &
+  PID=$!
+  sleep 8
+  echo
+  echo "Pilot PID: $PID"
+  echo "Branch:    $B"
+  echo
+  echo "--- First lines of pilot_run.log ---"
+  head -30 reports/pilot_run.log
+  echo "------------------------------------"
+  echo
+  echo "Pilot is running detached. You can close this shell or SSH session."
+  echo "Tail anytime:  tail -f $(pwd)/reports/pilot_run.log"
+else
+  echo
+  echo "Next: export GITHUB_TOKEN, then launch the pilot manually."
+  echo "(Or re-run with GITHUB_TOKEN set to auto-launch.)"
+fi
