@@ -20,6 +20,7 @@ Per Constitution Principle V, deviations from the pilot recipe go through
 from __future__ import annotations
 
 import argparse
+import datetime
 import json
 import random
 import subprocess
@@ -388,9 +389,17 @@ def main(argv: list[str] | None = None) -> int:
     labeled: list[DocQAEvent] = []
     resumed = 0
     pending_event_ids: list[str] = []  # since-last-checkpoint buffer
+    n_extracted_this_run = 0  # for per-event-time + ETA (resumes are instant; don't count)
+    t_loop_start = time.monotonic()
     for i, event in enumerate(candidates):
         cached = try_load_cached_event(event.event_id, cache_root=args.cache_root)
         progress = f"[pilot] {i + 1}/{len(candidates)} (bin {event.bin_id})"
+        if n_extracted_this_run >= 3:
+            elapsed_s = time.monotonic() - t_loop_start
+            sec_per_ev = elapsed_s / n_extracted_this_run
+            remaining_ev = len(candidates) - (i + 1)
+            eta = datetime.datetime.utcnow() + datetime.timedelta(seconds=remaining_ev * sec_per_ev)
+            progress += f"  [avg {sec_per_ev:.0f}s/ev, ETA {eta.strftime('%m-%d %H:%M')} UTC]"
         if cached is not None:
             print(f"{progress} RESUMED from cache", flush=True)
             labeled.append(cached)
@@ -413,6 +422,7 @@ def main(argv: list[str] | None = None) -> int:
                 )
                 continue
             labeled.append(result.event)
+            n_extracted_this_run += 1
         pending_event_ids.append(event.event_id)
 
         # Periodic checkpoint (only if --experiment-branch is set).
