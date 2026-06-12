@@ -18,6 +18,20 @@
 
 set -euo pipefail
 
+# --- 0. Auto-source the project venv if not already active ---
+# Without this, a nohup'd subprocess can fail to find the entry-point scripts
+# (check-hf-auth, pin-model-revision, run-pilot) even when the parent shell
+# had the venv activated, because PATH propagation through nohup + bash
+# subprocess chains can be flaky depending on environment.
+if [ -z "${VIRTUAL_ENV:-}" ]; then
+  _RPR_HERE="$(cd "$(dirname "$0")/.." && pwd)"
+  if [ -f "$_RPR_HERE/.venv/bin/activate" ]; then
+    # shellcheck disable=SC1091
+    source "$_RPR_HERE/.venv/bin/activate"
+    echo "[resilient] sourced venv at $_RPR_HERE/.venv"
+  fi
+fi
+
 # --- 1. Required env ---
 if [ -z "${GITHUB_TOKEN:-}" ]; then
   echo "[resilient] ERROR: GITHUB_TOKEN env var not set." >&2
