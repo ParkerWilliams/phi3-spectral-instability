@@ -69,6 +69,21 @@ def _now_iso() -> str:
     return datetime.datetime.now(tz=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
+def _fmt_dur(seconds: float) -> str:
+    """Format a duration as 'Xd Yh Zm Ws' (omits leading zero units)."""
+    seconds = int(seconds)
+    d, rem = divmod(seconds, 86400)
+    h, rem = divmod(rem, 3600)
+    m, s = divmod(rem, 60)
+    if d > 0:
+        return f"{d}d {h}h {m}m {s}s"
+    if h > 0:
+        return f"{h}h {m}m {s}s"
+    if m > 0:
+        return f"{m}m {s}s"
+    return f"{s}s"
+
+
 def _sample_evidence_distance_words(bin_id: BinId, rng: random.Random) -> int:
     """Pick a random target word distance within ``bin_id``'s range.
 
@@ -391,6 +406,9 @@ def main(argv: list[str] | None = None) -> int:
     pending_event_ids: list[str] = []  # since-last-checkpoint buffer
     n_extracted_this_run = 0  # for per-event-time + ETA (resumes are instant; don't count)
     t_loop_start = time.monotonic()
+    # For per-checkpoint batch-rate reporting (rolling window):
+    t_last_checkpoint = t_loop_start
+    n_extracted_at_last_checkpoint = 0
     for i, event in enumerate(candidates):
         cached = try_load_cached_event(event.event_id, cache_root=args.cache_root)
         progress = f"[pilot] {i + 1}/{len(candidates)} (bin {event.bin_id})"
@@ -430,6 +448,47 @@ def main(argv: list[str] | None = None) -> int:
             ckpt_config is not None
             and len(pending_event_ids) >= args.checkpoint_every
         ):
+            # Batch-rate summary: shows whether speed is drifting over the
+            # course of the run (rolling-window vs cumulative). Printed every
+            # checkpoint so the user can read predicted finish-time from the
+            # log without doing arithmetic.
+            now = time.monotonic()
+            total_elapsed = now - t_loop_start
+            batch_elapsed = now - t_last_checkpoint
+            batch_n = n_extracted_this_run - n_extracted_at_last_checkpoint
+            remaining_ev = len(candidates) - (i + 1)
+            print("[ckpt-status] " + "=" * 56, flush=True)
+            print(
+                f"[ckpt-status] {i + 1}/{len(candidates)} processed | "
+                f"resumed={resumed} | extracted-this-run={n_extracted_this_run}",
+                flush=True,
+            )
+            print(
+                f"[ckpt-status] wall time:  {_fmt_dur(total_elapsed)}  | "
+                f"batch time: {_fmt_dur(batch_elapsed)} ({batch_n} extractions)",
+                flush=True,
+            )
+            if batch_n > 0 and n_extracted_this_run > 0:
+                batch_rate = batch_elapsed / batch_n
+                cum_rate = total_elapsed / n_extracted_this_run
+                eta_batch = datetime.datetime.utcnow() + datetime.timedelta(
+                    seconds=remaining_ev * batch_rate
+                )
+                eta_cum = datetime.datetime.utcnow() + datetime.timedelta(
+                    seconds=remaining_ev * cum_rate
+                )
+                print(
+                    f"[ckpt-status] batch rate: {batch_rate:>5.0f}s/ev    | "
+                    f"cum rate:   {cum_rate:>5.0f}s/ev",
+                    flush=True,
+                )
+                print(
+                    f"[ckpt-status] ETA (batch): {eta_batch.strftime('%Y-%m-%d %H:%M UTC')} | "
+                    f"ETA (cum):  {eta_cum.strftime('%Y-%m-%d %H:%M UTC')}",
+                    flush=True,
+                )
+            print("[ckpt-status] " + "=" * 56, flush=True)
+
             _do_checkpoint(
                 ckpt_config,
                 event_ids=pending_event_ids,
@@ -440,6 +499,8 @@ def main(argv: list[str] | None = None) -> int:
                 reports_dir=args.reports_dir,
             )
             pending_event_ids = []
+            t_last_checkpoint = time.monotonic()
+            n_extracted_at_last_checkpoint = n_extracted_this_run
 
     elapsed = time.monotonic() - t0
     if resumed > 0:
