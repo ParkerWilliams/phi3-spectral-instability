@@ -107,11 +107,13 @@ if [ -n "${GITHUB_TOKEN:-}" ] && [ "${#GITHUB_TOKEN}" -ge 30 ]; then
   echo "===================================================================="
   mkdir -p reports
   B="experiment/pilot/$(date -u +%Y-%m-%d)-hotpot"
-  nohup bash scripts/run_pilot_resilient.sh \
+  # setsid + nohup + disown so the pilot survives SSH disconnect and tmux glitches
+  setsid nohup bash scripts/run_pilot_resilient.sh \
       --experiment-branch "$B" \
       --corpus hotpotqa \
-      > reports/pilot_run.log 2>&1 &
+      < /dev/null > reports/pilot_run.log 2>&1 &
   PID=$!
+  disown
   sleep 8
   echo
   echo "Pilot PID: $PID"
