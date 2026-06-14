@@ -18,18 +18,42 @@
 
 set -euo pipefail
 
-# --- 0. Auto-source the project venv if not already active ---
-# Without this, a nohup'd subprocess can fail to find the entry-point scripts
-# (check-hf-auth, pin-model-revision, run-pilot) even when the parent shell
-# had the venv activated, because PATH propagation through nohup + bash
-# subprocess chains can be flaky depending on environment.
-if [ -z "${VIRTUAL_ENV:-}" ]; then
-  _RPR_HERE="$(cd "$(dirname "$0")/.." && pwd)"
-  if [ -f "$_RPR_HERE/.venv/bin/activate" ]; then
-    # shellcheck disable=SC1091
-    source "$_RPR_HERE/.venv/bin/activate"
-    echo "[resilient] sourced venv at $_RPR_HERE/.venv"
+# --- 0. Bulletproof venv + entry-point resolution ---
+# History: this exact failure mode bit us multiple times over multiple sessions.
+# The cause is two layers of fragility stacked:
+#   (a) PATH inheritance through nohup + setsid + bash subprocess chains is
+#       inconsistent across distros — even with VIRTUAL_ENV set, PATH can be
+#       missing the venv's bin dir.
+#   (b) `pip install -e .[dev]` can silently complete without installing the
+#       project's console scripts (e.g. when the editable wheel build partially
+#       succeeds), leaving check-hf-auth / run-pilot / pin-model-revision
+#       absent even though the install "succeeded".
+#
+# This block defends against both: always re-source the venv (regardless of
+# VIRTUAL_ENV state, since we can't trust PATH), then auto-reinstall on the
+# spot if entry points are still missing.
+_RPR_HERE="$(cd "$(dirname "$0")/.." && pwd)"
+if [ -f "$_RPR_HERE/.venv/bin/activate" ]; then
+  # shellcheck disable=SC1091
+  source "$_RPR_HERE/.venv/bin/activate"
+  echo "[resilient] sourced venv at $_RPR_HERE/.venv"
+fi
+
+if ! command -v check-hf-auth >/dev/null 2>&1; then
+  echo "[resilient] check-hf-auth missing — attempting reinstall (pip install -e .[dev])"
+  if ! pip install -e "$_RPR_HERE[dev]" >&2; then
+    echo "[resilient] ERROR: pip install -e .[dev] failed. Run manually:" >&2
+    echo "    cd $_RPR_HERE && source .venv/bin/activate && pip install -e '.[dev]'" >&2
+    exit 1
   fi
+  if ! command -v check-hf-auth >/dev/null 2>&1; then
+    echo "[resilient] ERROR: check-hf-auth still missing after reinstall." >&2
+    echo "  Diagnose with:" >&2
+    echo "    ls $_RPR_HERE/.venv/bin/check-hf-auth" >&2
+    echo "    which check-hf-auth" >&2
+    exit 1
+  fi
+  echo "[resilient] reinstall successful — check-hf-auth now resolves."
 fi
 
 # --- 1. Required env ---
