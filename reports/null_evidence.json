@@ -1,0 +1,27 @@
+{
+  "n_events": 485,
+  "n_fails": 238,
+  "headline_auroc": 0.645,
+  "cv_mean_auroc": 0.5126131856998117,
+  "cv_std": 0.05285389018626287,
+  "single_split": {
+    "median": 0.5257227891156462,
+    "p2_5": 0.4107142857142857,
+    "p97_5": 0.6126700680272109,
+    "frac_ge_headline_pct": 0.0
+  },
+  "permutation": {
+    "n": 200,
+    "null_mean": 0.49942505147271676,
+    "p_value": 0.3681592039800995
+  },
+  "cohens_d": {
+    "qkt_stable_rank": -0.08543250930815577,
+    "qkt_grass": 0.0659755136255411,
+    "qkt_spec_entropy": -0.09751006648876068,
+    "avwo_stable_rank": 0.08952618116155989,
+    "avwo_grass": 0.06158345804371774,
+    "avwo_spec_entropy": 0.09853416284479238,
+    "forman_ricci_token": 0.0
+  }
+}
