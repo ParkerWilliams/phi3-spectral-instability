@@ -207,6 +207,17 @@ def run_event_extraction(
     t_answer_commit = prompt_len  # 0-indexed; generated_ids[0] is at position prompt_len
     total_tokens = prompt_len + generated_ids.shape[0]
 
+    # 5b. Free the GPU-resident generate() outputs BEFORE the long CPU-side
+    # feature loop. ``generated.attentions`` is large and unused (the hook
+    # already captured what we need to CPU), and the KV cache is multi-GB on
+    # long documents. Leaving them live through feature computation — and never
+    # freeing across events — is what drove the 2026-06-14 OOM cascade (no
+    # del/empty_cache existed anywhere). See run_pilot_resilient.sh for the
+    # companion PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True setting.
+    del generated, generated_ids, inputs, input_ids
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+
     # 6. Compute atomic-unit features over the lookback window.
     try:
         f_idx = f_lookback_absolute_indices(t_answer_commit)

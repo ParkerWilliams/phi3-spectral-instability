@@ -163,6 +163,38 @@ def test_git_checkpoint_returns_false_when_nothing_new(tmp_path):
     assert pushed is False
 
 
+def test_git_checkpoint_commits_artifacts_despite_hostile_gitignore(tmp_path):
+    """Regression: the real repo's unanchored ``cache/`` and ``reports/``
+    .gitignore patterns matched the COPIES under ``experiment_artifacts/`` and
+    silently dropped the F_summary tensors + report JSONs from every checkpoint
+    (the 2026-06-09 and 2026-06-14 pilots both lost their data this way). The
+    checkpoint MUST commit them regardless of the working tree's .gitignore."""
+    work, remote = _init_repos(tmp_path)
+    (work / ".gitignore").write_text("cache/\nreports/\n")  # unanchored = hostile
+    subprocess.run(["git", "-C", str(work), "add", ".gitignore"], check=True, capture_output=True)
+    subprocess.run(["git", "-C", str(work), "commit", "-m", "gitignore"], check=True, capture_output=True)
+
+    art = work / ARTIFACT_DIR_NAME
+    ev_dir = art / "cache" / "aa" / "ev"
+    ev_dir.mkdir(parents=True)
+    (ev_dir / "F_summary.npy").write_bytes(b"tensor-data")
+    (art / "reports").mkdir(parents=True)
+    (art / "reports" / "pooled_auroc.json").write_text('{"auroc": 0.5}')
+
+    pushed = git_checkpoint(
+        message="ckpt: with artifacts", repo_root=work,
+        branch="experiment/test", push_url=remote, paths_to_add=[art],
+    )
+    assert pushed is True
+    tree = subprocess.run(
+        ["git", "-C", str(tmp_path / "remote.git"), "ls-tree", "-r",
+         "--name-only", "experiment/test"],
+        check=True, capture_output=True, text=True,
+    ).stdout
+    assert "experiment_artifacts/cache/aa/ev/F_summary.npy" in tree
+    assert "experiment_artifacts/reports/pooled_auroc.json" in tree
+
+
 # ---------------------------------------------------------------------------
 # checkpoint() orchestrator
 # ---------------------------------------------------------------------------

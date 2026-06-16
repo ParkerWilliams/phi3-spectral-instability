@@ -133,8 +133,13 @@ def git_checkpoint(
         subprocess.CalledProcessError: any git command failed. The caller
         decides whether to retry or abort the run.
     """
-    add_args = ["git", "-C", str(repo_root), "add"] + [str(p) for p in paths_to_add]
-    if len(add_args) > 4:  # any paths after the 'add' subcommand
+    # ``-f`` (force): experiment_artifacts/ contains COPIES of cache/ and
+    # reports/, which the repo's .gitignore matches via unanchored patterns.
+    # Without force, every checkpoint silently drops the F_summary tensors and
+    # report JSONs (the 2026-06-09 and 2026-06-14 pilots both lost their data
+    # this way). Force-add makes the checkpoint robust to any hostile .gitignore.
+    add_args = ["git", "-C", str(repo_root), "add", "-f"] + [str(p) for p in paths_to_add]
+    if len(add_args) > 5:  # any paths after the 'add -f' subcommand
         subprocess.run(add_args, check=True)
 
     staged = subprocess.run(

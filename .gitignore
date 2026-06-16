@@ -23,10 +23,13 @@ env/
 htmlcov/
 .tox/
 
-# Cached tensors and reports (large; live outside git)
-cache/
-dataset/cache/
-reports/
+# Cached tensors and reports (large; live outside git).
+# Anchored with a leading slash so they match ONLY at the repo root and do NOT
+# match the checkpoint copies under experiment_artifacts/cache and .../reports
+# (the unanchored form silently dropped pilot data — see checkpointing.py).
+/cache/
+/dataset/cache/
+/reports/
 
 # HuggingFace model cache (multi-GB; never commit)
 .cache/huggingface/

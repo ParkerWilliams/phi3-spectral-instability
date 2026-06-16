@@ -438,6 +438,11 @@ def main(argv: list[str] | None = None) -> int:
                     f"[pilot] event {event.event_id[:8]} skipped: {exc}",
                     file=sys.stderr,
                 )
+                # Reclaim any GPU memory the failed forward left allocated.
+                # Without this, the first OOM cascades into all-fail (every
+                # subsequent event also OOMs) — the 2026-06-14 pilot tail.
+                if torch.cuda.is_available():
+                    torch.cuda.empty_cache()
                 continue
             labeled.append(result.event)
             n_extracted_this_run += 1

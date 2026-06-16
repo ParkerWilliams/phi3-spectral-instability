@@ -110,5 +110,11 @@ if [ -n "${HF_HUB_ENABLE_HF_TRANSFER:-}" ]; then
   fi
 fi
 
-# --- 6. Hand off. pilot_main does restore + periodic + final checkpoint. ---
+# --- 6. GPU allocator: avoid fragmentation OOM on variable-length documents.
+# The 2026-06-14 pilot OOM'd on its tail with plenty of total free memory left;
+# expandable segments let the caching allocator grow/reuse without fragmenting
+# (PyTorch's own OOM message recommends this). Set before torch initializes CUDA.
+export PYTORCH_CUDA_ALLOC_CONF="${PYTORCH_CUDA_ALLOC_CONF:-expandable_segments:True}"
+
+# --- 7. Hand off. pilot_main does restore + periodic + final checkpoint. ---
 exec bash scripts/run_pilot.sh "$@"
