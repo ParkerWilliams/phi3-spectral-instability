@@ -1,0 +1,21 @@
+{
+  "adversariality_policy": "none",
+  "bin_id": "B1",
+  "cem_stratum_id": "bridge|high|1",
+  "distractor_density": 0.8,
+  "distractor_density_coarsening": "high",
+  "document": "Ring (\u30ea\u30f3\u30b0 , Ringu ) is a 1998 Japanese psychological horror film directed by Hideo Nakata, adapted from the novel \"Ring\" by K\u00f4ji Suzuki, which in turn draws on the Japanese folk tale Banch\u014d Sarayashiki. The film stars Nanako Matsushima, Hiroyuki Sanada, and Rikiya \u014ctaka. The film is centered around a reporter who is on the run to investigate the mystery behind a cursed videotape that kills the viewer 7 days after watching it. Ring 2 (\u30ea\u30f3\u30b02 , Ringu 2 ) (1999), directed by Hideo Nakata, is the sequel to the Japanese horror film, \"Ring\". Don't Look Up (\u5973\u512a\u970a , \"Joy\u00fb-rei\" ) is a 1996 Japanese horror film directed by Hideo Nakata. The film set in a film studio where a War film is being made. On looking at the dailies during production, a scene is spotted that involves a scene without sound from an earlier film. This scene involves a horrified woman onscreen, with another woman, out of focus, laughing in the back. The footage looks familiar to the young director Murai, who insists he had seen it previously as a young boy. Ghost Theater (\u5287\u5834\u970a , Gekijourei ) is a 2015 Japanese horror film directed by Hideo Nakata and a remake of \"Don't Look Up\" (1996). It was released on November 21, 2015. Dark Water (Japanese: \u4ec4\u6697\u3044\u6c34\u306e\u5e95\u304b\u3089 , Hepburn: Honogurai Mizu no soko kara , lit. \"From the bottom of Dark Water\") is a 2002 Japanese horror drama film directed by Hideo Nakata. The film is based on the story \"Dark Water\" by Koji Suzuki. The plot follows a divorced mother who moves into a rundown apartment with her daughter, and experiences supernatural occurrences including a mysterious water leak from the floor above. The Incite Mill (\u30a4\u30f3\u30b7\u30c6\u30df\u30eb \uff17\u65e5\u9593\u306e\u30c7\u30b9\u30fb\u30b2\u30fc\u30e0 , Inshite Miru: 7-kakan no desu gemu , The Incite Mill: 7-Day Death Game) is a 2010 Japanese psychological thriller directed by Hideo Nakata. The movie is based on Honobu Yonezawa's novel \"The Incite Mill\". Sleeping Bride (\u30ac\u30e9\u30b9\u306e\u8133 , Garasu no N\u014d , \"Glass Brain\") is a Japanese 2000 tragic-romance film directed by Hideo Nakata, based on a comic by Osamu Tezuka. It is probably best known to Western audiences for its inclusion in a Tartan Asia Extreme DVD release of the \"Ring\" trilogy, which included it as a fourth Nakata feature unrelated to the \"Ring\" series. It was released on January 29, 2000. Kaidan (\u602a\u8ac7 , Kaidan ) is a 2007 Japanese horror film, directed by Hideo Nakata, of two young people who fall in love but are hounded by the ghost of a murdered moneylender who seeks revenge, which leaves a lasting effect on the couple. The Complex (\u30af\u30ed\u30e6\u30ea\u56e3\u5730 , Kuroyuri danchi ) is a 2013 Japanese horror film directed by Hideo Nakata. The film premiered at the Rotterdam Film Festival on January 1, 2013, and was released in Japan on May 18 that same year. A 12 episode drama, titled \"Kuroyuri Danchi ~Josho~\" follows events leading up to those that take place in the film. It began airing in Japan on April 9, 2013. The Ring Two is a 2005 American supernatural psychological horror film and a sequel to the 2002 film \"The Ring\", which was a remake of the 1998 Japanese film \"Ring\". Hideo Nakata, director of the original Japanese film \"Ring\", on which the American versions are based, directed this film in place of Gore Verbinski.",
+  "event_id": "66497723b50cf9fb28e14613d172df5711e903c983582133a36175b0595fb4f3",
+  "evidence_distance_tokens": 343,
+  "evidence_position_token_idx": 387,
+  "gold_answer": "Ring",
+  "gold_answer_length_coarsening": "1",
+  "gold_answer_length_tokens": 1,
+  "gold_answer_normalized": "ring",
+  "is_fail": false,
+  "model_generation": "Ring",
+  "model_generation_normalized": "ring",
+  "per_event_seed": 76941,
+  "question": "What is the name of this 1998 Japanese psychological horror film directed by Hideo Nakata and also the same name of a trilogy, which included Sleeping Bride?",
+  "question_template_id": "bridge"
+}

@@ -1,0 +1,21 @@
+{
+  "adversariality_policy": "none",
+  "bin_id": "B2",
+  "cem_stratum_id": "bridge|high|2-3",
+  "distractor_density": 0.8,
+  "distractor_density_coarsening": "high",
+  "document": "Six Flying Dragons () is a South Korean television series starring Yoo Ah-in, Kim Myung-min, Shin Se-kyung, Byun Yo-han, Yoon Kyun-sang and Chun Ho-jin. It aired on SBS on Mondays and Tuesdays at 22:00 for 50 episodes beginning on October 5, 2015, as part of SBS 25th anniversary special. The drama serves as a loose prequel to \"Deep Rooted Tree\". Yoo Da-in (born Ma Young-seon on February 9, 1984) is a South Korean actress. She is best known for her nuanced performance in the critically acclaimed indie film \"Re-encounter\", her first leading role. In 2016, she played a supporting role in South Korean television series \"Doctor Crush\". Kim Myung-min (, born 8 October 1972) is a South Korean actor. He is best known for his leading roles in the television series \"Immortal Admiral Yi Sun-shin\" (2004), \"White Tower\" (2007), \"Beethoven Virus\" (2008), and \"Six Flying Dragons\" (2015-2016), as well as the films \"Closer to Heaven\" (2009), \" (2011) and \"\" (2015). Yoo Ah-in (born Uhm Hong-sik on October 6, 1986) is a South Korean film and television actor. He rose to fame after starring in the 2010 television series \"Sungkyunkwan Scandal\". Yoo Ah-in is best known for his leading roles in the coming-of-age film \"Punch\" (2011), melodrama \"Secret Love Affair\" (2014), action blockbuster \"Veteran\" (2015), period drama \"The Throne\" (2015), and the historical television series \"Six Flying Dragons\" (2015-2016). Yoon Kyun-sang (born March 31, 1987) is a South Korean actor who drew attention with his supporting roles in the television series \"Pinocchio\" (2014),\"Six Flying Dragons\" (2015-2016) and \"Doctor Crush\" (2016). In 2017, he played the titular role in \"\". Park Sung-hoon (born January 18, 1985) is a South Korean actor. He starred in TV series such as \"Bachelor's Vegetable Store\" (2011), \"Good For You\" (2013), \"Three Days\" (2014), \"Six Flying Dragons\" (2015) and \"Jealousy Incarnate\" (2016). Jackpot (), also known as The Royal Gambler, is a South Korean historical drama starring Jang Keun-suk, Yeo Jin-goo, Jun Kwang-ryul, Choi Min-soo, Yoon Jin-seo and Lim Ji-yeon. It replaced \"Six Flying Dragons\" and aired on SBS on Mondays and Tuesdays at 22:00 (KST) from March 28, 2016 to June 14, 2016 for 24 episodes. Shin Se-kyung (born July 29, 1990) is a South Korean actress and singer. She started as a child actress and had her breakthrough in 2009 with the sitcom \"High Kick Through the Roof\". Since then she starred in the films \"Hindsight\" (2011), \"\" (2012) and \"\" (2014), as well as the television series \"Deep Rooted Tree\" (2011), \"The Girl Who Sees Smells\" (2015) and \"Six Flying Dragons\" (2015-2016). The Flying Dragons also known as FDS () are a well known Chinese American street gang affiliated with the Hip Sing Tong; they are active in New York City's Chinatown, and have a presence in Hong Kong, Canada and Australia. The gang moved heavily into heroin trafficking after the Italian-American Mafia lost the trade as a result of the Pizza Connection prosecutions in the mid-1980s. The Flying Dragons are believed to have been started during the late 1970s to early 1980s. Jeong Yu-mi is a South Korean actress. She is best known for starring in \"Six Flying Dragons\" and \"Rooftop Prince\".",
+  "event_id": "2f03b96b9f850f26ae09dde5e19bb0e29a5fab1206696b9a68f7be207775c04f",
+  "evidence_distance_tokens": 578,
+  "evidence_position_token_idx": 260,
+  "gold_answer": "Yoon Kyun-sang",
+  "gold_answer_length_coarsening": "2-3",
+  "gold_answer_length_tokens": 2,
+  "gold_answer_normalized": "yoon kyun-sang",
+  "is_fail": false,
+  "model_generation": "Yoon Kyun-sang",
+  "model_generation_normalized": "yoon kyun-sang",
+  "per_event_seed": 10711,
+  "question": "Which member of the cast of Six Flying Dragons also had a supporting role in Doctor Crush?",
+  "question_template_id": "bridge"
+}

@@ -1,0 +1,21 @@
+{
+  "adversariality_policy": "none",
+  "bin_id": "B1",
+  "cem_stratum_id": "bridge|high|1",
+  "distractor_density": 0.8,
+  "distractor_density_coarsening": "high",
+  "document": "John Goldfarb, Please Come Home! is a 1965 comedy film based on the novel by William Peter Blatty published in 1963. A Swingin' Summer is a 1965 comedy film in the beach party genre. It was directed and co-written by Robert Sparr. Raquel Welch stars in her first featured film role and makes her singing debut in the film. Marriage on the Rocks is a 1965 comedy film starring Frank Sinatra, Deborah Kerr, and Dean Martin about a businessman's wife who ends up divorced by mistake and then married to his best friend by an even bigger mistake. The film was written by Cy Howard and directed by Jack Donohue. Situation Hopeless... But Not Serious is a 1965 comedy film starring Alec Guinness, Mike Connors and Robert Redford. It is based on the novel \"The Hiding Place\" by Robert Shaw. \"Help!\" is a song by the Beatles that served as the title song for both the 1965 film and its soundtrack album. It was also released as a single, and was number one for three weeks in both the United States and the United Kingdom. A Holiday with Piroschka (German: Ferien mit Piroschka) is a 1965 comedy film directed by Franz Josef Gottlieb and starring Marie Versini, G\u00f6tz George and Dietmar Sch\u00f6nherr. It was a co-production between Austria, Hungary and West Germany. Despite their similar names, the film has little in common with the 1955 \"I Often Think of Piroschka\". Help! is a 1965 British musical comedy-adventure film directed by Richard Lester, starring the Beatles\u2013John Lennon, Paul McCartney, George Harrison and Ringo Starr\u2014and featuring Leo McKern, Eleanor Bron, Victor Spinetti, John Bluthal, Roy Kinnear and Patrick Cargill. The second film starring The Beatles following Lester's \"A Hard Day's Night\", \"Help!\" sees the group come up against an evil cult. The soundtrack was released as an album, also called \"Help! \". Lady L is a 1965 comedy film based on the novel by Romain Gary and directed by Peter Ustinov. Starring Sophia Loren, Paul Newman, David Niven and Cecil Parker, the film focuses on an elderly Corsican lady as she recalls the loves of her life, including an anarchist and a Parisian aristocrat. I'll Take Sweden is a 1965 comedy film directed by Frederick de Cordova, and starring Bob Hope, Frankie Avalon, and Tuesday Weld. The Intelligence Men is a 1965 comedy film starring the British comic duo Eric Morecambe and Ernie Wise.",
+  "event_id": "73470dfb189b2b0b8ba19d38b05a9e7a4794ff62f134e86300266bfafa7adc0a",
+  "evidence_distance_tokens": 229,
+  "evidence_position_token_idx": 277,
+  "gold_answer": "Help!",
+  "gold_answer_length_coarsening": "1",
+  "gold_answer_length_tokens": 1,
+  "gold_answer_normalized": "help!",
+  "is_fail": true,
+  "model_generation": "Help! is a song that was used in the 1965 comedy film \"Help!\" starring The Beatles.",
+  "model_generation_normalized": "help! is a song that was used in the 1965 comedy film \"help!\" starring the beatles",
+  "per_event_seed": 7057,
+  "question": " Help! is a song that was used in what 1965 comedy film?",
+  "question_template_id": "bridge"
+}

@@ -1,0 +1,21 @@
+{
+  "adversariality_policy": "none",
+  "bin_id": "B2",
+  "cem_stratum_id": "comparison|high|1",
+  "distractor_density": 0.8,
+  "distractor_density_coarsening": "high",
+  "document": "Huixian () is a city in Xinxiang, Henan, China. The city has over 100,000 inhabitants. Hangu District (), is a former district in eastern Tianjin, China; now part of Binhai New Area. It serves as a gateway towards Liaoning, Jilin and Heilongjiang provinces. Doaba is a town and union council of Hangu District in Khyber Pakhtunkhwa province of Pakistan. It is located at 33\u00b025'25N 70\u00b044'11E and has an altitude of 878 metres (2883 feet). Thall (Pashto: \u067c\u0644\u200e , \"\u1e6c\u0259l\") is a City of Hangu District in Khyber-Pakhtunkhwa province of Pakistan. Thall is located at 33\u00b021'52N 70\u00b032'52E with an altitude of 742 metres (2437 feet). It is administratively subdivided into two Union Councils. It is separated from the North Waziristan Agency by the Kurram River. The Peshawar-Thall and Thall-Parachinar road passes from here which is an important route of this area. It is 4hrs drive from Peshawar and about 3hrs from Kohat. A major Bazaar or market of this region is located here which is a hub for traders from Kurram agency, Afghanistan and adjoining areas. The Historic Thall fort built by the British in 1909 is located here, Which serves as the HQ for Thall Scouts, a Paramilitary unit of FC. Kach Banda is a town and union council in Hangu District of Khyber-Pakhtunkhwa. It is located at 33\u00b032'58N 71\u00b05'10E and has an altitude of 785 metres (2578 feet). Aitzaz Hasan Bangash Shaheed (Urdu: \u0627\u0639\u062a\u0632\u0627\u0632 \u062d\u0633\u0646\u200e , born 1997 - died 7 January 2014 Hangu) was a Pakistani school boy from Hangu District in Khyber Pakhtunkhwa province who sacrificed his life while preventing a suicide bomber from entering his school of 2,000 students at Ibrahimzai village of Hangu, on 6 January 2014. The Samana Range is a mountain ridge in the Hangu District of the Khyber Pakhtunkhwa of Pakistan, commanding the southern boundary of Tirah. The ridge lies between the Khanki Valley on the north and the Miranzai Valley on the south, and extends for some 30 m. west from Hangu to the Samana Suk. It is some 6000 to 7000 ft. high. Shahu Khel, also spelt Shahukhel, is a town of Hangu District in the Khyber-Pakhtunkhwa province of Pakistan. It is located at 33\u00b035'19N 71\u00b07'21E with an altitude of 807 metres. Shahu Khel is located at the boundary of Orakzi Agency and thus attached for so many times by the Orgakzi Tribes and killed people and destroyed properties. Aitzaz Hasan Shaheed High School, formerly Government High School Ibrahim Zai, is a government secondary school in the community of Hangu, within Hangu District, Khyber Pakhtunkhwa, Pakistan. Darsamand is a town and union council of Hangu District in the Khyber Pakhtunkhwa province of Pakistan. It is located at 33\u00b026'16N 70\u00b039'48E and has an altitude of 889 metres (2919 feet).",
+  "event_id": "3008b3929a66fd30f672340e403d81ad501de3b8e4c14bb23c9cab05c0d1be2e",
+  "evidence_distance_tokens": 859,
+  "evidence_position_token_idx": 32,
+  "gold_answer": "China",
+  "gold_answer_length_coarsening": "1",
+  "gold_answer_length_tokens": 1,
+  "gold_answer_normalized": "china",
+  "is_fail": false,
+  "model_generation": "China",
+  "model_generation_normalized": "china",
+  "per_event_seed": 55504,
+  "question": "Huixian and Hangu District, Tianjin, are located in which country?",
+  "question_template_id": "comparison"
+}

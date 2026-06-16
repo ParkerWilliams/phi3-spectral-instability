@@ -1,0 +1,21 @@
+{
+  "adversariality_policy": "none",
+  "bin_id": "B1",
+  "cem_stratum_id": "comparison|high|4+",
+  "distractor_density": 0.8,
+  "distractor_density_coarsening": "high",
+  "document": "The Counterfeiters (French: \"Les faux-monnayeurs\") is a 1925 novel by French author Andr\u00e9 Gide, first published in \"Nouvelle Revue Fran\u00e7aise\". With many characters and crisscrossing plotlines, its main theme is that of the original and the copy, and what differentiates them \u2013 both in the external plot of the counterfeit gold coins and in the portrayal of the characters' feelings and their relationships. Der K\u00f6nig Kandaules (\"King Kandaules\") is an opera in three acts by the Austrian composer Alexander von Zemlinsky. Its libretto was adapted by the composer from Franz Blei's German translation of the play \"Le roi Candaule\" by French author Andr\u00e9 Gide. Edmund Wilson (May 8, 1895 \u2013 June 12, 1972) was an American writer and critic who notably explored Freudian and Marxist themes. He influenced many American authors, including F. Scott Fitzgerald, whose unfinished work he edited for publication. His scheme for a Library of America series of national classic works came to fruition through the efforts of Jason Epstein after Wilson's death. Strait is the Gate (French: La Porte \u00c9troite ) is a 1909 French novel written by Andr\u00e9 Gide. It was translated into English by Dorothy Bussy. Renowned scholar Chinmoy Guha translated it into Bengali with the title \"Shirno Toron\". It probes the complexities and terrors of adolescence and growing up. Based on a Freudian interpretation, the story uses the influences of childhood experience and the misunderstandings that can arise between two people. \"Strait is the Gate\" taps the unassuaged memory of Gide's unsuccessful wooing of his cousin between 1888 and 1891. Charles Gide (] ; 1847\u20131932) was a French economist and historian of economic thought. He was a professor at the University of Bordeaux, at Montpellier, at Universit\u00e9 de Paris and finally at Coll\u00e8ge de France. His nephew was the author Andr\u00e9 Gide. Mise en abyme (] ; also mise en ab\u00eeme) is a French term derived from heraldry, and literally means \"placed into abyss\". The term has developed a number of particular senses in modern criticism since it was picked up from heraldry by the French author Andr\u00e9 Gide. Si le grain ne meurt is the autobiography of the French writer Andr\u00e9 Gide. Published in 1924, it recounts the life of Gide from his childhood in Paris until his engagement with his cousin Madeleine Rondeaux in 1895. \"Le Retour de l'Enfant Prodigue\" (\"The Return of the Prodigal Son\") is a short story by Andr\u00e9 Gide. Gide wrote the story in early 1907. Andr\u00e9 Paul Guillaume Gide (] ; 22 November 1869 \u2013 19 February 1951) was a French author and winner of the Nobel Prize in Literature in 1947 \"for his comprehensive and artistically significant writings, in which human problems and conditions have been presented with a fearless love of truth and keen psychological insight\". Gide's career ranged from its beginnings in the symbolist movement, to the advent of anticolonialism between the two World Wars. Andr\u00e9 Paul Guillaume Gide (] ; 22 November 1869 \u2013 19 February 1951) was a French author and winner of the Nobel Prize in Literature in 1947 \"for his comprehensive and artistically significant writings, in which human problems and conditions have been presented with a fearless love of truth and keen psychological insight\". Gide's career ranged from its beginnings in the symbolist movement, to the advent of anticolonialism between the two World Wars.",
+  "event_id": "6a1b5d865422283acd6510e48fcb9d1572c3af4974865f615a6d632e3928f9f8",
+  "evidence_distance_tokens": 69,
+  "evidence_position_token_idx": 535,
+  "gold_answer": "Andr\u00e9 Paul Guillaume Gide",
+  "gold_answer_length_coarsening": "4+",
+  "gold_answer_length_tokens": 4,
+  "gold_answer_normalized": "andr\u00e9 paul guillaume gide",
+  "is_fail": true,
+  "model_generation": "Andr\u00e9 Gide",
+  "model_generation_normalized": "andr\u00e9 gide",
+  "per_event_seed": 41281,
+  "question": "Who was a French author and winner of the Nobel prize in Literature in 1947, Edmund Wilson or Andr\u00e9 Gide?",
+  "question_template_id": "comparison"
+}

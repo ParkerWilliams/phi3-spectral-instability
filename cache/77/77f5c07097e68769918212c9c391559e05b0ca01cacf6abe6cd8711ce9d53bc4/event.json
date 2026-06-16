@@ -1,0 +1,21 @@
+{
+  "adversariality_policy": "none",
+  "bin_id": "B1",
+  "cem_stratum_id": "comparison|high|2-3",
+  "distractor_density": 0.8,
+  "distractor_density_coarsening": "high",
+  "document": "\"Miniver Cheevy\" is a narrative poem written by Edwin Arlington Robinson and first published in \"The Town down the River\" in 1910. The poem, written in quatrains of iambic tetrameter for three lines, followed by a catalectic line of only three iambs, relates the story of a hopeless romantic who spends his days thinking about what might have been if only he had been born earlier in time. Robert Pack (born May 19, 1929, in New York City) is an American poet and critic, and Distinguished Senior Professor in the Davidson Honors College at the University of Montana - Missoula. For thirty-four years he taught at Middlebury College and from 1973 to 1995 served as director of the Bread Loaf Writers' Conference. He is the author of twenty-two books of poetry and criticism. Pack has been called, by Harold Bloom, an heir to Robert Frost and Edwin Arlington Robinson, and has himself published a volume of admiring essays on Frost's poetry. He has co-edited several books with Jay Parini, including \"\". Tilbury Town is a fictional American town which serves as the location for many works by the American poet Edwin Arlington Robinson. \"Richard Cory\" is a narrative poem written by Edwin Arlington Robinson. It was first published in 1897, as part of \"The Children of the Night\", having been completed in July of that year; and it remains one of Robinson's most popular and anthologized poems. The poem describes a person who is wealthy, well educated, mannerly, and admired by the people in his town. Despite all this, he fatally shoots himself in the head. The Edwin Arlington Robinson House is an historic house at 67 Lincoln Avenue in Gardiner, Maine. A relatively unprepossessing two-story wood frame house, it was designated a National Historic Landmark in 1971 for its association with Edwin Arlington Robinson (1869\u20131935) one the United States' leading poets of the late 19th and early 20th centuries. Van Zorn is a comedy of New York City artist life written in 1914 by Edwin Arlington Robinson. It is one of Robinson's two published plays, published just before his volume of poems \"The Man Against the Sky\". As of 1920, \"Van Zorn's\" only public performances was a 1917 run given in a Brooklyn hall by a semi-professional company. \"Van Zorn\" is about a fatalist who, attempting to play the part of destiny in a love affair, runs counter to a man with a destiny better than his own. Grace Paley (December 11, 1922 \u2013 August 22, 2007) was an American short story writer, poet, teacher, and political activist. Edith Brower (August 24, 1848 \u2013 September 16, 1931) was a Progressive Era reformer who lived in Wilkes-Barre, Pennsylvania. Edith Brower contributed arts columns to The Atlantic Monthly and Harper's Weekly founded the Wyoming Valley Woman\u2019s Club in 1905, which still exists today. However, she is perhaps best known for her correspondence with Pulitzer Prize-winning poet Edwin Arlington Robinson. Children of The Night was the second volume of Poetry published by the American Poet Edwin Arlington Robinson. While the volume was weakly received President Theodore Roosevelt's son Kermit introduced the work to his father who knowing his straits secured him a job at the NY Customs Office. Edwin Arlington Robinson (December 22, 1869 \u2013 April 6, 1935) was an American poet who won three Pulitzer Prizes for his work. He was nominated for the Nobel Prize in Literature four times.",
+  "event_id": "77f5c07097e68769918212c9c391559e05b0ca01cacf6abe6cd8711ce9d53bc4",
+  "evidence_distance_tokens": 40,
+  "evidence_position_token_idx": 558,
+  "gold_answer": "Edwin Arlington Robinson",
+  "gold_answer_length_coarsening": "2-3",
+  "gold_answer_length_tokens": 3,
+  "gold_answer_normalized": "edwin arlington robinson",
+  "is_fail": false,
+  "model_generation": "Edwin Arlington Robinson",
+  "model_generation_normalized": "edwin arlington robinson",
+  "per_event_seed": 33597,
+  "question": "Which American poet was born first, Grace Paley or Edwin Arlington Robinson?",
+  "question_template_id": "comparison"
+}

@@ -1,0 +1,21 @@
+{
+  "adversariality_policy": "none",
+  "bin_id": "B1",
+  "cem_stratum_id": "bridge|high|1",
+  "distractor_density": 0.8,
+  "distractor_density_coarsening": "high",
+  "document": "Kelly Rohrbach (born January 21, 1990) is an American model and actress known as a model in \"Sports Illustrated\" and her role as C.J. Parker in \"Baywatch\". Casey Jean \"C. J.\" Parker is a fictional character from the television series \"Baywatch\". Portrayed by Pamela Anderson, she was one of the most popular and longest serving characters who appeared in five seasons of the series. Kelly Rohrbach plays C. J. Parker in the 2017 feature film. Seth Gordon is an American film director, producer, screenwriter, and film editor. He has produced and directed for film and television, including for PBS, the Bill & Melinda Gates Foundation, and the United Nations Staff 1% for Development Fund. His films have screened at the Sundance Film Festival and Slamdance Film Festival. The Goldbergs is an American television period sitcom that premiered on Tuesday, September 24, 2013 on ABC. The series was created by Adam F. Goldberg and stars Wendi McLendon-Covey, Jeff Garlin, Sean Giambrone, Troy Gentile, Hayley Orrantia and George Segal. The show is produced by Goldberg, Seth Gordon, and Doug Robinson. It is based on Goldberg's childhood and family in the 1980s, complete with a childhood version of himself. The fourth season premiered on September 21, 2016. In May 2017, ABC renewed the series for a fifth and sixth season. The fifth season of the American television comedy series \"The Goldbergs\" premiered on ABC on September 27, 2017. The season will be produced by Adam F. Goldberg Productions, Happy Madison Productions, and Sony Pictures Television, and the executive producers are Adam F. Goldberg, Doug Robinson, and Seth Gordon. Identity Thief is a 2013 American comedy film directed by Seth Gordon, written by Craig Mazin, and starring Jason Bateman and Melissa McCarthy. The film tells a story about a man (Bateman) whose identity is stolen by a woman (McCarthy). The fourth season of the American television comedy series \"The Goldbergs\" premiered on ABC on September 21, 2016. The season was produced by Adam F. Goldberg Productions, Happy Madison Productions, and Sony Pictures Television, and the executive producers are Adam F. Goldberg, Doug Robinson, and Seth Gordon. The season contains 24 half-hour episodes. The season concluded on May 17, 2017. Horrible Bosses is a 2011 American black comedy film directed by Seth Gordon, written by Michael Markowitz, John Francis Daley and Jonathan Goldstein, based on a story by Markowitz. It stars Jason Bateman, Charlie Day, Jason Sudeikis, Jennifer Aniston, Colin Farrell, Kevin Spacey and Jamie Foxx. The plot follows three friends, played by Bateman, Day and Sudeikis, who decide to murder their respective overbearing, abusive bosses, portrayed by Spacey, Aniston and Farrell. \"Bill Nye: Science Guy\" is a 2017 biographical documentary film produced and directed by David Alvarado and Jason Sussberg of Structure Films (\"The Immortalists,\" 2014), and produced by Seth Gordon and Kate McLean. The documentary concept was pitched to the film's subject, Bill Nye, by Alvarado, Sussberg, and Gordon at a hotel bar in San Francisco in October 2014. Baywatch is a 2017 American action comedy film directed by Seth Gordon and based on the television series of the same name. Written by Mark Swift and Damian Shannon, the film stars Dwayne Johnson, Zac Efron, Priyanka Chopra, Alexandra Daddario, Kelly Rohrbach and Jon Bass. The plot follows lifeguard Mitch Buchannon and his team, who in an effort to save their beach have to take down a druglord.",
+  "event_id": "c22e16b8780c3b7e1160fbb6f8c2d53001034378f0ddd567b05ddd5059a805ab",
+  "evidence_distance_tokens": 108,
+  "evidence_position_token_idx": 518,
+  "gold_answer": "Baywatch",
+  "gold_answer_length_coarsening": "1",
+  "gold_answer_length_tokens": 1,
+  "gold_answer_normalized": "baywatch",
+  "is_fail": false,
+  "model_generation": "Baywatch",
+  "model_generation_normalized": "baywatch",
+  "per_event_seed": 32367,
+  "question": "Which film featuring Kelly Rohrbach was relased in 2017 and directed by Seth Gordon?",
+  "question_template_id": "bridge"
+}

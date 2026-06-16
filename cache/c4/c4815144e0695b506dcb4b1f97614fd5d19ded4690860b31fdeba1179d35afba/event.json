@@ -1,0 +1,21 @@
+{
+  "adversariality_policy": "none",
+  "bin_id": "B1",
+  "cem_stratum_id": "bridge|high|4+",
+  "distractor_density": 0.8,
+  "distractor_density_coarsening": "high",
+  "document": "Hyde, Jekyll, Me () is a 2015 South Korean television series starring Hyun Bin and Han Ji-min. It is based on Lee Choong-ho's webtoon \"Dr. Jekyll Is Mr. Hyde\" (), which gave a romantic comedy spin on the literary character. The series aired on SBS from January 21 to March 26, 2015 on Wednesdays and Thursdays at 21:55 for 20 episodes. The World That They Live In (; lit. \"Worlds Within\") is a 2008 South Korean television series starring Hyun Bin and Song Hye-kyo. It centers on the personal and professional lives of those in the broadcasting industry, offering a realistic look at Korean drama production through the work and romance of two TV directors. The series aired on KBS2 from October 27 to December 16, 2008 on Mondays and Tuesdays at 21:50 for 16 episodes. East of Eden () is a 2008 South Korean television series, starring Song Seung-heon, Yeon Jung-hoon, Park Hae-jin, Lee Da-hae, Han Ji-hye, and Lee Yeon-hee. It was produced by Chorokbaem Media as a 47th Anniversary Special Project Drama for MBC, on which it aired from August 25, 2008 to March 10, 2009 on Mondays and Tuesdays at 21:55 for 56 episodes. The \u20a925 billion drama tells the story of the brothers Dong-chul (Song) and Dong-wook (Yeon). Their fates diverge after the murder of their coal miner father, with one joining the mob and the other becoming a successful lawyer. A Millionaire's First Love () is a 2006 South Korean romance film directed by Kim Tae-kyun, starring Hyun Bin and Lee Yeon-hee. The theme of the film is \"Nothing is more important than the true love of your heart.\" It was released in South Korean cinemas on February 9, 2006, and recorded 639,596 admissions during its run. Miss Korea () is a South Korean television series starring Lee Sun-kyun, Lee Yeon-hee, Lee Mi-sook, Lee Sung-min, Song Seon-mi, and Lee Ki-woo. It aired on MBC from December 18, 2013 to February 26, 2014 on Wednesdays and Thursdays at 21:55 for 20 episodes. Hello, Schoolgirl (; literally \"pure/romantic comic,\" the Korean version of sh\u014djo manga) is a 2008 South Korean film. Adapted from \"Love Story\", a popular webtoon by Kang Full, it is the second film directed by Ryoo Jang-ha. It stars Yoo Ji-tae, Lee Yeon-hee, Chae Jung-an, and Kang-in. Splendid Politics () is a 2015 South Korean television series starring Cha Seung-won, Lee Yeon-hee, Kim Jaewon, Seo Kang-joon, Han Joo-wan and Jo Sung-ha. It aired on MBC from April 13 to September 29, 2015 on Mondays and Tuesdays at 22:00 for 50 episodes. Lee Yeon-hee (; born January 9, 1988) is a South Korean actress. She is most known for her work in the television series \"East of Eden\" (2008), \"Phantom\" (2012), \"Miss Korea\" (2013), \"Reunited Worlds\" (2017); and in the films \"A Millionaire's First Love\" (2006), \"M\" (2007) and \"\" (2015). Friend, Our Legend () is a 2009 South Korean television series starring Hyun Bin, Kim Min-joon, Seo Do-young, Lee Si-eon and Wang Ji-hye. It aired on MBC from June 27 to August 30, 2009 on Saturdays and Sundays at 22:40 for 20 episodes. One Fine Day () is a 2006 South Korean television drama series starring Gong Yoo, Sung Yu-ri, Namkoong Min and Lee Yeon-hee. It aired on MBC from May 31 to July 20, 2006 on Wednesdays and Thursdays at 21:55 for 16 episodes.",
+  "event_id": "c4815144e0695b506dcb4b1f97614fd5d19ded4690860b31fdeba1179d35afba",
+  "evidence_distance_tokens": 246,
+  "evidence_position_token_idx": 476,
+  "gold_answer": "A Millionaire's First Love",
+  "gold_answer_length_coarsening": "4+",
+  "gold_answer_length_tokens": 4,
+  "gold_answer_normalized": "a millionaire's first love",
+  "is_fail": true,
+  "model_generation": "A Millionaire's First Love",
+  "model_generation_normalized": "millionaire's first love",
+  "per_event_seed": 64838,
+  "question": "Lee Yeon-hee (; born January 9, 1988) is a South Korean actress, known for her work in which 2006 South Korean romance film directed by Kim Tae-kyun, starring Hyun Bin and Lee Yeon-hee?",
+  "question_template_id": "bridge"
+}

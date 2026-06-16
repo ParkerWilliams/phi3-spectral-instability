@@ -1,0 +1,21 @@
+{
+  "adversariality_policy": "none",
+  "bin_id": "B1",
+  "cem_stratum_id": "comparison|high|1",
+  "distractor_density": 0.8,
+  "distractor_density_coarsening": "high",
+  "document": "Finding Steve McQueen is an upcoming American heist thriller film directed by Mark Steven Johnson and written by Keith Sharon and Ken Hixon. The film stars Travis Fimmel, Rachel Taylor, Forest Whitaker, and William Fichtner. When in Rome is a 2010 American romantic comedy film directed by Mark Steven Johnson, co-written by Johnson, David Diamond and David Weissman. It stars Kristen Bell and Josh Duhamel. It was released by Touchstone Pictures in the United States on January 29, 2010. George Fitzmaurice (13 February 1885 \u2013 13 June 1940) was a French-born film director and producer. Grumpier Old Men is a 1995 romantic comedy film, and a sequel to the 1993 film \"Grumpy Old Men\". The film stars Jack Lemmon, Walter Matthau, Ann-Margret, and Sophia Loren, with Burgess Meredith, Daryl Hannah, Kevin Pollak, Katie Sagona, Ann Morgan Guilbert. \"Grumpier Old Men\" was directed by Howard Deutch, with the screenplay written by Mark Steven Johnson and the original music score composed by Alan Silvestri. His Captive Woman is a 1929 part-talking drama film directed by George Fitzmaurice and starring Milton Sills and Dorothy Mackaill. It was produced and distributed by First National Pictures which was already a subsidiary of the Warner Brothers studios. The Vitaphone sound system was also a subsidiary of Warners. Both Mackaill and Sills as well as director Fitzmaurice had worked together on the previous year's \"The Barker\". The Avalanche (1919) is an American silent film about gambling directed by George Fitzmaurice who also served as the film's art director. William Scully was the assistant director to Fitzmaurice. The film stars Elsie Ferguson and Warner Oland. Elizabeth Olin (born December 21) is an American actress. Her most notable film to date is \"God of Love\", written, directed, and starring NYU Graduate student Luke Matheny, which won the Academy Award for Best Live Action Short Film in 2011. She has also appeared in \"When in Rome\", a Touchstone Pictures film directed by Mark Steven Johnson. Olin currently filmed \"Killing Season\" alongside Robert De Niro, John Travolta, and Milo Ventimiglia, which was released in summer 2013. Killing Season (previously titled Shrapnel) is a 2013 American action thriller film written by Evan Daugherty and directed by Mark Steven Johnson for Millennium Films, as the first on-screen pairing of actors John Travolta and Robert De Niro. The film pertains to a personal fight between an American and a Serb war veteran. A Society Exile (1919) is an American silent film drama directed by George Fitzmaurice and starring Elsie Ferguson, Julia Dean, and William Carleton. The assistant director to Fitzmaurice was William Scully. The film marks the second screen appearance of the actor Henry Stephenson. The film was based upon the play \"We Can't Be as Bad as All That\" by Henry Arthur Jones. Mark Steven Johnson (born October 30, 1964) is an American screenwriter, film director, and producer.",
+  "event_id": "242289b2d2a170a1442efd2bbec87bbac2d278ae508c84988b46912a5431bedb",
+  "evidence_distance_tokens": 23,
+  "evidence_position_token_idx": 475,
+  "gold_answer": "no",
+  "gold_answer_length_coarsening": "1",
+  "gold_answer_length_tokens": 1,
+  "gold_answer_normalized": "no",
+  "is_fail": true,
+  "model_generation": "No, George Fitzmaurice was French-born, but Mark Steven Johnson is American.",
+  "model_generation_normalized": "no, george fitzmaurice was french-born, but mark steven johnson is american",
+  "per_event_seed": 87420,
+  "question": "Were George Fitzmaurice and Mark Steven Johnson both French?",
+  "question_template_id": "comparison"
+}

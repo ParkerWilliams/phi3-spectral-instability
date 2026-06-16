@@ -1,0 +1,21 @@
+{
+  "adversariality_policy": "none",
+  "bin_id": "B1",
+  "cem_stratum_id": "bridge|high|4+",
+  "distractor_density": 0.8,
+  "distractor_density_coarsening": "high",
+  "document": "Gieve Patel (born 18 August 1940) is an Indian poet, playwright, painter, as well as a practicing physician/doctor based in Mumbai. Charles Wilson (born 18 August 1940) is a Scottish journalist and newspaper executive. Jan Weeteling (born 18 August 1940) is a retired Dutch swimmer who won a bronze medal in the 4 \u00d7 100 m medley relay at the 1962 European Aquatics Championships. He also competed in the 200 m backstroke and 4 \u00d7 100 m medley relay at the 1964 Summer Olympics but was eliminated in the preliminaries. He won the silver medal in the 200 m backstroke at the 1963 Summer Universiade. The Commissioner is a 1998 Belgian-German drama film directed by George Sluizer and written by Christina Kallas based on the novel of same name by Stanley Johnson. It was entered into the 48th Berlin International Film Festival. Nelli Mikhaylovna Abramova (\"Russian: \u041d\u0435\u0301\u043b\u043b\u0438 \u041c\u0438\u0445\u0430\u0301\u0439\u043b\u043e\u0432\u043d\u0430 \u0410\u0431\u0440\u0430\u0301\u043c\u043e\u0432\u0430 \") (born 18 August 1940 in Chelyabinsk) is a Jewish former Soviet competitive female volleyball player. She is an Olympic silver medallist (in 1964) and European champion (in 1967). Manuel Guti\u00e9rrez Arag\u00f3n (Torrelavega, Cantabria 2 January 1940) is a Spanish screenwriter and film director. His 1973 film \"Habla, mudita\" was entered into the 23rd Berlin International Film Festival. In 1977, he won the Silver Bear for Best Director for \"Camada negra\" at the 27th Berlin International Film Festival. His 1979 film \"El coraz\u00f3n del bosque\" was entered into the 29th Berlin International Film Festival. Two years later, his film \"Maravillas\" was entered into the 31st Berlin International Film Festival. His 1982 film \"Demons in the Garden\" was entered into the 13th Moscow International Film Festival where it won the FIPRESCI Prize. In 1991 he was a member of the jury at the 17th Moscow International Film Festival. William Tynan (born 18 August 1940) is a politician in the United Kingdom. He was Labour Party member of Parliament (MP) for Hamilton South from 1999 to 2005, when he won the Hamilton South by-election to replace the ennobled George Robertson. Jan Owen (born 18 August 1940) is a contemporary Australian poet. Stanley Patrick Johnson (born 18 August 1940) of West Nethercote, Winsford, Somerset, is a British politician and author, and an expert on environmental and population issues. He was a Conservative MEP for Wight & Hampshire East from 1979 to 1984 and is a former employee of the World Bank and the European Commission. He is co-chairman of Environmentalists for Europe (E4E), a collection of pro-EU environmentalists campaigning for the UK to remain a member of the EU. Michael John Kenning (born 18 August 1940 in Birmingham, Warwickshire, England), is an English footballer who played as a winger in the Football League.",
+  "event_id": "fc5b06aef680e46c1a63357a360b397e20681dc24e233bb0b8879f1fbc28bced",
+  "evidence_distance_tokens": 162,
+  "evidence_position_token_idx": 374,
+  "gold_answer": "48th Berlin International Film Festival",
+  "gold_answer_length_coarsening": "4+",
+  "gold_answer_length_tokens": 5,
+  "gold_answer_normalized": "48th berlin international film festival",
+  "is_fail": true,
+  "model_generation": "Berlin International Film Festival",
+  "model_generation_normalized": "berlin international film festival",
+  "per_event_seed": 35301,
+  "question": "Which film festival was the film, based on the novel of same name written by a British politician born 18 August 1940, entered in?",
+  "question_template_id": "bridge"
+}

@@ -1,0 +1,21 @@
+{
+  "adversariality_policy": "none",
+  "bin_id": "B1",
+  "cem_stratum_id": "comparison|high|1",
+  "distractor_density": 0.8,
+  "distractor_density_coarsening": "high",
+  "document": "This list of Harper's Bazaar Russia cover models is a catalog of cover models/celebrities who have appeared on the cover of Harper's Bazaar Russia, the Russian edition of \"Harper's Bazaar\" magazine, starting with first issue in March 1996. This article is a catalog of actresses and models who have appeared on the cover of Harper's Bazaar Spain, the Spanish edition of \"Harper's Bazaar\" magazine, starting with the magazine's first issue in March 2010. This article is a catalog of actresses and models who have appeared on the cover of Harper's Bazaar Serbia, the Serbian edition of \"Harper's Bazaar\" magazine, starting with the magazine's first issue in October 2014. harper by Harper's Bazaar (referred to as \"harper\") is a supplement to the American women's fashion magazine \"Harper's Bazaar\" presented in various physical and digital formats. Harper's Young People was an American children's magazine between 1879 and 1899. The first issue appeared in the fall of 1879. It was published by Harper & Brothers. It was Harper's fourth magazine to be established, after \"Harper's Magazine\" (1850), \"Harper's Weekly\" (1857), and \"Harper's Bazaar\" (1867). \"Harper's Young People\" was the first of the four magazines to cease publication. Nancy White (July 25, 1916, Brooklyn \u2013 May 25, 2002, Manhattan) was the editor of Harper's Bazaar during the 1960s. She edited Harper's from 1958 to 1971. When she won the top editorial job at Harper's Bazaar in 1958, she hoped she would be remembered for: authority, awareness, wit, spirit, surprise, curiosity, intelligence, timing, food for thought, vitality, balance and youth. She \"... was extremely good at mixing the avant-garde with the accessible.\" Harper's Bazaar is an American women's fashion magazine, first published in 1867. \"Harper's Bazaar\" is published by Hearst and, as a magazine, considers itself to be the style resource for \"women who are the first to buy the best, from casual to couture.\" Queen (originally The Queen) magazine was a British society publication established by Samuel Beeton in 1861. In 1958, the magazine was sold to Jocelyn Stevens, who dropped the prefix \"\"The\"\" and used it as his vehicle to represent the younger side of the British Establishment, sometimes referred to as the \"Chelsea Set\" under the editorial direction of Beatrix Miller. In 1964 the magazine gave birth to Radio Caroline, the first daytime commercial pirate radio station serving London, England. Stevens sold \"Queen\" in 1968. From 1970 the new publication became known as Harper's & Queen until the name \"Queen\" was dropped from the masthead. It is now known as \"Harper's Bazaar\". Closer is a British tabloid magazine published by Bauer Media Group. Lizzette Kattan, is a Honduran-born fashion editor that worked between Milan and New York from 1976 until 1986 for Harper's Bazaar Italy, Harper's Bazaar France, Uomo Harper's Bazaar and Italian Cosmopolitan. She collaborated with virtually every major photographer of that period and discovered many of today's most recognizable photographic talent. Once retired from the fashion world Lizzette started her diplomatic career as the Commercial Attache of the Honduran Embassy in Rome, in 1990, and eventually becoming the Consulate General of Milan in 2002 until 2007. She currently works as a freelance Stylist for international publications.",
+  "event_id": "df1d670d1559e8f2855418040b91eb776c080995bb8bb2a131e25b570c308ead",
+  "evidence_distance_tokens": 200,
+  "evidence_position_token_idx": 431,
+  "gold_answer": "magazine",
+  "gold_answer_length_coarsening": "1",
+  "gold_answer_length_tokens": 1,
+  "gold_answer_normalized": "magazine",
+  "is_fail": true,
+  "model_generation": "Magazines",
+  "model_generation_normalized": "magazines",
+  "per_event_seed": 79129,
+  "question": "Harper's Bazaar and Closer, are which form of publication?",
+  "question_template_id": "comparison"
+}

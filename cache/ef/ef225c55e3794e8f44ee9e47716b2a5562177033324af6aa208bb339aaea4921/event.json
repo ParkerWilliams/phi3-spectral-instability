@@ -1,0 +1,21 @@
+{
+  "adversariality_policy": "none",
+  "bin_id": "B2",
+  "cem_stratum_id": "bridge|high|1",
+  "distractor_density": 0.8,
+  "distractor_density_coarsening": "high",
+  "document": "Ternana Unicusano Calcio is an Italian football club based in the city of Terni, Umbria. The Stadio Libero Liberati is a multi-use stadium in Terni, Italy. It is currently used mostly for football matches and the home of Ternana Unicusano Calcio. The stadium was built in 1969 and holds 17,460. Stadio Marcello Torre is a multi-use stadium in Pagani, Italy. It is currently used mostly for football matches and is the home ground of Paganese Calcio 1926. The stadium holds 5,981 people. On November 24, 2008 a strong wind caused the collapse of a section of the stadium. Stadio Ciro Vigorito (formerly Stadio Santa Colomba) is a multi-use stadium in Benevento, Italy. It is currently used mostly for football matches and is the home stadium of Benevento Calcio. The stadium is able to hold 25,000 people and was opened in 1979. The Stadio comunale Enzo Blasone is a multi-use stadium in Foligno, Italy. It is currently used mostly for football matches and is the home stadium of Foligno Calcio. It holds 4.650. Stadio Gaetano Bonolis (formerly Stadio Comunale, also known as Stadio di Piano d'Accio) is a multi-use stadium in Teramo, Italy. It is currently used mostly for football matches and concerts. It is the home ground of Teramo Calcio. The stadium holds 7,498. Stadio Antonio Bianco is a multi-use stadium in Gallipoli, Italy. It is currently used mostly for football matches and is the home ground of Gallipoli Calcio. The stadium holds 5,000 people. Stadio Gino Pistoni is a multi-use stadium in Ivrea, Italy. It is currently used mostly for football matches and is the home ground of A.S.D. Calcio Ivrea. The stadium holds 3,500 people. Stadio Giuseppe Moccagatta is a multi-use stadium in Alessandria, Italy. It is currently used mostly for football matches and is the home ground of U.S. Alessandria Calcio 1912. The stadium holds 10,040. Stadio Amsicora is a multi-use stadium in Cagliari, Italy. It was used mostly for football matches and was the home of Cagliari Calcio. The stadium was able to hold 29,000 spectators at its height. Its capacity has since been downsized to 8,000 spectators. Cagliari Calcio moved to the Stadio Sant'Elia in 1970.",
+  "event_id": "ef225c55e3794e8f44ee9e47716b2a5562177033324af6aa208bb339aaea4921",
+  "evidence_distance_tokens": 669,
+  "evidence_position_token_idx": 26,
+  "gold_answer": "Italy",
+  "gold_answer_length_coarsening": "1",
+  "gold_answer_length_tokens": 1,
+  "gold_answer_normalized": "italy",
+  "is_fail": false,
+  "model_generation": "Italy",
+  "model_generation_normalized": "italy",
+  "per_event_seed": 14915,
+  "question": "The Stadio Libero Liberati is a multi-use stadium in Terni, in which country, and is currently used mostly for football matches and the home of Ternana Unicusano Calcio, an Italian football club based in the city of Terni, Umbria?",
+  "question_template_id": "bridge"
+}

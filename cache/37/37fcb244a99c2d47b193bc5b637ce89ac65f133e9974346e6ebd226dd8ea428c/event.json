@@ -1,0 +1,21 @@
+{
+  "adversariality_policy": "none",
+  "bin_id": "B1",
+  "cem_stratum_id": "comparison|high|2-3",
+  "distractor_density": 0.8,
+  "distractor_density_coarsening": "high",
+  "document": "Schooled is a 2007 American independent drama film, written and directed by Brooks Elms, and produced by Brian Hennessy and Lorenda Starfelt. The film follows a traditional East Coast school teacher (Daniel Kucan), who becomes involved with a non-traditional, alternative school in California, which leads to significant changes in his personal philosophy and lifestyle. The film co-stars Alysia Reiner, and was co-edited by Frederick Marx, the writer/producer/co-editor of the 1994 documentary \"Hoop Dreams\". Kartemquin Films is a 501(c)3 non-profit production company located in Chicago, Illinois, that produces a wide range of documentary films. It is the documentary filmmaking home of acclaimed producers such as Gordon Quinn (\"A Good Man\"), Steve James (\"Hoop Dreams\"), Maria Finitzo (\"\"; \"In the Game\"), Joanna Rudnick (\"In the Family\"), Bill Siegel (\"The Trials of Muhammad Ali\"), and Aaron Wickenden (Almost There). Warrior Films is a 501(c)(3) non-profit film production company headquartered in Oakland, California. Founded by Oscar and Emmy nominated producer/director Frederick Marx (Hoop Dreams) in 2003, the organization produces documentary films about people overcoming social-economic barriers to create social change. Warrior Films also runs a documentary filmmaking course in partnership with colleges and universities. Frederick Marx is a film producer/director. He was named a Chicago Tribune Artist of the Year for 1994, a 1995 Guggenheim Fellow, and a recipient of a Robert F. Kennedy Special Achievement Award. Frederick Marx achieved international fame for his film \"Hoop Dreams\" (1994). It is one of the highest grossing non-musical documentaries in United States history. Martha & Ethel is a 1994 documentary film directed by Jyll Johnstone. It premiered at the 1994 Sundance Film Festival and was nominated for the Grand Jury Prize. It was subsequently nominated for a Directors Guild of America award, losing to Steve James for \"Hoop Dreams.\" The film was distributed in theaters by Sony Pictures Classics and on home video by Columbia TriStar Home Video. William Gates (born December 28, 1971) is an American former Chicago-area high school and college basketball player. Gates was the subject of the 1994 Kartemquin Films documentary film \"Hoop Dreams\" along with another Chicago-area high school basketball player Arthur Agee. Passing Glory is a 1999 basketball-drama film produced for TNT, written by Harold Sylvester, and directed by Steve James. This movie stars Andre Braugher, Rip Torn, and Sean Squire. The film also features a speaking role by Arthur Agee, subject of the documentary \"Hoop Dreams\", also directed by Steve James. Music composed by Stephen James Taylor. LaLee's Kin: The Legacy of Cotton is a 2001 American documentary film directed by Deborah Dickson, Susan Fr\u00f6mke and Albert Maysles. It was nominated for Best Documentary Feature at the 74th Academy Awards. Hoop Dreams is a 1994 American documentary film directed by Steve James and written by James and Frederick Marx, with Kartemquin Films. It follows the story of two African-American high school students in Chicago and their dream of becoming professional basketball players. Arthur \"Man\" Agee, Jr. (born October 22, 1972) is an American former Chicago-area high school basketball player. Agee was one of two Chicago-area high school basketball players whose lives were chronicled in the 1994 Kartemquin Films documentary, \"Hoop Dreams\".",
+  "event_id": "37fcb244a99c2d47b193bc5b637ce89ac65f133e9974346e6ebd226dd8ea428c",
+  "evidence_distance_tokens": 130,
+  "evidence_position_token_idx": 463,
+  "gold_answer": "Hoop Dreams",
+  "gold_answer_length_coarsening": "2-3",
+  "gold_answer_length_tokens": 2,
+  "gold_answer_normalized": "hoop dreams",
+  "is_fail": true,
+  "model_generation": "LaLee's Kin: The Legacy of Cotton",
+  "model_generation_normalized": "lalee's kin: the legacy of cotton",
+  "per_event_seed": 3133,
+  "question": "Which was released first, LaLee's Kin: The Legacy of Cotton or Hoop Dreams?",
+  "question_template_id": "comparison"
+}

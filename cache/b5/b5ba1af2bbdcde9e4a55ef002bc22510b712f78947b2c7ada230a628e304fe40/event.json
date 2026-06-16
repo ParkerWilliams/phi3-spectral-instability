@@ -1,0 +1,21 @@
+{
+  "adversariality_policy": "none",
+  "bin_id": "B1",
+  "cem_stratum_id": "bridge|high|2-3",
+  "distractor_density": 0.8,
+  "distractor_density_coarsening": "high",
+  "document": "HGTV Design Star season 3 was the third season of the American reality TV home design show HGTV Design Star. The season first aired from 8 June to 3 August 2008 on HGTV in 9 weekly episodes. The season was hosted by Clive Pearse and the judges were designers Vern Yip and Cynthia Rowley. The final challenge involved renovating houses damaged during Hurricane Katrina and the winner was chosen in a vote open to viewers. The winner was Jennifer Bertrand, who won her own TV show on HGTV called \"Paint-Over! with Jennifer Bertrand\". The 2016 Conference USA football season was the 21st season of Conference USA football and part of the 2016 NCAA Division I FBS football season. The season began on September 1 with Charlotte facing Louisville. This season was the second season for the C-USA under realignment that took place in 2014, which added the 14th member Charlotte from the Atlantic 10 Conference. The C-USA is a \"Group of Five\" conference under the College Football Playoff format along with the American Athletic Conference, the Mid-American Conference, the Mountain West Conference, and the Sun Belt Conference. The 2017 Thai League T1 (also known as the Toyota Thai League for sponsorship reasons) was the 21st season of the Thai League, the top Thai professional league for association football clubs, since its establishment in 1996. A total of 18 teams will compete in the league. The season began on 11 February 2017. Fixtures for the 2017 season were announced on 12 January 2017. The 2017 WNBA season is the 21st season of the Women's National Basketball Association (WNBA). Its regular season began on May 13 with three games, highlighted by the defending WNBA champion Los Angeles Sparks hosting the Seattle Storm. It will conclude on September 3. Playoffs will begin on September 6. \"White People Renovating Houses\" is the first episode in the twenty-first season of the American animated television series \"South Park\". It is the 278th episode of the series overall, and first aired on Comedy Central in the United States on September 13, 2017. The 2017 Marine Harvest Premiership will be the 21st season of the Premier Division, the highest division in Shinty. The season began on 4 March 2017 consisting of 10 teams from across Scotland. The 3rd season with Marine Harvest as title sponsors will see reigning champions Newtonmore challenging for their 8th Premiership title in a row. The 2015\u201316 CBA season was the 21st season of the Chinese Basketball Association. The regular season began on Saturday, October 31, 2015, with the Beijing Ducks hosting the Xinjiang Flying Tigers. The regular season ended on Friday, February 5, 2016, and the playoffs began on Monday, February 15, 2016. The twenty-first season of the American animated sitcom \"South Park\" premiered on Comedy Central on September 13, 2017, and will contain ten episodes. The 2016 New England Revolution season was the club's 21st season of existence and their 21st season in Major League Soccer, the top-flight of American soccer. The 2016 Colorado Rapids season is the club's 21st season of existence, and their 21st season in Major League Soccer, the top tier of the American and Canadian soccer pyramids.",
+  "event_id": "b5ba1af2bbdcde9e4a55ef002bc22510b712f78947b2c7ada230a628e304fe40",
+  "evidence_distance_tokens": 132,
+  "evidence_position_token_idx": 473,
+  "gold_answer": "South Park",
+  "gold_answer_length_coarsening": "2-3",
+  "gold_answer_length_tokens": 2,
+  "gold_answer_normalized": "south park",
+  "is_fail": false,
+  "model_generation": "South Park",
+  "model_generation_normalized": "south park",
+  "per_event_seed": 48422,
+  "question": "White People Renovating Houses was an episode of which animated sitcom, whose 21st season began in 2017?",
+  "question_template_id": "bridge"
+}

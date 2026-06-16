@@ -1,0 +1,21 @@
+{
+  "adversariality_policy": "none",
+  "bin_id": "B1",
+  "cem_stratum_id": "bridge|high|1",
+  "distractor_density": 0.8,
+  "distractor_density_coarsening": "high",
+  "document": "KDWB-FM (101.3 FM) is an American commercial radio station broadcasting in the Twin Cities region of Minnesota. KDWB's radio format is CHR. Its transmitter is located in Shoreview, while its studios are in St. Louis Park. The station is owned by iHeartMedia, Inc.. KDDK (105.5 FM) is an American commercial radio station broadcasting a Tropical Spanish format. Licensed to Addis, Louisiana, the station serves the Baton Rouge area. As of January 2009, the station is owned by Radio & Investments, Inc. KELT (102.5 FM) branded as KJ316 is an American commercial radio station licensed in 2010 to serve the community of Encinal, Texas. The station's broadcast license is held by Randall E. Leyendecker. The station broadcasts Christian contemporary music for the southern rural La Salle and northern Webb counties region. It currently has a construction permit to broadcast at a higher ERP. WRQX (107.3 FM, \"Mix 107.3\"), is an American commercial radio station licensed to Washington, D.C., and serves the Washington Metropolitan Area. The station airs a hot adult contemporary format. WRQX is currently owned and operated by Cumulus Media with the broadcast license held by Radio License Holding VII, LLC. M\u0101kaha (Hawaiian for \u201cfierce\u201d or \u201csavage\u201d) is a census-designated place (CDP) in Honolulu County, Hawai\u02bb i, United States. It\u2019s a town located along the Pacific Ocean, west of the M\u0101kaha Valley, and at the foot of Mt. Ka'ala in the Wai\u2019anae Mountain Range. It is the last of the leeward towns on O'ahu. North of M\u0101kaha is little development, i.e. no towns, no gas stations, or restaurants. The population of M\u0101kaha was 8,278 at the 2010 census. It is located 35 miles northwest of Honolulu, but is a part of Honolulu County. Wai\u02bb anae is a census-designated place (CDP) in Honolulu County, Hawaii, United States. As of the 2010 Census, the CDP population was 13,177. KQZZ (96.7 FM, \"Mix 96.7 FM\") is an American commercial radio station licensed to serve Crary, North Dakota. The station is owned by Double Z Broadcasting and licensed to Two Rivers Broadcasting, Inc. KQZZ is operated along with its three sister stations under the collective name Lake Region Radio Works. It airs a Hot Adult Contemporary music format. KDVL (102.5 FM, \"Cruiser 102\") is an American commercial radio station licensed to serve Devils Lake, North Dakota. The station is owned by Double Z Broadcasting, Inc., and operated along with its three sister stations under the collective name Lake Region Radio Works. KDVL airs a classic hits music format, which covers mainly 1970s and 1980s, and some hits from the late 1960s. KKDO (94.7 FM) is an American commercial radio station serving Sacramento, California. Their trademark is \"Radio 94-7\" and programs an alternative rock music format. The Entercom outlet broadcasts at 94.7 MHz with an ERP of 25 kW and is licensed to Fair Oaks, California. The station's HD Radio channel currently offers an Urban Adult Contemporary format. Its studios are located in North Highlands (with a Sacramento address) and its transmitter is near Citrus Heights. KORL-FM is an American commercial radio station located in Waianae, Hawaii, broadcasting to the Honolulu, Hawaii area on 101.1 FM. KORL-FM airs an oldies music format. The station is currently owned by Hochman Hawaii Three, Inc.. It also transmits on Oceanic Time Warner Cable digital channel 883 for the entire state of Hawaii.",
+  "event_id": "1a389c2aaae6d59d6b98c2e756f120756b5725b29a89a7107d9b8c0fcfc47a81",
+  "evidence_distance_tokens": 94,
+  "evidence_position_token_idx": 521,
+  "gold_answer": "13,177",
+  "gold_answer_length_coarsening": "1",
+  "gold_answer_length_tokens": 1,
+  "gold_answer_normalized": "13,177",
+  "is_fail": true,
+  "model_generation": "8,278",
+  "model_generation_normalized": "8,278",
+  "per_event_seed": 75733,
+  "question": "KORL-FM is an American commercial radio station in Honolulu County Hawaii, that had what population as of the 2010 census?",
+  "question_template_id": "bridge"
+}

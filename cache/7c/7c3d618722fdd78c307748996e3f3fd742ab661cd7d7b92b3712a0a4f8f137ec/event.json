@@ -1,0 +1,21 @@
+{
+  "adversariality_policy": "none",
+  "bin_id": "B1",
+  "cem_stratum_id": "bridge|high|1",
+  "distractor_density": 0.8,
+  "distractor_density_coarsening": "high",
+  "document": "The ESP Italia brand a brand owned by the Italia guitar company and distributed by ESP. Lynk & Co is an automotive brand owned by China-based Zhejiang Geely Holding Group. Founded in 2016, its cars will be positioned between those of the Geely brand and Swedish brand Volvo, which was purchased by Geely in 2010. The focus of the brand is on internet connectivity and innovative purchasing models in certain markets, targeting the young professional demographic. Philco, (founded as Helios Electric Company, renamed Philadelphia Storage Battery Company), was a pioneer in battery, radio, and television production. In North America, it is the Philco brand owned by Philips. In other markets, it is the Philco International brand owned by Electrolux. Dr. Scholl's is a footwear and foot care brand owned by Bayer in the North and Latin American markets, and by Aurelius AG in its remaining markets worldwide. The brand in the North and Latin American markets was owned by Merck & Co. through its predecessor Schering-Plough until it was sold to Bayer on 1 October 2014. Aurelius AG bought the brand for all other markets from Reckitt Benckiser on 21 July 2014. Hope is a cigarette brand owned by Japan Tobacco. In the Philippines, the Hope brand is owned by PMFTC, Inc. and is unrelated to the Hope brand owned by Japan Tobacco. Dairy Farmers Pty Ltd, originally established in 1900, is a brand owned by Lion Dairy & Drinks, and is distributed mainly New South Wales & Queensland in Australia. The core products sold under that Dairy Farmers brand are fresh milk (in NSW and Queensland only) and UHT \"long-life\" milk (Australia wide), as well as various other dairy snacks. It supplies products to local and international markets such as Eastern Europe, the Middle East and Asia. Kinohimitsu (\u6728\u306e\u79d8\u5bc6 , Kinohimitsu ) is a functional beauty and health brand owned by Kino Biotech, a leading integrated bio-nutraceutical and cosmeceutical public listed company in the Taiwan`s GreTai Securities Market (GTSM) with its head office in Singapore. According to Euromonitor International, Kinohimitsu was the top selling beauty drink and collagen drink in Malaysia and Singapore between 2008 and 2010. The brand name, (\u6728\u306e\u79d8\u5bc6) means the secret of Nature. The brand name stays true to the company\u2019s practices in using natural ingredients in its products. Catherine \"Cat\" Sandion is British television presenter. She has been presenting since 2008, starting a TV career as a member of the first UK version of hit Australian Children's TV show \"Hi-5\" which was broadcast on Cartoonito, and CITV. Sandion has been presenting CBeebies since January 2013. Royal Tru (often referred to simply as Royal) is a carbonated fruit-flavored soft drink brand owned by The Coca-Cola Company that is only available in the Philippines. The brand was introduced in 1922 by the original San Miguel Brewery. Since being acquired by Coca-Cola's Philippine unit in 2007, the brand has become the Philippine counterpart of Coca-Cola's Fanta brand. Cartoonito is a pre-school brand owned and distributed by Turner, available as dedicated television channels in the United Kingdom, Ireland and Italy, and also as a branded block of content on Boomerang across Europe, the Middle East, and Africa. Cartoonito is available as a dedicated channel in Asia, owned and operated by Turner Broadcasting System Asia Pacific, Inc. and also as a branded block on Cartoon Network Arabic. The brand is aimed at young children under the age of 6 years.",
+  "event_id": "7c3d618722fdd78c307748996e3f3fd742ab661cd7d7b92b3712a0a4f8f137ec",
+  "evidence_distance_tokens": 93,
+  "evidence_position_token_idx": 528,
+  "gold_answer": "Cartoonito",
+  "gold_answer_length_coarsening": "1",
+  "gold_answer_length_tokens": 1,
+  "gold_answer_normalized": "cartoonito",
+  "is_fail": false,
+  "model_generation": "Cartoonito",
+  "model_generation_normalized": "cartoonito",
+  "per_event_seed": 3838,
+  "question": "What is the name of this pre-school brand owned and distributed by Turner, on which Can Sandion broadcast the show \"Hi-5\"?",
+  "question_template_id": "bridge"
+}

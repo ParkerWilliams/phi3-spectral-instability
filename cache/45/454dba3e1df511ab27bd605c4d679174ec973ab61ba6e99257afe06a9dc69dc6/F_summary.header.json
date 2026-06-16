@@ -1,0 +1,28 @@
+{
+  "code_commit_sha": "47ce6a44365a40466bd889520211cd229dd3dda0",
+  "feature_layout": [
+    "stable_rank_qkt",
+    "grassmannian_qkt",
+    "spectral_entropy_qkt",
+    "stable_rank_avwo",
+    "grassmannian_avwo",
+    "spectral_entropy_avwo",
+    "forman_ricci_attention_graph"
+  ],
+  "forman_ricci_convention": "nan_with_median_imputation_and_indicator",
+  "host": "83833f1f8511",
+  "k_attn": 16,
+  "k_grass": 8,
+  "lookback_indices": null,
+  "lookback_window_length": 256,
+  "manifest_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "schema_version": "1.0.0",
+  "tensor_dtype": "float32",
+  "tensor_shape": [
+    32,
+    32,
+    7,
+    5
+  ],
+  "write_timestamp_utc": "2026-06-14T23:44:46Z"
+}

@@ -1,0 +1,21 @@
+{
+  "adversariality_policy": "none",
+  "bin_id": "B1",
+  "cem_stratum_id": "bridge|high|4+",
+  "distractor_density": 0.8,
+  "distractor_density_coarsening": "high",
+  "document": "Rodney Elliot (born December 17, 1977 in Rotterdam) is a Dutch footballer who played for Eerste Divisie club FC Dordrecht during the 1996-2001 football seasons. Jeffrey Sneijder (born 16 September 1982) is a Dutch former footballer who played as a winger. Rodney Sneijder (born 31 March 1991) is a Dutch association football midfielder. He previously played for AFC Ajax, RKC Waalwijk, Almere City in the Netherlands and for Scottish side Dundee United. He is the brother of Galatasaray's midfielder Wesley Sneijder and Jeffrey Sneijder. Wesley Deenen (born 24 July 1993, in Venray) is a Dutch footballer who plays as a right winger. He played for FC Oss in the Dutch Eerste Divisie. Wesley Hoedt (] ; born 6 March 1994) is a Dutch footballer who plays as a centre back for Premier League club Southampton. Arsenio Amerencio Halfhuid (born 9 November 1991) is a Dutch footballer of Surinamese descent who plays for SV DSO in the sixth division of Dutch football. He has previously played for various Dutch clubs including Feyenoord and ADO Den Haag, as well as the youth team of English side Aston Villa. Halfhuid can play either as a central defender or a striker after being used in the latter role by Aston Villa youth team coach Tony McAndrew. Halfhuid is the cousin of former Chelsea and Southampton defender Ken Monkou. Rodney Ubbergen (born 6 April 1986) is a Dutch footballer who plays as a goalkeeper for DOVO. He is of Surinamese descent. Wesley Verhoek (] ) (born 25 September 1986 in Leidschendam) is a Dutch footballer. Known as a striker who can also play as a winger on either side of the pitch. Wesley Verhoek is currently playing for Indian Super League club FC Pune City. Wesley Sneijder (] ; born 9 June 1984) is a Dutch professional footballer who plays as a midfielder for Ligue 1 club Nice and the Netherlands national team. He was named UEFA midfielder of the season and one of the three best midfielders in the world for 2010 by FIFA. A product of the AFC Ajax Academy, he previously played for Ajax, with whom he won four trophies and was awarded the Johan Cruyff Trophy in 2004. He was sold to Real Madrid for \u20ac27 million in 2007, winning La Liga in his first season with the club and later being sold to Internazionale for \u20ac15 million. At Inter, he won Serie A, the UEFA Champions League, the FIFA Club World Cup, and two Coppa Italia. After being sold to Galatasaray for \u20ac7.5 million in 2013, he helped the club win the S\u00fcper Lig in his first season, following with the capture of the Turkish Super Cup, after a 1\u20130 win against rivals Fenerbah\u00e7e. Jesper Verlaat (born 4 June 1996) is a Dutch footballer who plays as a defender for Werder Bremen II. He is the son of former Dutch footballer Frank Verlaat, who also played for Bremen.",
+  "event_id": "5b71394ea1fc3910fac57d27d390ae7ad878cb0927f25edb639dd7d5888e294e",
+  "evidence_distance_tokens": 281,
+  "evidence_position_token_idx": 318,
+  "gold_answer": "plays as a midfielder",
+  "gold_answer_length_coarsening": "4+",
+  "gold_answer_length_tokens": 4,
+  "gold_answer_normalized": "plays as a midfielder",
+  "is_fail": true,
+  "model_generation": "Midfielder",
+  "model_generation_normalized": "midfielder",
+  "per_event_seed": 28380,
+  "question": "What position do both Dutch footballer brothers, Rodney and Wesley Sneijder, play?",
+  "question_template_id": "bridge"
+}

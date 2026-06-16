@@ -1,0 +1,21 @@
+{
+  "adversariality_policy": "none",
+  "bin_id": "B1",
+  "cem_stratum_id": "bridge|high|1",
+  "distractor_density": 0.8,
+  "distractor_density_coarsening": "high",
+  "document": "Round Lake (Weagamow Lake) Airport, (IATA: ZRJ, ICAO: CZRJ) , is located 1.0 NM east of Round Lake, Ontario, Canada. The Round Lake Wilderness Area, an Adirondack Park unit of New York's Forest Preserve, is located in the town of Long Lake in Hamilton County. The area is approximately 11000 acre ; it was created in 2005 by the Adirondack Park Agency by classifying Round Lake as wilderness, and reclassifying of portions of the Horseshoe Lake Wild Forest and the Hitchens Pond Primitive Area to wilderness status. Round Lake is a village in Saratoga County, New York, United States. The population was 604 at the 2000 census. The name is derived from a circular lake adjacent to the village. In 1975, the Round Lake Historic District, which encompasses the village, was added to the National Register of Historic Places. Round Lake is a lake that is located east of Round Lake, New York. Fish species present in the lake are northern pike, tiger muskie, largemouth bass, carp, pumpkinseed sunfish, and brown bullhead. There is a carry down access located on the west shore off US-9. Round Lake (Weagamow Lake) Water Aerodrome, (TC LID: CKP6) , is located on Weagamow Lake near Round Lake, Ontario, Canada. Suzhou Dushu Lake Higher Education Town () is a university town located in the Southern part of Suzhou Industrial Park, Suzhou, Jiangsu, to the East of Dushu Lake, and to the South of Wusong River. It has a total area of 25 km, and expects to have around 400,000 people by 2016, 100,000 of whom will be students. Its goal is to offer good education, advanced technology, and a pleasant living environment. The area is home to many universities (undergraduate as well as graduate schools) including local Chinese universities and universities from other countries. This community focuses on producing educated and creative people. The area offers facilities including libraries, entertainment venues, parks, a sports centre and accommodation. Wenxing Plaza and Hanlin Plaza are popular locations of many small restaurants and shops. Dushu Lake Library is an experimental library of the National Digital Library. The Round Lake Library is located in the village of Round Lake, New York, United States. The village is located in Saratoga County, northeast of Schenectady Round Lake Park is a village in Lake County, Illinois, United States. The population was 7,505 at the 2010 census. It is located along the south side of the lake, Round Lake. The lake is well regarded secret for many water skiers. Access to the lake from this town is private and only for residents of Round Lake Park. Round Lake High School, officially Round Lake Senior High School, and commonly RLHS, is a public four-year high school located in Round Lake, Illinois, a northern suburb of Chicago, in the United States. It is part of Round Lake Area Schools District 116. Round Lake Station is a commuter railroad station on Metra's Milwaukee District/North Line in Round Lake, Illinois. The station is located at Route 134 and Cedar Lake Road, is 44 mi away from Union Station, the southern terminus of the line, and serves commuters between Union Station and Fox Lake, Illinois. In Metra's zone-based fare system, Round Lake is in zone I.",
+  "event_id": "618796179076764bde5a295933948ed0dd259a7b9a2271337df28a5d6aeafad9",
+  "evidence_distance_tokens": 262,
+  "evidence_position_token_idx": 374,
+  "gold_answer": "604",
+  "gold_answer_length_coarsening": "1",
+  "gold_answer_length_tokens": 1,
+  "gold_answer_normalized": "604",
+  "is_fail": false,
+  "model_generation": "604",
+  "model_generation_normalized": "604",
+  "per_event_seed": 63068,
+  "question": "What was the 2000 population of the town where The Round Lake Library is located?",
+  "question_template_id": "bridge"
+}

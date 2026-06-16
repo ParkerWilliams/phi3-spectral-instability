@@ -1,0 +1,21 @@
+{
+  "adversariality_policy": "none",
+  "bin_id": "B1",
+  "cem_stratum_id": "bridge|high|2-3",
+  "distractor_density": 0.8,
+  "distractor_density_coarsening": "high",
+  "document": "\"What's the Good of Being Good\" is the 169th episode of the ABC television series, \"Desperate Housewives\". It is the twelfth episode of the show's eighth season and aired on January 22, 2012. Britney Jean Spears (born December 2, 1981) is an American singer, dancer, and actress. Born in McComb, Mississippi, and raised in Kentwood, Louisiana, she performed acting roles in stage productions and television shows as a child before signing with Jive Records in 1997. Spears's first and second studio albums, \"...Baby One More Time\" (1999) and \"Oops! ... I Did It Again\" (2000), became international successes, with the former becoming the best-selling album by a teenage solo artist. Title tracks \"...Baby One More Time\" and \"Oops! ... I Did It Again\" broke international sales records. In 2001, Spears released her self-titled third studio album, \"Britney\", and played the starring role in the film \"Crossroads\" (2002). She assumed creative control of her fourth studio album, \"In the Zone\" (2003), which yielded the worldwide success of the single \"Toxic\". \"Masks\" is the 169th episode of the American science fiction television series \"\". The 17th episode of the . 169th Street is a local station on the IND Queens Boulevard Line of the New York City Subway. Located at the intersection of 169th Street and Hillside Avenue in Queens, it is served by the F train at all times. This is the closest subway station to the 165th Street Bus Terminal after the closure of the nearby 168th Street BMT Station on Jamaica Avenue in 1977. \"Britney's New Look\" is the second episode in the twelfth season of the animated television series \"South Park\", and the 169th episode of the series overall. It originally aired on Comedy Central in the United States on March 19, 2008. In the episode, Kyle Broflovski and Stan Marsh take pity on Britney Spears after a botched attempt at suicide that removes the upper two-thirds of her head, and try to save her from the cruel cycle of cultural martyrdom. The episode parodies the American short story \"The Lottery\". The episode also features cameos of all the one-off adult characters of the entire series throughout the episode, including Radiohead and Gene Hackman. The 169th Field Artillery Brigade (formerly the 169th Fires Brigade) is an artillery brigade in the US Army National Guard. It is part of the Colorado Army National Guard. The 169th Field Artillery Brigade is currently composed of: The 169th Infantry Regiment was an infantry regiment of the United States Army, Connecticut National Guard. They trace their ancestry back to when militia units in the Connecticut colony organized for drill in 1672, but their official organization as the 1st Connecticut occurred on 11 October 1739. Since then, the 169th and its predecessor units have fought in numerous American wars until its deactivation in 1992. \"The Cartoon\" is the 169th episode of the NBC sitcom \"Seinfeld\". This was the 13th episode for the ninth and final season. It aired on January 29, 1998. \"Test the Store\" is the seventeenth episode of the eighth season of the American comedy television series \"The Office\" and the show's 169th episode overall. The episode was written by Mindy Kaling, directed by Brent Forrester, and aired on NBC in the United States on March 1, 2012. The 169th Airlift Squadron (169 AS) is a unit of the Illinois Air National Guard 182d Airlift Wing located at Peoria Air National Guard Base, Peoria, Illinois. The 169th is equipped with the C-130H3 Hercules.",
+  "event_id": "f3e32ccc647c0d7a45e94441bb3d1d8c743e356943d75a482ba67b38d8956c11",
+  "evidence_distance_tokens": 444,
+  "evidence_position_token_idx": 334,
+  "gold_answer": "Britney Spears",
+  "gold_answer_length_coarsening": "2-3",
+  "gold_answer_length_tokens": 2,
+  "gold_answer_normalized": "britney spears",
+  "is_fail": false,
+  "model_generation": "Britney Spears",
+  "model_generation_normalized": "britney spears",
+  "per_event_seed": 27795,
+  "question": "What McComb, Mississippi-born singer is the subject of the 169th episode of South Park?",
+  "question_template_id": "bridge"
+}

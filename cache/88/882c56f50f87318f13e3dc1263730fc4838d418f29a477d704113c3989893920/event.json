@@ -1,0 +1,21 @@
+{
+  "adversariality_policy": "none",
+  "bin_id": "B1",
+  "cem_stratum_id": "bridge|high|2-3",
+  "distractor_density": 0.8,
+  "distractor_density_coarsening": "high",
+  "document": "Stephen Ayomide Oluwagbenga \"Ayo\" Obileye (born 2 September 1994) is an English professional footballer who plays as a defender for National League club Eastleigh. Michael James Green (born 12 May 1989) is an English footballer who plays as a full back for National League club Eastleigh in February 2017. He played non-league football for Brockenhurst, Christchurch, Eastleigh, and Totton, before he was signed to Port Vale in July 2011. With Totton he won the Southern League Division One South & West in 2010\u201311 and twice lifted the Hampshire Senior Cup. He was loaned back to Eastleigh in October 2011, and the deal was made permanent a month later. He helped the club to the Conference South title in 2013\u201314. Gavin Andrew Hoyte (born 6 June 1990) is a professional footballer who plays as a defender for National League club Eastleigh. Millwall Football Club ( ) is a professional football club in Bermondsey, South East London, England. The team competes in The Championship, the second tier of English football. Founded as Millwall Rovers in 1885, the club has retained its name despite having last played in the Millwall area of the Isle of Dogs in 1910. From then until 1993 the club played at what is now called The Old Den in New Cross, before moving to its current home stadium nearby, called The Den. The traditional club crest is a lion rampant, referred to in the team's nickname \"The Lions\". Millwall's traditional kit consists of blue shirts, white shorts and blue socks. Graham Christopher Stack (born 26 September 1981) is a professional footballer who plays as a goalkeeper for National League club Eastleigh. He has featured for clubs Arsenal, Beveren, Millwall, Reading, Leeds United, Wolverhampton Wanderers, Plymouth Argyle, Blackpool, Hibernian and Barnet. Stack as well played as a youth international for the Republic of Ireland. Craig McAllister (born 28 June 1980) is a Scottish professional footballer who plays as a striker for National League club Eastleigh. James Ashley Constable (born 4 October 1984) is an English professional footballer who plays as a striker for National League club Eastleigh. R\u00e9da Johnson (born 21 March 1988) is a professional footballer who plays as a defender for National League club Eastleigh. He previously played for Sheffield Wednesday, Gueugnon, Amiens, Plymouth Argyle and Coventry City. He has been capped by Benin at international level. Ryan Anthony Cresswell (born 22 December 1987) is an English professional footballer who plays as a defender for National League club Eastleigh. Samuel James Togwell (born 14 October 1984) is an English professional footballer who plays as a defensive midfielder for National League club Eastleigh.",
+  "event_id": "882c56f50f87318f13e3dc1263730fc4838d418f29a477d704113c3989893920",
+  "evidence_distance_tokens": 297,
+  "evidence_position_token_idx": 292,
+  "gold_answer": "Millwall Football Club",
+  "gold_answer_length_coarsening": "2-3",
+  "gold_answer_length_tokens": 3,
+  "gold_answer_normalized": "millwall football club",
+  "is_fail": false,
+  "model_generation": "Millwall Football Club",
+  "model_generation_normalized": "millwall football club",
+  "per_event_seed": 28709,
+  "question": "Graham Christopher Stack (born 26 September 1981) is a professional footballer who plays as a goalkeeper for National League club Eastleigh, hehas featured for which professional football club in Bermondsey, South East London, England?  ",
+  "question_template_id": "bridge"
+}

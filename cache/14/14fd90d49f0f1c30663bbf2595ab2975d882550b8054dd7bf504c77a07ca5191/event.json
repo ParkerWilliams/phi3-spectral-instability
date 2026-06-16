@@ -1,0 +1,21 @@
+{
+  "adversariality_policy": "none",
+  "bin_id": "B1",
+  "cem_stratum_id": "comparison|high|2-3",
+  "distractor_density": 0.8,
+  "distractor_density_coarsening": "high",
+  "document": "Cypher (also known as Brainstorm), is a 2002 science fiction thriller film starring Jeremy Northam and Lucy Liu. It was written by Brian King and directed by Vincenzo Natali. Jeremy Northam plays an accountant whose hope for a career in corporate espionage takes an unexpected turn. The film was shown in limited release in theaters in the US and Australia, and released on DVD on August 2, 2005. The film received mixed reviews, and Northam received the Best Actor award at the Sitges Film Festival. Kara Miller is the Creator of The Lifestylista. She is a Health & Wellness expert, TV Host and Writer & Director working in film and television. She is also credited as K. J. Miller. Cube is a Canadian psychological thriller horror film series. The three films were directed by Vincenzo Natali, Andrzej Seku\u0142a, and Ernie Barbarash respectively. Nothing is a 2003 Canadian philosophical comedy-drama film directed by Vincenzo Natali. It stars David Hewlett and Andrew Miller. Splice is a 2009 Canadian-French science fiction horror film directed by Vincenzo Natali and starring Adrien Brody, Sarah Polley, and Delphine Chan\u00e9ac. The story concerns experiments in genetic engineering being done by a young scientific couple, who attempt to introduce human DNA into their work of splicing animal genes. Guillermo del Toro, Don Murphy, and Joel Silver executive produced. Vincenzo Natali (born January 6, 1969) is an American-Canadian film director and screenwriter, best known for writing and directing science fiction films such as \"Cube\", \"Cypher\", \"Nothing\", and \"Splice\". Pascal Trottier is a Canadian filmmaker and screenwriter. He graduated from the Canadian Film Centre in 2005. His credits include \"The Colony\", starring Laurence Fishburne and Bill Paxton, and the horror feature \"Hellions\", directed by Bruce McDonald and starring Chloe Rose and Robert Patrick, which had its world premiere at the 2015 Sundance Film Festival. In 2013, he wrote for the horror TV series \"Darknet\", produced by Steve Hoban and Vincenzo Natali, and penned a segment of the horror anthology feature film \"A Christmas Horror Story\", which won the Writer's Guild of Canada award for Best Feature Screenplay in 2016. Haunter is a 2013 Canadian supernatural horror film directed by Vincenzo Natali, written by Brian King, and starring Abigail Breslin. The film premiered at the 2013 South by Southwest Film Festival, and was picked up for U.S. distribution there by IFC Midnight. Cube is a 1997 Canadian science-fiction horror film directed and co-written by Vincenzo Natali. The film was a product of the Canadian Film Centre's First Feature Project. The film follows a group of people led by Quentin as they cross industrialized cube-shaped rooms, with some rigged with various traps designed to kill. Getting Gilliam is a 2005 documentary film directed by Vincenzo Natali about the making of Terry Gilliam's film \"Tideland\".",
+  "event_id": "14fd90d49f0f1c30663bbf2595ab2975d882550b8054dd7bf504c77a07ca5191",
+  "evidence_distance_tokens": 384,
+  "evidence_position_token_idx": 249,
+  "gold_answer": "Writer & Director",
+  "gold_answer_length_coarsening": "2-3",
+  "gold_answer_length_tokens": 3,
+  "gold_answer_normalized": "writer & director",
+  "is_fail": true,
+  "model_generation": "Health & Wellness expert, TV Host, Writer & Director",
+  "model_generation_normalized": "health & wellness expert, tv host, writer & director",
+  "per_event_seed": 62276,
+  "question": "Kara Miller and Vincenzo Natali, have which mutual occupations?",
+  "question_template_id": "comparison"
+}

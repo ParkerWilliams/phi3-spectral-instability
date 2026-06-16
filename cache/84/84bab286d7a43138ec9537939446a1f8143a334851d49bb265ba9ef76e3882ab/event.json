@@ -1,0 +1,21 @@
+{
+  "adversariality_policy": "none",
+  "bin_id": "B2",
+  "cem_stratum_id": "bridge|high|2-3",
+  "distractor_density": 0.8,
+  "distractor_density_coarsening": "high",
+  "document": "The 2014 U.S. Men's Clay Court Championships (also known as the Fayez Sarofim & Co. U.S. Men's Clay Court Championships for sponsorship purposes) is a tennis tournament played on outdoor clay courts. It is part of the 2014 ATP World Tour. It is the 46th edition of the U.S. Men's Clay Court Championships, and an ATP World Tour 250 event. It will take place at River Oaks Country Club in Houston, Texas, United States, from April 7 through April 13, 2014. 1981 U.S. Clay Court Championships \u2013 Women's Singles The 2015 U.S. Men's Clay Court Championships (also known as the Fayez Sarofim & Co. U.S. Men's Clay Court Championships for sponsorship purposes) was a tennis tournament played on outdoor clay courts. It was the 47th edition of the U.S. Men's Clay Court Championships, and an ATP World Tour 250 event on the 2015 ATP World Tour. It took place at River Oaks Country Club in Houston, Texas, United States, from April 6 through April 12, 2015. The 1981 U.S. Clay Court Championships was a men's Grand Prix and women's Toyota Series tennis tournament held in Indianapolis in the United States and played on outdoor clay courts. It was the 13th edition of the tournament and was held from August 3 through August 9, 1981. Second-seeded Jos\u00e9 Luis Clerc and top-seeded Andrea Jaeger won the singles titles. 1981 U.S. Clay Court Championships \u2013 Men's Doubles Indianapolis (pronounced ), is the capital and largest city of the U.S. state of Indiana and the seat of Marion County. It is in the East North Central region of the Midwestern United States. With an estimated population of 855,164 in 2016, Indianapolis is the third most populous city in the Midwest and 15th most populous in the U.S. The city is the economic and cultural center of the Indianapolis metropolitan area, home to 2 million people, the 34th most populous metropolitan statistical area in the U.S. Its combined statistical area ranks 27th, with 2.38 million inhabitants. Indianapolis covers 368 sqmi , making it the 16th largest city by land area in the U.S. The 2017 U.S. Men's Clay Court Championships (also known as the Fayez Sarofim & Co. U.S. Men's Clay Court Championships for sponsorship purposes) was a tennis tournament played on outdoor clay courts. It was 49th edition of the U.S. Men's Clay Court Championships, and an ATP World Tour 250 event on the 2017 ATP World Tour. It took place at River Oaks Country Club in Houston, Texas, United States, from April 10 through April 16, 2017. 1981 U.S. Clay Court Championships \u2013 Men's Singles The 2016 U.S. Men's Clay Court Championships (also known as the Fayez Sarofim & Co. U.S. Men's Clay Court Championships for sponsorship purposes) was a tennis tournament played on outdoor clay courts. It was the 48th edition of the U.S. Men's Clay Court Championships, and an ATP World Tour 250 event on the 2016 ATP World Tour. It took place at River Oaks Country Club in Houston, Texas, United States, from April 4 through April 10, 2016. 1981 U.S. Clay Court Championships \u2013 Women's Doubles",
+  "event_id": "84bab286d7a43138ec9537939446a1f8143a334851d49bb265ba9ef76e3882ab",
+  "evidence_distance_tokens": 479,
+  "evidence_position_token_idx": 255,
+  "gold_answer": "Marion County",
+  "gold_answer_length_coarsening": "2-3",
+  "gold_answer_length_tokens": 2,
+  "gold_answer_normalized": "marion county",
+  "is_fail": false,
+  "model_generation": "Marion County",
+  "model_generation_normalized": "marion county",
+  "per_event_seed": 3374,
+  "question": "In what county were The 1981 U.S. Clay Court Championships held?",
+  "question_template_id": "bridge"
+}

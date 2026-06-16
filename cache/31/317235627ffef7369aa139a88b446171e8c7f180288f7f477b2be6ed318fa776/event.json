@@ -1,0 +1,21 @@
+{
+  "adversariality_policy": "none",
+  "bin_id": "B2",
+  "cem_stratum_id": "bridge|high|2-3",
+  "distractor_density": 0.8,
+  "distractor_density_coarsening": "high",
+  "document": "Stephen Waldschmidt is an actor, playwright, theatre director, scenic designer, graphic designer, and stay-at-home dad originally from Cleveland, Ohio, United States. Nicole Dubuc (born November 6, 1978) is an American writer and actress, perhaps best known for her multiple Emmy-nominated works on the \"Transformers\" franchise and \"ToddWorld\", and as an actress on \"Major Dad\". She is perhaps best known for her television roles as Iola Boylen on \"Mama's Family\" and as Gunnery Sgt. Alva Bricker on \"Major Dad\". CBS (an initialism of the network's former name, the Columbia Broadcasting System) is an American English language commercial broadcast television network that is a flagship property of CBS Corporation. The company is headquartered at the CBS Building in New York City with major production facilities and operations in New York City (at the CBS Broadcast Center) and Los Angeles (at CBS Television City and the CBS Studio Center). Major Dad is an American sitcom created by Richard C. Okie and John G. Stephens, developed by Earl Pomerantz, that originally ran from 1989 to 1993 on CBS, starring Gerald McRaney as Major John D. MacGillis and Shanna Reed as his wife Polly. The cast also includes Beverly Archer, Matt Mulhern, Jon Cypher, Marisa Ryan, Nicole Dubuc, and Chelsea Hertford. Earl Pomerantz (born February 4, 1945 in Toronto, Ontario, Canada) is best known for his work as a television script writer. Pomerantz created the network television series \"Major Dad\", \"Family Man\" and \"Best of the West\", and wrote scripts for such shows as \"The Mary Tyler Moore Show\", \"The Bob Newhart Show\", \"Taxi\", \"Cheers\", \"Newhart\", \"The Cosby Show\", \"Major Dad\" and many other series. He has won two Primetime Emmy Awards, a Writers Guild of America Award, the Humanitas Prize and a CableACE Award. Marisa Ryan (born November 20, 1974) is an American actress, best known for her role as Elizabeth Cooper-MacGillis in the NBC sitcom \"Major Dad\" (1989\u20141993), and as Abby Bernstein in the 2001 comedy film \"Wet Hot American Summer\", its Netflix prequel series, \"\" (2015) and its Netflix sequel series \"\" (2017). Matt Mulhern (born July 21, 1960 in Philadelphia, Pennsylvania) is an American actor who has starred in such films as \"One Crazy Summer\" and \"Biloxi Blues\", and such television series such as \"Major Dad\", \"JAG\", and \"Rescue Me\" (playing Lt. John Stackhouse). Gerald Lee McRaney (born August 19, 1947) is an American television and movie actor. McRaney is best known as one of the stars of the television shows \"Simon & Simon\", \"Major Dad\", and \"Promised Land\". He was a series regular in the first season of \"Jericho\" and the final season of \"Deadwood\". He appeared in a recurring role as main antagonist Mason Wood in season eight of \"Castle\". Dudley is an American sitcom starring Dudley Moore (in his episodic TV debut) and Joanna Cassidy. The series premiered April 16, 1993 on CBS, temporarily replacing \"Major Dad\", on Friday nights, and was canceled May 14, 1993, with one episode remaining.",
+  "event_id": "317235627ffef7369aa139a88b446171e8c7f180288f7f477b2be6ed318fa776",
+  "evidence_distance_tokens": 592,
+  "evidence_position_token_idx": 189,
+  "gold_answer": "New York City",
+  "gold_answer_length_coarsening": "2-3",
+  "gold_answer_length_tokens": 3,
+  "gold_answer_normalized": "new york city",
+  "is_fail": false,
+  "model_generation": "New York City",
+  "model_generation_normalized": "new york city",
+  "per_event_seed": 19728,
+  "question": "In what city is the network which Major Dad originally ran on headquartered?",
+  "question_template_id": "bridge"
+}
