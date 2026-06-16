@@ -57,6 +57,49 @@ def stable_rank(matrix: np.ndarray) -> float:
     return frob_sq / (sigma_max * sigma_max)
 
 
+def spectral_norm(matrix: np.ndarray) -> float:
+    """Spectral norm ``‖M‖_2`` — the largest singular value σ_max.
+
+    The magnitude that the scale-invariant features (stable rank, spectral
+    entropy, Grassmannian) discard by construction. Always non-negative;
+    ``0.0`` for the all-zero matrix.
+
+    Args:
+        matrix: 2D float64 array.
+
+    Returns:
+        Scalar σ_max, in float64.
+    """
+    _check_float64(matrix)
+    return float(np.linalg.norm(matrix, ord=2))
+
+
+def frobenius_norm(matrix: np.ndarray) -> float:
+    """Frobenius norm ``‖M‖_F = √Σ σ_i²`` (= √Σ M_ij²).
+
+    Args:
+        matrix: 2D float64 array.
+
+    Returns:
+        Scalar Frobenius norm, in float64.
+    """
+    _check_float64(matrix)
+    return float(np.linalg.norm(matrix, ord="fro"))
+
+
+def nuclear_norm(matrix: np.ndarray) -> float:
+    """Nuclear (trace) norm ``‖M‖_* = Σ σ_i`` — the sum of singular values.
+
+    Args:
+        matrix: 2D float64 array.
+
+    Returns:
+        Scalar nuclear norm, in float64.
+    """
+    _check_float64(matrix)
+    return float(np.linalg.norm(matrix, ord="nuc"))
+
+
 def spectral_entropy(matrix: np.ndarray) -> float:
     """Shannon entropy of the normalized squared-singular-value distribution.
 

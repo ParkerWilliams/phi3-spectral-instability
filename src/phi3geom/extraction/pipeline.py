@@ -217,7 +217,7 @@ def run_event_extraction(
             f"lookback window cannot be populated. {exc}"
         ) from exc
 
-    F_tensor = np.empty(F_SHAPE, dtype=np.float64)  # (256, 32, 32, 7)
+    F_tensor = np.empty(F_SHAPE, dtype=np.float64)  # (256, 32, 32, N_FEATURES)
     D_tensor = np.empty(
         (len(D_LOOKBACK_INDICES), N_LAYERS_DEFAULT, N_HEADS_DEFAULT, N_HEADS_DEFAULT, 2),
         dtype=np.float64,
@@ -284,7 +284,7 @@ def run_event_extraction(
         np.percentile(F_tensor, 50, axis=0),
         np.percentile(F_tensor, 90, axis=0),
         np.std(F_tensor, axis=0),
-    ], axis=-1)  # shape (32, 32, 7, 5)
+    ], axis=-1)  # shape (32, 32, N_FEATURES, 5)
     assert F_summary.shape == F_SUMMARY_SHAPE
 
     # 10. Cache writes.

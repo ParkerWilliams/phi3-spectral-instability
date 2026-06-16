@@ -12,7 +12,10 @@ import numpy as np
 import pytest
 
 from phi3geom.geometry.spectral import (
+    frobenius_norm,
+    nuclear_norm,
     spectral_entropy,
+    spectral_norm,
     stable_rank,
     top_k_grassmannian,
 )
@@ -22,7 +25,9 @@ from phi3geom.geometry.spectral import (
 # Float64-only seam (Constitution Principle IV)
 # ---------------------------------------------------------------------------
 
-@pytest.mark.parametrize("fn", [stable_rank, spectral_entropy])
+@pytest.mark.parametrize(
+    "fn", [stable_rank, spectral_entropy, spectral_norm, frobenius_norm, nuclear_norm]
+)
 def test_rejects_float32_input(fn) -> None:
     m32 = np.eye(8, dtype=np.float32)
     with pytest.raises(TypeError, match="float64"):
@@ -147,3 +152,73 @@ def test_grassmannian_reference_shape_mismatch_raises() -> None:
     b = np.eye(16, dtype=np.float64)
     with pytest.raises(ValueError, match="left-dim"):
         top_k_grassmannian(a, k=4, reference=b)
+
+
+# ---------------------------------------------------------------------------
+# spectral_norm  (σ_max — the magnitude the scale-free features discard)
+# ---------------------------------------------------------------------------
+
+def test_spectral_norm_identity_is_one() -> None:
+    for n in (4, 16, 96):
+        m = np.eye(n, dtype=np.float64)
+        assert spectral_norm(m) == pytest.approx(1.0, abs=1e-12)
+
+
+def test_spectral_norm_diagonal_is_max_abs_diagonal() -> None:
+    m = np.diag(np.array([3.0, -4.0, 1.0], dtype=np.float64))
+    assert spectral_norm(m) == pytest.approx(4.0, abs=1e-12)
+
+
+def test_spectral_norm_scales_linearly() -> None:
+    rng = np.random.default_rng(0)
+    m = rng.standard_normal((16, 16))
+    assert spectral_norm(7.0 * m) == pytest.approx(7.0 * spectral_norm(m), rel=1e-12)
+
+
+def test_spectral_norm_zero_matrix() -> None:
+    assert spectral_norm(np.zeros((8, 8), dtype=np.float64)) == 0.0
+
+
+# ---------------------------------------------------------------------------
+# frobenius_norm  (√Σσ²)
+# ---------------------------------------------------------------------------
+
+def test_frobenius_norm_identity_is_sqrt_n() -> None:
+    for n in (4, 9, 16):
+        m = np.eye(n, dtype=np.float64)
+        assert frobenius_norm(m) == pytest.approx(np.sqrt(n), abs=1e-12)
+
+
+def test_frobenius_norm_diagonal_is_root_sum_squares() -> None:
+    m = np.diag(np.array([3.0, 4.0], dtype=np.float64))  # √(9+16)=5
+    assert frobenius_norm(m) == pytest.approx(5.0, abs=1e-12)
+
+
+def test_frobenius_norm_zero_matrix() -> None:
+    assert frobenius_norm(np.zeros((8, 8), dtype=np.float64)) == 0.0
+
+
+# ---------------------------------------------------------------------------
+# nuclear_norm  (Σσ — the trace norm)
+# ---------------------------------------------------------------------------
+
+def test_nuclear_norm_identity_is_n() -> None:
+    for n in (4, 16):
+        m = np.eye(n, dtype=np.float64)
+        assert nuclear_norm(m) == pytest.approx(float(n), abs=1e-9)
+
+
+def test_nuclear_norm_diagonal_is_sum_abs_diagonal() -> None:
+    m = np.diag(np.array([3.0, -4.0], dtype=np.float64))  # |3|+|4| = 7
+    assert nuclear_norm(m) == pytest.approx(7.0, abs=1e-12)
+
+
+def test_nuclear_norm_rank_one_is_sigma_max() -> None:
+    # A rank-1 matrix has a single nonzero singular value, so nuclear == spectral.
+    v = np.array([3.0, 1.0, 4.0, 1.0], dtype=np.float64)
+    m = np.outer(v, v)
+    assert nuclear_norm(m) == pytest.approx(spectral_norm(m), rel=1e-12)
+
+
+def test_nuclear_norm_zero_matrix() -> None:
+    assert nuclear_norm(np.zeros((8, 8), dtype=np.float64)) == 0.0

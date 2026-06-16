@@ -32,7 +32,7 @@ from typing import Any
 import numpy as np
 
 from phi3geom.dataset.types import DocQAEvent
-from phi3geom.geometry import FEATURE_NAMES
+from phi3geom.geometry import FEATURE_NAMES, N_FEATURES
 
 SCHEMA_VERSION = "1.0.0"
 
@@ -73,10 +73,11 @@ class CacheHeader:
     lookback_indices: tuple[int, ...] | None = None
 
 
-# Expected shapes for each cache tensor kind.
-F_SHAPE: tuple[int, ...] = (256, 32, 32, 7)
+# Expected shapes for each cache tensor kind. The feature axis is derived
+# from N_FEATURES so the tensors and FEATURE_NAMES can never drift apart.
+F_SHAPE: tuple[int, ...] = (256, 32, 32, N_FEATURES)
 D_SHAPE: tuple[int, ...] = (10, 32, 32, 32, 2)
-F_SUMMARY_SHAPE: tuple[int, ...] = (32, 32, 7, 5)
+F_SUMMARY_SHAPE: tuple[int, ...] = (32, 32, N_FEATURES, 5)
 
 
 def _event_dir(event_id: str, cache_root: Path) -> Path:
@@ -173,7 +174,7 @@ def write_F(
 
     Args:
         event_id: Primary key.
-        F: float64 array of shape ``F_SHAPE = (256, 32, 32, 7)``.
+        F: float64 array of shape ``F_SHAPE = (256, 32, 32, N_FEATURES)``.
         manifest_sha256: Dataset manifest SHA at write time.
         code_commit_sha: ``git rev-parse HEAD`` at write time.
         k_attn: Pinned k_attn from the manifest.

@@ -18,7 +18,10 @@ import numpy as np
 
 from phi3geom.geometry import N_FEATURES
 from phi3geom.geometry.spectral import (
+    frobenius_norm,
+    nuclear_norm,
     spectral_entropy,
+    spectral_norm,
     stable_rank,
     top_k_grassmannian,
 )
@@ -50,10 +53,16 @@ def compute_atomic_unit_features(
             is computed on ``attention_graph``.
 
     Returns:
-        ``(7,) float64`` array in ``FEATURE_NAMES`` order:
+        ``(N_FEATURES,) float64`` array in ``FEATURE_NAMES`` order:
         ``[stable_rank_qkt, grassmannian_qkt, spectral_entropy_qkt,
            stable_rank_avwo, grassmannian_avwo, spectral_entropy_avwo,
-           forman_ricci_attention_graph]``.
+           forman_ricci_attention_graph,
+           spectral_norm_qkt, frobenius_norm_qkt, nuclear_norm_qkt,
+           spectral_norm_avwo, frobenius_norm_avwo, nuclear_norm_avwo]``.
+
+        Slots 0..6 are the v1 scale-free spectral-shape features (+Ricci);
+        slots 7..12 are the v2 magnitude norms — the operator scale that
+        the v1 features discard by construction.
     """
     _ = k_attn  # not used directly here; recorded upstream in the manifest
 
@@ -81,4 +90,12 @@ def compute_atomic_unit_features(
         features[6] = forman_ricci_token(attention_graph)
     else:
         features[6] = math.nan
+    # v2 magnitude norms (slots 7..12) — appended after Ricci so v1 indices
+    # are stable. Each reuses the operators' singular values.
+    features[7] = spectral_norm(qkt)
+    features[8] = frobenius_norm(qkt)
+    features[9] = nuclear_norm(qkt)
+    features[10] = spectral_norm(avwo)
+    features[11] = frobenius_norm(avwo)
+    features[12] = nuclear_norm(avwo)
     return features

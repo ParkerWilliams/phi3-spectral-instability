@@ -13,7 +13,9 @@ from phi3geom.analysis.types import PerRegimeCompositeFit
 from phi3geom.geometry import FEATURE_NAMES
 
 
-def _synthetic_features(n: int, n_features: int = 7, seed: int = 0) -> np.ndarray:
+def _synthetic_features(
+    n: int, n_features: int = len(FEATURE_NAMES), seed: int = 0
+) -> np.ndarray:
     rng = np.random.default_rng(seed)
     return rng.standard_normal((n, n_features), dtype=np.float64)
 
@@ -31,7 +33,7 @@ def test_fit_returns_per_regime_composite_fit() -> None:
     )
     assert isinstance(result, PerRegimeCompositeFit)
     assert result.bin_id == "B3"
-    assert result.coefficients.shape == (7,)
+    assert result.coefficients.shape == (len(FEATURE_NAMES),)
     assert result.coefficients.dtype == np.float64
 
 

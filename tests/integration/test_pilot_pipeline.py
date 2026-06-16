@@ -99,7 +99,7 @@ def test_pilot_pipeline_end_to_end(tmp_path: Path) -> None:
         F = read_F(
             event.event_id, expected_manifest_sha256=manifest_sha, cache_root=cache_root
         )
-        assert F.shape == (256, 32, 32, 7)
+        assert F.shape == (256, 32, 32, 13)
         assert isinstance(result.event.evidence_distance_tokens, int)
         assert result.event.evidence_distance_tokens > 0
 

@@ -42,6 +42,18 @@ def _zeros_F_summary() -> np.ndarray:
     return np.zeros(F_SUMMARY_SHAPE, dtype=np.float64)
 
 
+def test_shape_constants_track_feature_count() -> None:
+    """F/F_summary last feature axis MUST equal the canonical feature count.
+
+    Guards the coupling that broke silently when norms were added: the tensor
+    shapes and ``FEATURE_NAMES`` must move together or extraction mis-shapes.
+    """
+    from phi3geom.geometry import N_FEATURES
+
+    assert F_SHAPE == (256, 32, 32, N_FEATURES)
+    assert F_SUMMARY_SHAPE == (32, 32, N_FEATURES, 5)
+
+
 # ---------------------------------------------------------------------------
 # F: round-trip + downcast tolerance
 # ---------------------------------------------------------------------------

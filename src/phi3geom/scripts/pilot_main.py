@@ -150,7 +150,7 @@ def _build_feature_matrix(
             expected_manifest_sha256=expected_manifest_sha256,
             cache_root=cache_root,
         )
-        # arr shape (32, 32, 7, 5) — take the mean stat (axis=3 index 0)
+        # arr shape (32, 32, N_FEATURES, 5) — take the mean stat (axis=3 index 0)
         mean_stat = arr[..., 0]  # (32, 32, 7)
         # Average over (layer, head) → (7,)
         feature_matrix[i] = mean_stat.astype(np.float64).mean(axis=(0, 1))

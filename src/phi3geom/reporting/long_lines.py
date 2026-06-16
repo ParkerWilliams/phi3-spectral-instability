@@ -18,7 +18,6 @@ from phi3geom.analysis.fda import fit_fpca
 
 N_LAYERS = 32
 N_HEADS = 32
-N_FEATURES = 7
 
 
 def run_long_lines_analysis(
@@ -31,8 +30,8 @@ def run_long_lines_analysis(
     run FPCA, then CUSUM-detect on the leading FPC score.
 
     Args:
-        F_tensors_by_event: ``{event_id: F.npy}``, each shape ``(256, 32, 32, 7)``.
-        feature_idx: Which of the 7 features to study. Default: Grassmannian on QKᵀ.
+        F_tensors_by_event: ``{event_id: F.npy}``, each shape ``F_SHAPE``.
+        feature_idx: Which feature axis to study. Default: Grassmannian on QKᵀ.
         cusum_threshold: CUSUM decision boundary.
 
     Returns:
