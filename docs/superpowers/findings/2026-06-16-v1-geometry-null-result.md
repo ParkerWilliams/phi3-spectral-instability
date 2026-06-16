@@ -41,6 +41,9 @@ success bar = pooled AUROC whose 95% CI lower bound > 0.5.)
 | Best single layer (of 32) | 0.539, CI crosses 0.5 | no layer beats chance |
 | Per-feature Cohen's d (all 7) | all **\|d\| ≤ 0.10** | negligible effect sizes |
 | Confound-only (doc length + evidence distance) | 0.42 | confounds are **not** predictive either |
+| **Cross-head relational crossbar** (`D.npy`), full 31744-dim | 0.510, CI [0.395, 0.629] | chance |
+| — per-layer mean (64-dim) | 0.539, CI [0.428, 0.651] | chance |
+| — per-layer head-graph spectral gap (64-dim) | 0.450, CI [0.334, 0.563] | chance |
 
 Three independent lines converge:
 
@@ -56,14 +59,18 @@ Three independent lines converge:
 
 The "maybe the signal is averaged out across layers/heads" rescue hypothesis is
 **tested and rejected**: the full 7168-dim representation (no averaging) is also
-at chance, and no single layer beats chance.
+at chance, and no single layer beats chance. The **cross-head relational**
+hypothesis — that *how heads relate to each other* (the pairwise-Grassmannian
+crossbar) carries signal even though each head in isolation does not — is **also
+tested and rejected**: all three crossbar reductions straddle 0.5.
 
 ## 4. Conclusion (scoped)
 
 > On HotpotQA, the **v1 single-token, scale-free attention-geometry feature set**
-> does not separate Phi-3-mini failures from successes — verified at the full
-> per-`(layer, head)` resolution, linearly and (pending) non-linearly, with a
-> permutation test and negligible effect sizes.
+> does not separate Phi-3-mini failures from successes — neither the **per-head**
+> spectral shape (verified at the full per-`(layer, head)` resolution, with a
+> permutation test and negligible effect sizes) nor the **cross-head relational**
+> crossbar.
 
 This is a clean negative result for *these features*. It is **not** a claim that
 attention geometry is uninformative in general.
@@ -74,9 +81,6 @@ attention geometry is uninformative in general.
   the set is blind to σ_max / Frobenius / nuclear norm. Magnitude features are
   now implemented (`FEATURE_NAMES` 7→13, branch `001`, commit `db3437a`) but need
   a fresh extraction to populate.
-- **Cross-head relational geometry.** The crossbar pairwise-Grassmannian
-  (`D.npy`) — how heads' subspaces relate — was never fed to a detector. This is
-  runnable on the existing cache with no GPU (next pass).
 - **Positional / temporal dynamics.** v1 is single-token by construction; how the
   geometry evolves across the lookback window is the explicit v2 enhancement.
 - **Attention-to-evidence.** Whether the model attended to the gold span — a more
