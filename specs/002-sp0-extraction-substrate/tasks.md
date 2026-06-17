@@ -177,9 +177,9 @@ and obtains pooled AUROC + null-evidence + a cross-corpus split — without re-r
 
 - [ ] T044 [P] [US5] Implement the frozen-cache loader + pluggable arbitrary-width feature assembler (`HarnessDataset`) in `src/phi3geom/analysis/harness/loader.py`
 - [X] T045 [P] [US5] Implement the feature-width-generic null-evidence pack (repeated CV AUROC, permutation p, Cohen's d, split-luck) in `src/phi3geom/analysis/harness/null_evidence.py` (generalize off the v1 7-feature hardcode)
-- [ ] T046 [US5] Implement incremental-AUROC-over-baseline (nested logistic / DeLong) in `src/phi3geom/analysis/harness/incremental.py`
+- [X] T046 [US5] Implement incremental-AUROC-over-baseline (nested logistic / DeLong) in `src/phi3geom/analysis/harness/incremental.py`
 - [X] T047 [P] [US5] Implement cross-corpus + cross-model transfer splitters (`group`-aware, scalar-feature level) in `src/phi3geom/analysis/harness/transfer.py`
-- [ ] T048 [US5] Implement the redundancy / partial-correlation utility in `src/phi3geom/analysis/harness/redundancy.py`
+- [X] T048 [US5] Implement the redundancy / partial-correlation utility in `src/phi3geom/analysis/harness/redundancy.py`
 
 **Checkpoint**: US1–US5 — frozen cache is consumable as a pure offline sweep.
 
