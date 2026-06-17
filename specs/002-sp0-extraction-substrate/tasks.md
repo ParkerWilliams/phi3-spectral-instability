@@ -123,7 +123,7 @@ and the abstention detector meets its P/R target (≥0.90).
 ### Tests (write first, must fail)
 
 - [X] T031 [P] [US3] Test: 4-way truth-table fixtures `(is_answerable, em_match, abstained) → class_4way` in `tests/unit/test_labeling_truthtable.py` (data-model.md Label)
-- [~] T032 [P] [US3] Test: abstention detector precision/recall on a hand-labeled fixture (target ≥0.90/≥0.90) in `tests/unit/test_abstention.py` (SC-004) — **PARTIAL**: abstention rule layer + backstop tested (tests/unit/test_abstention.py); the P/R-vs-hand-labeled-sample (≥0.90) check needs the T036 validation set
+- [X] T032 [P] [US3] Test: abstention detector precision/recall on a hand-labeled fixture (target ≥0.90/≥0.90) in `tests/unit/test_abstention_validation.py` (SC-004) — hand-labeled sample + `precision_recall`; rules are high-precision/under-recall, the rules+backstop design clears ≥0.90/≥0.90 (backstop is a stub for SP-1's real NLI/judge)
 
 ### Implementation
 
@@ -154,7 +154,7 @@ document for closed-book; spans where available); a sampled batch lands in 25–
 - [ ] T039 [P] [US4] Implement the closed-book TriviaQA/NQ adapter (`document=""`, alias sets, `evidence_spans=null`) in `src/phi3geom/dataset/adapters/triviaqa_nq.py`
 - [ ] T040 [US4] Implement the RULER adapter — pass the model tokenizer, carry native `token_position_answer` → `evidence_spans`, lengths {4K,8K,16K,32K} — in `src/phi3geom/dataset/adapters/ruler.py` (research.md R2; verify the `qa`-task position field)
 - [ ] T041 [US4] (Optional/secondary) Implement the NoLiMa adapter in `src/phi3geom/dataset/adapters/nolima.py` — **gate on confirming the Adobe non-commercial license** (research.md R2 to-do)
-- [ ] T042 [US4] Implement balance sampling toward the 25–75% fail/hallucination band per corpus (no synthetic distractor inflation) in `src/phi3geom/dataset/oversample.py` (SC-005)
+- [X] T042 [US4] Implement balance sampling toward the 25–75% fail/hallucination band per corpus (no synthetic distractor inflation) in `src/phi3geom/dataset/balance.py` (SC-005) — balance_corpus/balance_dataset (downsample-only, no synthetic inflation; v1 oversample.py left intact)
 
 **Checkpoint**: US1–US4 — all four regimes flowing through one capture path.
 

@@ -56,3 +56,19 @@ def detect_abstention(
     if backstop is not None and backstop(text):
         return True, "classifier"
     return False, "none"
+
+
+def precision_recall(
+    detected: list[bool], truth: list[bool]
+) -> tuple[float, float]:
+    """Precision and recall of ``detected`` vs ``truth`` (both 1.0 when undefined).
+
+    Used to validate the abstention detector against a hand-labeled sample
+    (target ≥0.90 / ≥0.90).
+    """
+    tp = sum(1 for d, t in zip(detected, truth) if d and t)
+    fp = sum(1 for d, t in zip(detected, truth) if d and not t)
+    fn = sum(1 for d, t in zip(detected, truth) if (not d) and t)
+    precision = tp / (tp + fp) if (tp + fp) else 1.0
+    recall = tp / (tp + fn) if (tp + fn) else 1.0
+    return precision, recall
