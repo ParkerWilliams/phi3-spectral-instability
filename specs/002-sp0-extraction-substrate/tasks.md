@@ -47,9 +47,9 @@ is SP-0; SP-1/SP-2/SP-3 are out of scope (US5 ships only their *interfaces*).
 
 - [X] T006 Create `ModelDescriptor` + config-driven metadata reader (d_model/n_layers/n_heads/n_kv_heads/head_dim/n_rep/attention_profile/tied_embeddings — **read from config, never computed**) in `src/phi3geom/extraction/adapters/base.py` (data-model.md)
 - [~] T007 Define the `ModelAdapter` protocol + GQA/MQA expansion helper + capture-config (eager, `output_attentions`/`output_hidden_states`, `use_cache=False`) in `src/phi3geom/extraction/adapters/base.py` (depends T006; research.md R1.1/R1.2) — **PARTIAL**: `ModelAdapter` Protocol (with the SP-3 `intervention` surface) + GQA expansion helper done & tested (T005); the live `from_pretrained` capture-config helper pends a torch/model env (GPU pod)
-- [ ] T008 [P] Extend the common event record (`is_answerable`, `gold_aliases`, `evidence_spans`, `corpus_id`, `provenance`) in `src/phi3geom/dataset/types.py` (data-model.md DocQAEventRecord)
+- [X] T008 [P] Extend the common event record (`is_answerable`, `gold_aliases`, `evidence_spans`, `corpus_id`, `provenance`) in `src/phi3geom/dataset/types.py` (data-model.md DocQAEventRecord)
 - [ ] T009 Extend the cache for `capture_version` + `CaptureBundle` write/read + header, raising on `capture_version`/`manifest_sha` mismatch, in `src/phi3geom/storage/cache.py` (depends T004; contracts/cache-storage.md)
-- [ ] T010 Create the `CaptureManifest` metric→field mapping + completeness-check skeleton in `src/phi3geom/extraction/capture.py` (manifest) and `src/phi3geom/scripts/check_manifest_completeness.py` (contracts/capture-manifest.md)
+- [X] T010 Create the `CaptureManifest` metric→field mapping + completeness-check skeleton in `src/phi3geom/extraction/capture.py` (manifest) and `src/phi3geom/scripts/check_manifest_completeness.py` (contracts/capture-manifest.md)
 
 **Checkpoint**: substrate scaffolding ready — user stories can begin.
 
@@ -67,7 +67,7 @@ residual-trajectory length and answer-token entropy per event with no model load
 
 - [ ] T011 [P] [US1] Test: Phi-3 capture round-trip — recovered per-head Q/K/V + attention shapes match the model's own forward, in `tests/unit/test_capture_roundtrip_phi3.py` (research.md R1.4)
 - [X] T012 [P] [US1] Test: in-pass MP fit vs closed-form bulk edge on a known-aspect-ratio Gaussian (float64), in `tests/unit/test_mp_fit_analytic.py` (Constitution II/IV)
-- [ ] T013 [P] [US1] Test: manifest completeness for the US1-implemented fields, in `tests/contract/test_manifest_completeness.py` (SC-001)
+- [X] T013 [P] [US1] Test: manifest completeness for the US1-implemented fields, in `tests/contract/test_manifest_completeness.py` (SC-001)
 - [ ] T014 [P] [US1] Integration: capture one HotpotQA event on Phi-3 → bundle → offline consumer returns 1 geometry + 1 baseline scalar, zero model reload, in `tests/integration/test_capture_offline_consumer.py` (SC-002)
 - [ ] T014a [P] [US1] Contract test: the rich-capture pass exposes a reusable **intervention-callback surface** (accepts an optional per-layer hook) so SP-3 can re-invoke it with interventions — SP-0 ships the surface, not the interventions — in `tests/contract/test_intervention_surface.py` (FR-026; remediation C3)
 

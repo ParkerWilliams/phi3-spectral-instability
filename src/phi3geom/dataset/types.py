@@ -96,3 +96,49 @@ class CEMStratum:
             f"{self.distractor_density_coarsening}|"
             f"{self.gold_answer_length_coarsening}"
         )
+
+
+# --------------------------------------------------------------------------- #
+# v2 / SP-0: the common cross-corpus event record (data-model.md).
+# --------------------------------------------------------------------------- #
+
+CorpusId = Literal["hotpotqa", "squad2", "triviaqa_nq", "ruler", "nolima"]
+
+
+@dataclass(frozen=True, slots=True)
+class DocQAEventRecord:
+    """The v2 common cross-corpus input record.
+
+    The single shape every corpus adapter emits so the capture path stays
+    corpus-agnostic (contracts/corpus-adapter.md). Distinct from the v1
+    ``DocQAEvent`` (retained for the archived study).
+
+    Invariants:
+    - answerable ⇒ ≥1 ``gold_aliases``; unanswerable ⇒ empty ``gold_aliases``;
+    - closed-book (``document == ""``) ⇒ ``evidence_spans is None``;
+    - each evidence span is a ``(start_tok, end_tok)`` with ``0 ≤ start ≤ end``.
+    """
+
+    event_id: str
+    corpus_id: CorpusId
+    document: str  # "" for closed-book (TriviaQA/NQ)
+    question: str
+    gold_aliases: tuple[str, ...]
+    is_answerable: bool
+    evidence_spans: tuple[tuple[int, int], ...] | None = None
+    provenance: dict = field(default_factory=dict)
+
+    def __post_init__(self) -> None:
+        if self.is_answerable and not self.gold_aliases:
+            raise ValueError("answerable events require ≥1 gold alias")
+        if not self.is_answerable and self.gold_aliases:
+            raise ValueError("unanswerable events must have empty gold_aliases")
+        if self.document == "" and self.evidence_spans is not None:
+            raise ValueError(
+                "closed-book (empty document) events have no evidence_spans"
+            )
+        if self.evidence_spans is not None:
+            for span in self.evidence_spans:
+                s, e = span
+                if not (0 <= s <= e):
+                    raise ValueError(f"invalid evidence span {span}")
