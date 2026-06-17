@@ -40,7 +40,7 @@ is SP-0; SP-1/SP-2/SP-3 are out of scope (US5 ships only their *interfaces*).
 
 ### Tests (write first, must fail)
 
-- [ ] T004 [P] Test: storage `capture_version` + manifest-SHA round-trip and `CacheStaleError` on mismatch in `tests/contract/test_cache_storage.py` (contracts/cache-storage.md)
+- [X] T004 [P] Test: storage `capture_version` + manifest-SHA round-trip and `CacheStaleError` on mismatch in `tests/contract/test_cache_storage.py` (contracts/cache-storage.md)
 - [X] T005 [P] Test: GQA expansion helper — query head `q` → KV head `q // n_rep`, analytic on synthetic head counts, in `tests/unit/test_gqa_expansion.py` (research.md R1.2)
 
 ### Implementation
@@ -48,7 +48,7 @@ is SP-0; SP-1/SP-2/SP-3 are out of scope (US5 ships only their *interfaces*).
 - [X] T006 Create `ModelDescriptor` + config-driven metadata reader (d_model/n_layers/n_heads/n_kv_heads/head_dim/n_rep/attention_profile/tied_embeddings — **read from config, never computed**) in `src/phi3geom/extraction/adapters/base.py` (data-model.md)
 - [~] T007 Define the `ModelAdapter` protocol + GQA/MQA expansion helper + capture-config (eager, `output_attentions`/`output_hidden_states`, `use_cache=False`) in `src/phi3geom/extraction/adapters/base.py` (depends T006; research.md R1.1/R1.2) — **PARTIAL**: `ModelAdapter` Protocol (with the SP-3 `intervention` surface) + GQA expansion helper done & tested (T005); the live `from_pretrained` capture-config helper pends a torch/model env (GPU pod)
 - [X] T008 [P] Extend the common event record (`is_answerable`, `gold_aliases`, `evidence_spans`, `corpus_id`, `provenance`) in `src/phi3geom/dataset/types.py` (data-model.md DocQAEventRecord)
-- [ ] T009 Extend the cache for `capture_version` + `CaptureBundle` write/read + header, raising on `capture_version`/`manifest_sha` mismatch, in `src/phi3geom/storage/cache.py` (depends T004; contracts/cache-storage.md)
+- [X] T009 Extend the cache for `capture_version` + `CaptureBundle` write/read + header, raising on `capture_version`/`manifest_sha` mismatch, in `src/phi3geom/storage/cache.py` (depends T004; contracts/cache-storage.md)
 - [X] T010 Create the `CaptureManifest` metric→field mapping + completeness-check skeleton in `src/phi3geom/extraction/capture.py` (manifest) and `src/phi3geom/scripts/check_manifest_completeness.py` (contracts/capture-manifest.md)
 
 **Checkpoint**: substrate scaffolding ready — user stories can begin.
@@ -171,11 +171,11 @@ and obtains pooled AUROC + null-evidence + a cross-corpus split — without re-r
 
 ### Tests (write first, must fail)
 
-- [ ] T043 [P] [US5] Integration: stub consumer loads frozen cache → pooled AUROC + null-evidence pack + one cross-corpus split, zero re-extraction, in `tests/integration/test_harness_stub.py` (spec US5; contracts/harness-interface.md)
+- [X] T043 [P] [US5] Integration: stub consumer loads frozen cache → pooled AUROC + null-evidence pack + one cross-corpus split, zero re-extraction, in `tests/integration/test_harness_stub.py` (spec US5; contracts/harness-interface.md)
 
 ### Implementation
 
-- [ ] T044 [P] [US5] Implement the frozen-cache loader + pluggable arbitrary-width feature assembler (`HarnessDataset`) in `src/phi3geom/analysis/harness/loader.py`
+- [X] T044 [P] [US5] Implement the frozen-cache loader + pluggable arbitrary-width feature assembler (`HarnessDataset`) in `src/phi3geom/analysis/harness/loader.py`
 - [X] T045 [P] [US5] Implement the feature-width-generic null-evidence pack (repeated CV AUROC, permutation p, Cohen's d, split-luck) in `src/phi3geom/analysis/harness/null_evidence.py` (generalize off the v1 7-feature hardcode)
 - [X] T046 [US5] Implement incremental-AUROC-over-baseline (nested logistic / DeLong) in `src/phi3geom/analysis/harness/incremental.py`
 - [X] T047 [P] [US5] Implement cross-corpus + cross-model transfer splitters (`group`-aware, scalar-feature level) in `src/phi3geom/analysis/harness/transfer.py`
