@@ -78,7 +78,7 @@ residual-trajectory length and answer-token entropy per event with no model load
 - [ ] T017 [US1] Implement the rich-capture pass in `src/phi3geom/extraction/capture.py`: eager forward, **layer-by-layer attention CPU offload**, assemble `CaptureBundle` (hidden@answer-pos + window, attn rows, `T×T` subset S, spectra, answer logits) and write via the cache; expose an **optional per-layer intervention callback** as the reusable SP-3 surface (depends T007, T009, T015, T016; research.md R1.1; FR-026/C3)
 - [ ] T018 [US1] Implement K+1 generation (greedy T=0 scored + K=10 samples T=1.0/top-p 0.9, per-sample seeds) and `GenerationSample` storage (text/token_ids/chosen-token logprobs/seq logprob/length/greedy-flag) in `src/phi3geom/extraction/capture.py` (research.md R3.1)
 - [ ] T019 [US1] Implement the HotpotQA adapter → common record + evidence spans from gold supporting sentences in `src/phi3geom/dataset/adapters/hotpotqa.py` (contracts/corpus-adapter.md)
-- [ ] T020 [US1] Implement minimal `normalize_answer` + alias-EM correctness → `Label` (greedy sample) in `src/phi3geom/dataset/labeling.py` (full 4-way deferred to US3; research.md R3.2)
+- [X] T020 [US1] Implement minimal `normalize_answer` + alias-EM correctness → `Label` (greedy sample) in `src/phi3geom/dataset/labeling.py` (full 4-way deferred to US3; research.md R3.2)
 - [ ] T021 [US1] Wire a single-`(model, corpus, event)` capture entrypoint (re-point `src/phi3geom/extraction/pipeline.py` at `capture.py`; keep the v1 path for provenance)
 - [ ] T022 [US1] Confirm `check_manifest_completeness` passes for the US1 metric subset and the offline consumer demo runs (depends T010, T017)
 
@@ -122,14 +122,14 @@ and the abstention detector meets its P/R target (≥0.90).
 
 ### Tests (write first, must fail)
 
-- [ ] T031 [P] [US3] Test: 4-way truth-table fixtures `(is_answerable, em_match, abstained) → class_4way` in `tests/unit/test_labeling_truthtable.py` (data-model.md Label)
-- [ ] T032 [P] [US3] Test: abstention detector precision/recall on a hand-labeled fixture (target ≥0.90/≥0.90) in `tests/unit/test_abstention.py` (SC-004)
+- [X] T031 [P] [US3] Test: 4-way truth-table fixtures `(is_answerable, em_match, abstained) → class_4way` in `tests/unit/test_labeling_truthtable.py` (data-model.md Label)
+- [~] T032 [P] [US3] Test: abstention detector precision/recall on a hand-labeled fixture (target ≥0.90/≥0.90) in `tests/unit/test_abstention.py` (SC-004) — **PARTIAL**: abstention rule layer + backstop tested (tests/unit/test_abstention.py); the P/R-vs-hand-labeled-sample (≥0.90) check needs the T036 validation set
 
 ### Implementation
 
-- [ ] T033 [US3] Extend `normalize_answer` + alias-EM max-over-references + SQuAD-style token-F1 cross-check in `src/phi3geom/dataset/labeling.py` (research.md R3.2)
-- [ ] T034 [US3] Implement the abstention detector — high-precision rule pre-filter + classifier/NLI/judge backstop interface — in `src/phi3geom/dataset/abstention.py`
-- [ ] T035 [US3] Implement the 4-way classifier + hallucination-vs-safe binary in `src/phi3geom/dataset/labeling.py` (depends T033, T034)
+- [X] T033 [US3] Extend `normalize_answer` + alias-EM max-over-references + SQuAD-style token-F1 cross-check in `src/phi3geom/dataset/labeling.py` (research.md R3.2)
+- [X] T034 [US3] Implement the abstention detector — high-precision rule pre-filter + classifier/NLI/judge backstop interface — in `src/phi3geom/dataset/abstention.py`
+- [X] T035 [US3] Implement the 4-way classifier + hallucination-vs-safe binary in `src/phi3geom/dataset/labeling.py` (depends T033, T034)
 - [ ] T036 [US3] Build the hand-labeled validation sample (answerable + unanswerable) and emit the abstention P/R report in `reports/sp0/abstention_validation.json`
 
 **Checkpoint**: US1–US3 — labeled, model-agnostic capture.
@@ -176,9 +176,9 @@ and obtains pooled AUROC + null-evidence + a cross-corpus split — without re-r
 ### Implementation
 
 - [ ] T044 [P] [US5] Implement the frozen-cache loader + pluggable arbitrary-width feature assembler (`HarnessDataset`) in `src/phi3geom/analysis/harness/loader.py`
-- [ ] T045 [P] [US5] Implement the feature-width-generic null-evidence pack (repeated CV AUROC, permutation p, Cohen's d, split-luck) in `src/phi3geom/analysis/harness/null_evidence.py` (generalize off the v1 7-feature hardcode)
+- [X] T045 [P] [US5] Implement the feature-width-generic null-evidence pack (repeated CV AUROC, permutation p, Cohen's d, split-luck) in `src/phi3geom/analysis/harness/null_evidence.py` (generalize off the v1 7-feature hardcode)
 - [ ] T046 [US5] Implement incremental-AUROC-over-baseline (nested logistic / DeLong) in `src/phi3geom/analysis/harness/incremental.py`
-- [ ] T047 [P] [US5] Implement cross-corpus + cross-model transfer splitters (`group`-aware, scalar-feature level) in `src/phi3geom/analysis/harness/transfer.py`
+- [X] T047 [P] [US5] Implement cross-corpus + cross-model transfer splitters (`group`-aware, scalar-feature level) in `src/phi3geom/analysis/harness/transfer.py`
 - [ ] T048 [US5] Implement the redundancy / partial-correlation utility in `src/phi3geom/analysis/harness/redundancy.py`
 
 **Checkpoint**: US1–US5 — frozen cache is consumable as a pure offline sweep.
