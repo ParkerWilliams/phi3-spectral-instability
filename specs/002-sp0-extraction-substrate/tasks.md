@@ -197,8 +197,8 @@ restores 100% of committed events.
 ### Tests (write first, must fail)
 
 - [ ] T049 [P] [US6] Test: data-loss regression — captured bundles are not dropped by storage-ignore rules (reproduces the v1 `fe190b7` defect), in `tests/contract/test_data_loss_regression.py` (FR-018, SC-007)
-- [ ] T050 [P] [US6] Test: resilient resume restores 100% of previously-committed events and recomputes none, in `tests/integration/test_resume.py` (FR-019, SC-007)
-- [ ] T050a [P] [US6] Test: adding one new model + one new corpus leaves every existing event bundle **byte-for-byte unchanged** (zero re-extraction), in `tests/contract/test_zero_reextraction.py` (FR-020, SC-006; remediation C1)
+- [~] T050 [P] [US6] Test: resilient resume restores 100% of previously-committed events and recomputes none, in `tests/integration/test_resume.py` (FR-019, SC-007) — **PARTIAL**: bundle-level resume scan (storage/resume.py: list_complete/incomplete_events) + test done; the driver/git-branch restore pends the pod
+- [X] T050a [P] [US6] Test: adding one new model + one new corpus leaves every existing event bundle **byte-for-byte unchanged** (zero re-extraction), in `tests/contract/test_zero_reextraction.py` (FR-020, SC-006; remediation C1)
 
 ### Implementation
 
