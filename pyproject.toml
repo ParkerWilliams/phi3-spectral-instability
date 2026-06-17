@@ -36,7 +36,11 @@ dependencies = [
   # Phi3Attention API. transformers 5.x is a major release with breaking
   # changes that this code has NOT been validated against — do not bump
   # past 5.0 without re-verifying the hooks on real Phi-3.
-  "transformers>=4.45,<5.0",
+  # v2/SP-0: floor raised to >=4.48 — research.md R1.6 found the 4.48 attention
+  # refactor moves RoPE placement + decoder-layer return arity, so the
+  # multi-model capture study must NOT span it. The collection run pins ONE
+  # exact version (e.g. ==4.53.*); this floor keeps the package installable.
+  "transformers>=4.48,<5.0",
   # accelerate is required by transformers' from_pretrained(device_map="auto")
   # used in the pilot/full-study drivers and the integration test.
   "accelerate>=0.26",

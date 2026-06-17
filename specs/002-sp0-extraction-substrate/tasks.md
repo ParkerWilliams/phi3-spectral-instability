@@ -28,8 +28,8 @@ is SP-0; SP-1/SP-2/SP-3 are out of scope (US5 ships only their *interfaces*).
 
 ## Phase 1: Setup (Shared Infrastructure)
 
-- [ ] T001 Tighten `transformers` to a single pinned version ≥4.48 (e.g. `==4.53.*`) and add `datasets`/RULER-generator deps in `pyproject.toml` (research.md R1.6 — do not span the 4.48 refactor)
-- [ ] T002 [P] Create package skeletons with `__init__.py`: `src/phi3geom/extraction/adapters/`, `src/phi3geom/dataset/adapters/`, `src/phi3geom/analysis/harness/`
+- [X] T001 Tighten `transformers` to a single pinned version ≥4.48 (e.g. `==4.53.*`) and add `datasets`/RULER-generator deps in `pyproject.toml` (research.md R1.6 — do not span the 4.48 refactor)
+- [X] T002 [P] Create package skeletons with `__init__.py`: `src/phi3geom/extraction/adapters/`, `src/phi3geom/dataset/adapters/`, `src/phi3geom/analysis/harness/`
 - [ ] T003 [P] Extend roster revision pinning in `src/phi3geom/scripts/pin_model_revision.py` to record each roster model's HF revision SHA into the manifest (Constitution I, multi-model)
 
 ---
@@ -41,12 +41,12 @@ is SP-0; SP-1/SP-2/SP-3 are out of scope (US5 ships only their *interfaces*).
 ### Tests (write first, must fail)
 
 - [ ] T004 [P] Test: storage `capture_version` + manifest-SHA round-trip and `CacheStaleError` on mismatch in `tests/contract/test_cache_storage.py` (contracts/cache-storage.md)
-- [ ] T005 [P] Test: GQA expansion helper — query head `q` → KV head `q // n_rep`, analytic on synthetic head counts, in `tests/unit/test_gqa_expansion.py` (research.md R1.2)
+- [X] T005 [P] Test: GQA expansion helper — query head `q` → KV head `q // n_rep`, analytic on synthetic head counts, in `tests/unit/test_gqa_expansion.py` (research.md R1.2)
 
 ### Implementation
 
-- [ ] T006 Create `ModelDescriptor` + config-driven metadata reader (d_model/n_layers/n_heads/n_kv_heads/head_dim/n_rep/attention_profile/tied_embeddings — **read from config, never computed**) in `src/phi3geom/extraction/adapters/base.py` (data-model.md)
-- [ ] T007 Define the `ModelAdapter` protocol + GQA/MQA expansion helper + capture-config (eager, `output_attentions`/`output_hidden_states`, `use_cache=False`) in `src/phi3geom/extraction/adapters/base.py` (depends T006; research.md R1.1/R1.2)
+- [X] T006 Create `ModelDescriptor` + config-driven metadata reader (d_model/n_layers/n_heads/n_kv_heads/head_dim/n_rep/attention_profile/tied_embeddings — **read from config, never computed**) in `src/phi3geom/extraction/adapters/base.py` (data-model.md)
+- [~] T007 Define the `ModelAdapter` protocol + GQA/MQA expansion helper + capture-config (eager, `output_attentions`/`output_hidden_states`, `use_cache=False`) in `src/phi3geom/extraction/adapters/base.py` (depends T006; research.md R1.1/R1.2) — **PARTIAL**: `ModelAdapter` Protocol (with the SP-3 `intervention` surface) + GQA expansion helper done & tested (T005); the live `from_pretrained` capture-config helper pends a torch/model env (GPU pod)
 - [ ] T008 [P] Extend the common event record (`is_answerable`, `gold_aliases`, `evidence_spans`, `corpus_id`, `provenance`) in `src/phi3geom/dataset/types.py` (data-model.md DocQAEventRecord)
 - [ ] T009 Extend the cache for `capture_version` + `CaptureBundle` write/read + header, raising on `capture_version`/`manifest_sha` mismatch, in `src/phi3geom/storage/cache.py` (depends T004; contracts/cache-storage.md)
 - [ ] T010 Create the `CaptureManifest` metric→field mapping + completeness-check skeleton in `src/phi3geom/extraction/capture.py` (manifest) and `src/phi3geom/scripts/check_manifest_completeness.py` (contracts/capture-manifest.md)
@@ -66,15 +66,16 @@ residual-trajectory length and answer-token entropy per event with no model load
 ### Tests (write first, must fail)
 
 - [ ] T011 [P] [US1] Test: Phi-3 capture round-trip — recovered per-head Q/K/V + attention shapes match the model's own forward, in `tests/unit/test_capture_roundtrip_phi3.py` (research.md R1.4)
-- [ ] T012 [P] [US1] Test: in-pass MP fit vs closed-form bulk edge on a known-aspect-ratio Gaussian (float64), in `tests/unit/test_mp_fit_analytic.py` (Constitution II/IV)
+- [X] T012 [P] [US1] Test: in-pass MP fit vs closed-form bulk edge on a known-aspect-ratio Gaussian (float64), in `tests/unit/test_mp_fit_analytic.py` (Constitution II/IV)
 - [ ] T013 [P] [US1] Test: manifest completeness for the US1-implemented fields, in `tests/contract/test_manifest_completeness.py` (SC-001)
 - [ ] T014 [P] [US1] Integration: capture one HotpotQA event on Phi-3 → bundle → offline consumer returns 1 geometry + 1 baseline scalar, zero model reload, in `tests/integration/test_capture_offline_consumer.py` (SC-002)
+- [ ] T014a [P] [US1] Contract test: the rich-capture pass exposes a reusable **intervention-callback surface** (accepts an optional per-layer hook) so SP-3 can re-invoke it with interventions — SP-0 ships the surface, not the interventions — in `tests/contract/test_intervention_surface.py` (FR-026; remediation C3)
 
 ### Implementation
 
 - [ ] T015 [US1] Implement the Phi-3 `ModelAdapter` (fused `qkv_proj` contiguous slicing, MHA `n_rep=1`, `o_proj` slice, hidden-state + unembed capture) in `src/phi3geom/extraction/adapters/phi3.py` (research.md R1.4/R1.5)
-- [ ] T016 [US1] Implement the in-pass per-layer token-cloud eigen-spectrum + MP fit (**float64**, store only the reduction) in `src/phi3geom/extraction/capture.py` (depends T012; contracts/capture-manifest.md in-pass rule)
-- [ ] T017 [US1] Implement the rich-capture pass in `src/phi3geom/extraction/capture.py`: eager forward, **layer-by-layer attention CPU offload**, assemble `CaptureBundle` (hidden@answer-pos + window, attn rows, `T×T` subset S, spectra, answer logits) and write via the cache (depends T007, T009, T015, T016; research.md R1.1)
+- [~] T016 [US1] Implement the in-pass per-layer token-cloud eigen-spectrum + MP fit (**float64**, store only the reduction) in `src/phi3geom/extraction/capture.py` (depends T012; contracts/capture-manifest.md in-pass rule) — **PARTIAL**: the MP reduction primitive (`marchenko_pastur_edges`/`covariance_eigenvalues`/`token_cloud_spectrum`) is done & analytically tested in `src/phi3geom/geometry/spectral.py` (T012 green); wiring it into the live capture pass pends the GPU pod
+- [ ] T017 [US1] Implement the rich-capture pass in `src/phi3geom/extraction/capture.py`: eager forward, **layer-by-layer attention CPU offload**, assemble `CaptureBundle` (hidden@answer-pos + window, attn rows, `T×T` subset S, spectra, answer logits) and write via the cache; expose an **optional per-layer intervention callback** as the reusable SP-3 surface (depends T007, T009, T015, T016; research.md R1.1; FR-026/C3)
 - [ ] T018 [US1] Implement K+1 generation (greedy T=0 scored + K=10 samples T=1.0/top-p 0.9, per-sample seeds) and `GenerationSample` storage (text/token_ids/chosen-token logprobs/seq logprob/length/greedy-flag) in `src/phi3geom/extraction/capture.py` (research.md R3.1)
 - [ ] T019 [US1] Implement the HotpotQA adapter → common record + evidence spans from gold supporting sentences in `src/phi3geom/dataset/adapters/hotpotqa.py` (contracts/corpus-adapter.md)
 - [ ] T020 [US1] Implement minimal `normalize_answer` + alias-EM correctness → `Label` (greedy sample) in `src/phi3geom/dataset/labeling.py` (full 4-way deferred to US3; research.md R3.2)
@@ -95,7 +96,7 @@ grouped-KV expansion yields one K/V per query head; effective attention support 
 
 ### Tests (write first, must fail)
 
-- [ ] T023 [P] [US2] Test: round-trip for a GQA model (Llama-3/Qwen2.5/Mistral) — each query head paired with KV head `q // n_rep`, in `tests/unit/test_capture_roundtrip_gqa.py` (research.md R1.2)
+- [ ] T023 [P] [US2] Test: round-trip **parametrized over ALL GQA adapters** (Llama-3, Qwen2.5, Mistral — distinct `head_dim`/tied-embedding configs) — each query head paired with KV head `q // n_rep`, in `tests/unit/test_capture_roundtrip_gqa.py` (research.md R1.2; SC-003 "≥5 architectures round-trip verified" — remediation C2)
 - [ ] T024 [P] [US2] Test: Gemma-2 capture records per-layer effective support (sliding vs full) + softcap params, in `tests/unit/test_gemma2_capture.py` (research.md R1.3)
 
 ### Implementation
@@ -197,6 +198,7 @@ restores 100% of committed events.
 
 - [ ] T049 [P] [US6] Test: data-loss regression — captured bundles are not dropped by storage-ignore rules (reproduces the v1 `fe190b7` defect), in `tests/contract/test_data_loss_regression.py` (FR-018, SC-007)
 - [ ] T050 [P] [US6] Test: resilient resume restores 100% of previously-committed events and recomputes none, in `tests/integration/test_resume.py` (FR-019, SC-007)
+- [ ] T050a [P] [US6] Test: adding one new model + one new corpus leaves every existing event bundle **byte-for-byte unchanged** (zero re-extraction), in `tests/contract/test_zero_reextraction.py` (FR-020, SC-006; remediation C1)
 
 ### Implementation
 
@@ -290,3 +292,6 @@ reduced-N RULER probe → completeness check → hand off the frozen cache to SP
   US5 ships only their interfaces and the SP-3 capture surface.
 - Commit after each task or logical group; leave the unrelated untracked
   `scripts/confound_audit_extended.py` alone.
+- **Post-`/speckit-analyze` remediation**: C1 → T050a (zero-re-extraction test),
+  C2 → T023 broadened to all GQA adapters, C3 → T014a + T017 intervention surface.
+  62 tasks total after remediation.
