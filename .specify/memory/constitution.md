@@ -1,6 +1,28 @@
 <!--
 Sync Impact Report
 ==================
+Version change: 3.0.0 → 3.1.0 (MINOR)
+Amendment (2026-06-18): Record the §5.6 inter-head attention-drift family and
+extend the test-first scope to its new primitives. Additive — no existing
+principle or contract redefined. Driver:
+docs/superpowers/specs/2026-06-18-interhead-attention-drift-family-design.md +
+the SP-0 capture amendment (specs/002-sp0-extraction-substrate/ FR-027/028, SC-011).
+
+Modified principles:
+- II. Test-First — TDD scope EXTENDED to the inter-head dispersion (JS/Hellinger)
+  and the head-head overlap matrix + its spectral scalars (effective rank, Fiedler,
+  top eigenvalue); analytic-check list extended (identical heads ⇒ dispersion 0 /
+  rank-1 overlap; disjoint-support ⇒ max dispersion / identity overlap).
+- IV. Spectral seam — CLARIFIED (no rule change) to name the inter-head
+  overlap/dispersion computation and the in-pass S(t,ℓ) surface as float64-seam.
+Modified contracts:
+- Precision contract — adds the §5.6 drift surface; records interhead_drift_surface
+  as the in-pass feature-set addition Principle V gates before task T063 lands.
+Added/removed sections: none.
+Templates: ✅ plan/spec/tasks templates generic — no edits. ⚠ README.md still absent.
+Follow-up TODOs: none.
+
+----- Amendment 2.0.0 → 3.0.0 (MAJOR) -----
 Version change: 2.0.0 → 3.0.0 (MAJOR)
 Amendment (2026-06-17): Generalize the v1-specific parameter-level contracts to
 govern the v2 correctness-geometry program — MULTI-MODEL, MULTI-CORPUS,
@@ -128,12 +150,18 @@ scope:** model-agnostic capture + per-architecture adapters incl. **GQA/MQA head
 expansion**; the **in-pass token-cloud eigen-spectrum + Marchenko–Pastur fit**;
 **4-way labeling + abstention detection**; the **manifest-completeness check**;
 **storage integrity + the data-loss regression test**; and the **evaluation-harness
-interfaces** (loader, null-evidence pack, transfer splitters, redundancy).
+interfaces** (loader, null-evidence pack, transfer splitters, redundancy). **v3.1.0
+addition (§5.6 inter-head attention-drift):** the **inter-head dispersion** (pairwise
+Jensen–Shannon / Hellinger) and the **head-head attention overlap matrix** and its
+derived spectral scalars (**effective rank, Fiedler / algebraic-connectivity value,
+top eigenvalue**). (The FPCA / two-stage CUSUM-EWMA changepoint machinery this family
+also uses is already in scope above — no change.)
 
 Spectral, Ricci, and the new **spectral-density** primitives MUST be verified by
 analytic property tests against closed-form values in `float64` (e.g., rank-1
 spectral entropy = 0, identity stable rank = N, **the Marchenko–Pastur bulk edge for
-a known-aspect-ratio Gaussian**). External library wrappers require a contract test
+a known-aspect-ratio Gaussian**, **identical heads ⇒ inter-head dispersion 0 and
+rank-1 overlap; disjoint-support heads ⇒ maximal dispersion and identity overlap**). External library wrappers require a contract test
 pinning input/output shape + one numerical sanity check. End-to-end inference
 pipelines require an integration test only. Exploratory probes/visualizations/
 notebooks are carved out of TDD and MUST live under `exploratory/`/`notebooks/` and
@@ -179,10 +207,13 @@ signal is geometry, not a corpus/length/confound artifact.
 
 The spectral seam — **every computation that produces a singular-value- or
 eigenvalue-derived scalar**: stable rank, Grassmannian subspace distance, spectral
-entropy, magnitude norms, **and the in-pass per-layer token-cloud eigen-spectrum +
-Marchenko–Pastur fit** — MUST execute in `float64`. Downcasting to `float32` (or
-`float16` for stored activations/attention) is permitted only at the storage
-boundary. Tests assert correctness at the seam via analytic property checks in
+entropy, magnitude norms, **the in-pass per-layer token-cloud eigen-spectrum +
+Marchenko–Pastur fit**, **and (v3.1.0) the §5.6 inter-head overlap-matrix
+eigen-computation + Jensen–Shannon/Hellinger dispersion** — MUST execute in
+`float64`. Downcasting to `float32` (or `float16` for stored activations/attention)
+is permitted only at the storage boundary; the in-pass inter-head drift surface
+`S(t, ℓ)` is computed in float64 and downcast at the cache boundary like the
+token-cloud spectra. Tests assert correctness at the seam via analytic property checks in
 float64 (Principle II). Ricci-token computations operate on attention graphs
 sparsified to top-`k_attn` edges per node; `k_attn` MUST be pinned per-study.
 
@@ -218,9 +249,14 @@ analyses needs a structural defense against drift between intent and implementat
 ## Numerical & Reproducibility Standards
 
 **Precision contract:** Float64 in the spectral seam — any singular-value/eigenvalue
-scalar, including the in-pass token-cloud spectra (Principle IV). Float32/float16
-permitted only in the storage cache. The manifest records which columns/tensors were
-stored in which precision, plus the `capture_version`.
+scalar, including the in-pass token-cloud spectra **and the §5.6 inter-head drift
+surface `S(t, ℓ)`** (Principle IV). Float32/float16 permitted only in the storage
+cache. The manifest records which columns/tensors were stored in which precision,
+plus the `capture_version`. **v3.1.0 captured-set note:** `interhead_drift_surface`
+is an additional in-pass reduction within the v2 capture architecture (raw `H×T`
+blocks too large ⇒ store the reduction; carries `capture_version` + manifest SHA) —
+the feature-set addition Principle V requires be ratified before the SP-0
+capture-wiring commit (task T063) lands.
 
 **Determinism contract (v2).** Forward passes run across the **pinned multi-model
 roster** (each model's HF revision SHA recorded). For correctness scoring, the
@@ -315,4 +351,4 @@ writeup.
 current plan; that pointer is the runtime entry into spec-derived context. This
 constitution is the standing entry.
 
-**Version**: 3.0.0 | **Ratified**: 2026-05-18 | **Last Amended**: 2026-06-17
+**Version**: 3.1.0 | **Ratified**: 2026-05-18 | **Last Amended**: 2026-06-18

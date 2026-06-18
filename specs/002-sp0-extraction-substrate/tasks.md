@@ -236,7 +236,7 @@ GPU wiring and the constitution touch are pod-/gate-bound.
 - [X] T061 [P] Implement the per-cell `S(t,ℓ)` summary primitives (pairwise JS/Hellinger dispersion; head-head overlap matrix + effective rank / Fiedler gap / top eigenvalue; evidence-coverage) in `src/phi3geom/geometry/interhead.py` (**float64**; CPU)
 - [X] T062 Add the §5.6 metrics + `interhead_drift_surface` bundle field to `src/phi3geom/extraction/manifest.py` and update the completeness test (`tests/contract/test_manifest_completeness.py`) to cover them (SC-011)
 - [ ] T063 **[pod]** Wire the in-pass `S(t,ℓ)` computation over the log-spaced query grid × all layers into `src/phi3geom/extraction/capture.py` (off the eager attention tensor; store the surface, never raw `H×T`) — depends T061, T062
-- [ ] T064 **[gate]** Constitution **v3.1.0** touch via `/speckit-constitution` — extend Principle II TDD scope to the inter-head dispersion / overlap-matrix primitives and record the §5.6 family — MUST land before T063 (the capture-wiring commit; Principle V)
+- [X] T064 **[gate]** Constitution **v3.1.0** touch via `/speckit-constitution` — extend Principle II TDD scope to the inter-head dispersion / overlap-matrix primitives and record the §5.6 family — MUST land before T063 (the capture-wiring commit; Principle V)
 
 ---
 

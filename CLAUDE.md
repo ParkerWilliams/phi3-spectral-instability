@@ -10,10 +10,11 @@ shell commands, and other important information, read the current plan at
 - Program design (umbrella): `docs/superpowers/specs/2026-06-17-v2-correctness-geometry-program-design.md`
 - Predecessor v1 study (null result, extended by SP-0): `specs/001-phi3-attention-geometry-v1/`
 - Constitution (governs all features): `.specify/memory/constitution.md`
-  NOTE: ratified **v3.0.0** (2026-06-17) — governs the v2 program: multi-model
+  NOTE: ratified **v3.1.0** (2026-06-18) — governs the v2 program: multi-model
   roster, sampled generations for semantic entropy, EM-headline + F1/abstention
-  labeling, reproducible raw-tensor caching, cross-corpus/cross-model transfer.
-  The `/speckit-implement` gate the SP-0 plan flagged is now satisfied.
+  labeling, reproducible raw-tensor caching, cross-corpus/cross-model transfer;
+  v3.1.0 added the §5.6 inter-head attention-drift family (TDD scope + the
+  in-pass interhead_drift_surface). The SP-0 `/speckit-implement` gate is satisfied.
 <!-- SPECKIT END -->
 
 ## Governing analysis methodology (v2.0.0 — supersedes the spec/tasks in part)
