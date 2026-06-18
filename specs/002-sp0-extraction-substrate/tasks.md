@@ -101,12 +101,12 @@ grouped-KV expansion yields one K/V per query head; effective attention support 
 
 ### Implementation
 
-- [ ] T025 [P] [US2] Implement the Llama-3 adapter (split q/k/v_proj, GQA, RoPE timing) in `src/phi3geom/extraction/adapters/llama.py`
-- [ ] T026 [P] [US2] Implement the Qwen2.5 adapter (GQA, explicit `head_dim`, tied embeddings for 0.5/1.5B) in `src/phi3geom/extraction/adapters/qwen2.py`
-- [ ] T027 [P] [US2] Implement the Mistral adapter (GQA) in `src/phi3geom/extraction/adapters/mistral.py`
-- [ ] T028 [US2] Implement the Gemma-2 adapter — `layer_types` (even=full/odd=sliding), `query_pre_attn_scalar`, both softcaps, per-layer effective support — in `src/phi3geom/extraction/adapters/gemma2.py` (research.md R1.3)
-- [ ] T029 [US2] Implement an adapter registry that resolves the right `ModelAdapter` from the model config in `src/phi3geom/extraction/adapters/base.py`
-- [ ] T030 [US2] Persist per-model "once" artifacts (`lm_head.weight`, final-norm, `ModelDescriptor`) under `models/<model_id>/` and reference from every bundle (contracts/cache-storage.md)
+- [~] T025 [P] [US2] Implement the Llama-3 adapter (split q/k/v_proj, GQA, RoPE timing) in `src/phi3geom/extraction/adapters/llama.py`
+- [~] T026 [P] [US2] Implement the Qwen2.5 adapter (GQA, explicit `head_dim`, tied embeddings for 0.5/1.5B) in `src/phi3geom/extraction/adapters/qwen2.py`
+- [~] T027 [P] [US2] Implement the Mistral adapter (GQA) in `src/phi3geom/extraction/adapters/mistral.py`
+- [~] T028 [US2] Implement the Gemma-2 adapter — `layer_types` (even=full/odd=sliding), `query_pre_attn_scalar`, both softcaps, per-layer effective support — in `src/phi3geom/extraction/adapters/gemma2.py` (research.md R1.3)
+- [X] T029 [US2] Implement an adapter registry that resolves the right `ModelAdapter` from the model config in `src/phi3geom/extraction/adapters/base.py`
+- [~] T030 [US2] Persist per-model "once" artifacts (`lm_head.weight`, final-norm, `ModelDescriptor`) under `models/<model_id>/` and reference from every bundle (contracts/cache-storage.md)
 
 **Checkpoint**: US1 + US2 — capture works across the diverse roster.
 
@@ -150,9 +150,9 @@ document for closed-book; spans where available); a sampled batch lands in 25–
 
 ### Implementation
 
-- [ ] T038 [P] [US4] Implement the SQuAD2 adapter (answerable + unanswerable; `is_answerable=False` ⇒ `gold_aliases=[]`) in `src/phi3geom/dataset/adapters/squad2.py`
-- [ ] T039 [P] [US4] Implement the closed-book TriviaQA/NQ adapter (`document=""`, alias sets, `evidence_spans=null`) in `src/phi3geom/dataset/adapters/triviaqa_nq.py`
-- [ ] T040 [US4] Implement the RULER adapter — pass the model tokenizer, carry native `token_position_answer` → `evidence_spans`, lengths {4K,8K,16K,32K} — in `src/phi3geom/dataset/adapters/ruler.py` (research.md R2; verify the `qa`-task position field)
+- [~] T038 [P] [US4] Implement the SQuAD2 adapter (answerable + unanswerable; `is_answerable=False` ⇒ `gold_aliases=[]`) in `src/phi3geom/dataset/adapters/squad2.py`
+- [~] T039 [P] [US4] Implement the closed-book TriviaQA/NQ adapter (`document=""`, alias sets, `evidence_spans=null`) in `src/phi3geom/dataset/adapters/triviaqa_nq.py`
+- [~] T040 [US4] Implement the RULER adapter — pass the model tokenizer, carry native `token_position_answer` → `evidence_spans`, lengths {4K,8K,16K,32K} — in `src/phi3geom/dataset/adapters/ruler.py` (research.md R2; verify the `qa`-task position field)
 - [ ] T041 [US4] (Optional/secondary) Implement the NoLiMa adapter in `src/phi3geom/dataset/adapters/nolima.py` — **gate on confirming the Adobe non-commercial license** (research.md R2 to-do)
 - [X] T042 [US4] Implement balance sampling toward the 25–75% fail/hallucination band per corpus (no synthetic distractor inflation) in `src/phi3geom/dataset/balance.py` (SC-005) — balance_corpus/balance_dataset (downsample-only, no synthetic inflation; v1 oversample.py left intact)
 
@@ -321,7 +321,13 @@ reduced-N RULER probe → completeness check → hand off the frozen cache to SP
   `hooks.py` for the Phi-3 path T015), `dataset/adapters/hotpotqa.py` (T019),
   `scripts/benchmark_gate.py` (T051), `scripts/run_pilot_v2.py` (T054/T021), and the
   skip-guarded `tests/integration/test_capture_pipeline_v2.py` (T014). All torch-lazy
-  so the 384 CPU tests stay green. **Validate on the pod**: `pip install -e .`, set
-  `PHI3_RUN_GPU_TESTS=1`, flip the integration test, debug. **Fan-out still to write:**
-  the GQA/Gemma-2 adapters + registry (T025–T030; capture.py currently leans on the
-  Phi-3-shaped `hooks.py`) and the SQuAD2/closed-book/RULER corpus loaders (T037–T041).
+  so the 389 CPU tests stay green. **Validate on the pod**: `pip install -e .`, set
+  `PHI3_RUN_GPU_TESTS=1`, flip the integration test, debug.
+- **Multi-arch + corpora scaffold (2026-06-18):** the generic `HFAdapter` (GQA
+  expansion + descriptor-from-config) + `registry.resolve_adapter` (T029, CPU-tested)
+  + the Gemma-2 sliding-window profile (T025–T028) and the SQuAD2 / closed-book /
+  RULER loaders (T038–T040) are DRAFTED; `capture.py` now persists `qkv_per_head` +
+  the descriptor. The **descriptor/registry logic is CPU-tested** (mock configs); the
+  live Q/K/V capture + dataset loaders are pod-bound. **Still open:** the corpus-adapter
+  contract test (T037), per-model `lm_head`/`norm` weight artifacts (T030), the optional
+  NoLiMa adapter (T041).

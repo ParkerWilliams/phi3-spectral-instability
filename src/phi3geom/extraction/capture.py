@@ -27,6 +27,7 @@ import numpy as np
 
 from phi3geom.dataset.labeling import make_label
 from phi3geom.dataset.types import DocQAEventRecord
+from phi3geom.extraction.adapters.registry import resolve_adapter
 from phi3geom.extraction.generation import generate_samples
 from phi3geom.extraction.hooks import Phi3ExtractionHook
 from phi3geom.extraction.pipeline import build_prompt
@@ -99,6 +100,8 @@ def run_capture(
     input_ids = enc["input_ids"]
     prompt_len = int(input_ids.shape[1])
     answer_pos = prompt_len - 1
+    adapter = resolve_adapter(model, model_id=model_id, revision_sha=revision_sha, tokenizer_id=model_id)
+    descriptor = adapter.describe()
 
     handles = []
     if intervention is not None:
@@ -120,6 +123,7 @@ def run_capture(
         hidden = [h[0].float().cpu().numpy() for h in outputs.hidden_states]  # (L+1)×(T,d)
         attn = [a[0].float().cpu().numpy() for a in outputs.attentions]  # (L)×(H,T,T)
         answer_logits = outputs.logits[0, answer_pos].float().cpu().numpy()
+        qkv_per_head = adapter.capture_qkv(hook.captures, answer_pos)  # (3, L, H, d_head)
         del outputs
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
@@ -154,6 +158,7 @@ def run_capture(
         ("attn_rows_answer_pos", attn_rows),
         ("token_cloud_spectra", token_cloud),
         ("interhead_drift_surface", interhead),
+        ("qkv_per_head", qkv_per_head),
         ("answer_logits", answer_logits.astype(np.float16)),
     ):
         bundle_cache.write_array(cache_root, name=name, array=arr, **kw, **wk)
@@ -167,7 +172,14 @@ def run_capture(
     bundle_cache.write_json(
         cache_root, name="meta",
         obj={"model_id": model_id, "corpus_id": record.corpus_id,
-             "event_id": record.event_id, "capture_version": capture_version}, **kw,
+             "event_id": record.event_id, "capture_version": capture_version,
+             "descriptor": {
+                 "d_model": descriptor.d_model, "n_layers": descriptor.n_layers,
+                 "n_heads": descriptor.n_heads, "n_kv_heads": descriptor.n_kv_heads,
+                 "head_dim": descriptor.head_dim, "n_rep": descriptor.n_rep,
+                 "tied_embeddings": descriptor.tied_embeddings,
+                 "revision_sha": revision_sha,
+             }}, **kw,
     )
     bundle_cache.write_json(
         cache_root, name="event",

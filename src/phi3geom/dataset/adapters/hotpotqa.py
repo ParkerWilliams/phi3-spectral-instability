@@ -10,44 +10,25 @@ tokenized prompt); validate + tighten on the pod against a real tokenizer.
 
 from __future__ import annotations
 
-import hashlib
 from typing import Any, Iterator
 
+from phi3geom.dataset.adapters._common import char_span_to_tokens, event_id
 from phi3geom.dataset.normalization import normalize_em
 from phi3geom.dataset.types import DocQAEventRecord
-from phi3geom.extraction.pipeline import PROMPT_TEMPLATE_SHA256
-
-
-def _event_id(document: str, question: str, gold: str) -> str:
-    h = hashlib.sha256()
-    for part in (PROMPT_TEMPLATE_SHA256, document, question, gold):
-        h.update(part.encode("utf-8"))
-        h.update(b"\x00")
-    return h.hexdigest()
 
 
 def _evidence_spans(document: str, support_sentences: list[str], tokenizer: Any):
-    """Approximate token ranges of the supporting sentences within the prompt.
-
-    Locates each support sentence's character offset in the document, then maps to
-    token indices via the tokenizer's offset mapping. Returns None if unavailable.
-    """
+    """Approximate token ranges of the supporting sentences within the document."""
     if tokenizer is None:
-        return None
-    try:
-        enc = tokenizer(document, return_offsets_mapping=True)
-        offsets = enc["offset_mapping"]
-    except Exception:
         return None
     spans = []
     for sent in support_sentences:
         pos = document.find(sent)
         if pos < 0:
             continue
-        start_char, end_char = pos, pos + len(sent)
-        tok_idx = [i for i, (a, b) in enumerate(offsets) if a >= start_char and b <= end_char and b > a]
-        if tok_idx:
-            spans.append((min(tok_idx), max(tok_idx)))
+        s = char_span_to_tokens(document, pos, pos + len(sent), tokenizer)
+        if s:
+            spans.append(s)
     return spans or None
 
 
@@ -74,7 +55,7 @@ def iter_events(
                 if 0 <= sid < len(sentences[ti]):
                     support_sents.append(sentences[ti][sid])
         yield DocQAEventRecord(
-            event_id=_event_id(document, row["question"], gold),
+            event_id=event_id(document, row["question"], gold),
             corpus_id="hotpotqa",
             document=document,
             question=row["question"],

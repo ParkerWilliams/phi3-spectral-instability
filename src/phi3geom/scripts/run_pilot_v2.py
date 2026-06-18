@@ -17,7 +17,13 @@ from collections import Counter
 from pathlib import Path
 from typing import Any, Iterator
 
-CORPORA = {"hotpotqa": "phi3geom.dataset.adapters.hotpotqa"}
+# Uniform-signature corpora (split/limit/tokenizer). RULER is invoked separately —
+# it needs a generated-data path (`--data`), not the limit/tokenizer signature.
+CORPORA = {
+    "hotpotqa": "phi3geom.dataset.adapters.hotpotqa",
+    "squad2": "phi3geom.dataset.adapters.squad2",
+    "triviaqa_nq": "phi3geom.dataset.adapters.triviaqa_nq",
+}
 
 
 def _corpus_iter(corpus_id: str, *, limit: int, tokenizer: Any) -> Iterator:
