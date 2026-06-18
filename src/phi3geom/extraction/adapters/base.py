@@ -96,6 +96,8 @@ class ModelDescriptor:
     transformers_version: str
     tied_embeddings: bool = False
     attention_profile: tuple[str, ...] = field(default_factory=tuple)
+    attn_logit_softcap: float | None = None      # Gemma-2 attn_logit_softcapping
+    query_pre_attn_scalar: float | None = None   # Gemma-2 scaling = scalar**-0.5
 
     def __post_init__(self) -> None:
         # Validates divisibility (raises on mismatch) and basic shape sanity.
@@ -164,6 +166,8 @@ def build_descriptor(
     n_kv = int(getattr(config, "num_key_value_heads", None) or n_heads)
     head_dim = getattr(config, "head_dim", None)
     head_dim = int(head_dim) if head_dim else int(config.hidden_size) // n_heads
+    softcap = getattr(config, "attn_logit_softcapping", None)
+    scalar = getattr(config, "query_pre_attn_scalar", None)
     return ModelDescriptor(
         model_id=model_id,
         revision_sha=revision_sha,
@@ -176,6 +180,8 @@ def build_descriptor(
         transformers_version=transformers_version,
         tied_embeddings=bool(getattr(config, "tie_word_embeddings", False)),
         attention_profile=tuple(attention_profile),
+        attn_logit_softcap=float(softcap) if softcap is not None else None,
+        query_pre_attn_scalar=float(scalar) if scalar is not None else None,
     )
 
 

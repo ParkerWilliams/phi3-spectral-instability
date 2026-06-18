@@ -20,7 +20,8 @@ MISTRAL = SimpleNamespace(num_attention_heads=32, num_key_value_heads=8, hidden_
                           num_hidden_layers=32, model_type="mistral")
 GEMMA2 = SimpleNamespace(num_attention_heads=16, num_key_value_heads=8, hidden_size=3584,
                          head_dim=256, num_hidden_layers=42, model_type="gemma2",
-                         tie_word_embeddings=True, sliding_window=4096)
+                         tie_word_embeddings=True, sliding_window=4096,
+                         attn_logit_softcapping=50.0, query_pre_attn_scalar=256)
 PHI3 = SimpleNamespace(num_attention_heads=32, num_key_value_heads=32, hidden_size=3072,
                        num_hidden_layers=32, model_type="phi3")
 
@@ -45,6 +46,16 @@ def test_gqa_n_rep_per_arch():
 def test_tied_embeddings_flag():
     assert build_descriptor(GEMMA2, model_id="g", **_KW).tied_embeddings is True
     assert build_descriptor(LLAMA, model_id="l", **_KW).tied_embeddings is False
+
+
+def test_gemma2_softcap_and_scalar_read_from_config():
+    g = build_descriptor(GEMMA2, model_id="g", **_KW)
+    assert g.attn_logit_softcap == 50.0
+    assert g.query_pre_attn_scalar == 256.0
+    # non-Gemma models carry neither
+    l = build_descriptor(LLAMA, model_id="l", **_KW)
+    assert l.attn_logit_softcap is None
+    assert l.query_pre_attn_scalar is None
 
 
 def test_gemma2_attention_profile_alternates():

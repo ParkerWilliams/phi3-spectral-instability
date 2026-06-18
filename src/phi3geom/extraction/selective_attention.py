@@ -8,12 +8,14 @@ used instead. Returns ``{t: (L, H, T)}`` distributions on device.
 
 Faithfulness (the RoPE/GQA traps — research R1.2/R1.4):
 - post-RoPE Q/K via the model's own ``rotary_emb`` (cos/sin) + standard rotate-half;
-- GQA K expanded to query heads; scaling = ``head_dim**-0.5``;
+- GQA K expanded to query heads;
+- scaling = ``query_pre_attn_scalar**-0.5`` for Gemma-2 (handles 9B and 27B), else
+  ``head_dim**-0.5``;
+- Gemma-2 attn-logit **softcap** (applied to pre-softmax logits, before masking) and
+  the per-layer **sliding-window** mask on alternating layers;
 - causal mask (query t attends keys ≤ t).
-KNOWN GAPS (the equivalence test will flag these per-arch): Gemma-2 attn-logit
-**softcap** and **sliding-window** masking are NOT applied (exact for non-Gemma-2;
-Gemma-2 needs both added), and the Gemma-2-27B ``query_pre_attn_scalar`` scaling
-(coincides with head_dim**-0.5 only for the 9B). torch imported lazily.
+Validated per-arch against eager ``output_attentions`` by
+``tests/integration/test_selective_attention_equivalence.py``. torch imported lazily.
 """
 
 from __future__ import annotations
@@ -63,7 +65,11 @@ def recompute_query_rows(captures: dict, descriptor, model, queries) -> dict:
     dummy = torch.zeros(1, T, d.head_dim, device=device)
     cos, sin = rotary(dummy, position_ids)  # (1, T, head_dim) each
     cos, sin = cos[0].double(), sin[0].double()
-    scaling = d.head_dim ** -0.5
+    # Gemma-2 uses query_pre_attn_scalar**-0.5 (9B coincides with head_dim**-0.5, 27B
+    # does not); everyone else uses head_dim**-0.5.
+    scaling = (d.query_pre_attn_scalar ** -0.5) if d.query_pre_attn_scalar else (d.head_dim ** -0.5)
+    softcap = d.attn_logit_softcap
+    profile = d.attention_profile
 
     q_idx = torch.tensor(sorted(set(int(q) for q in queries)), device=device)
     keypos = torch.arange(T, device=device)
@@ -79,7 +85,14 @@ def recompute_query_rows(captures: dict, descriptor, model, queries) -> dict:
             k = k.repeat_interleave(d.n_rep, dim=0)  # (H,T,hd)
         q_sel = q[:, q_idx, :]  # (H, n_q, hd)
         scores = torch.einsum("hqd,htd->hqt", q_sel, k) * scaling  # (H, n_q, T)
-        scores = scores.masked_fill(future, float("-inf"))
+        if softcap is not None:  # Gemma-2: cap pre-softmax logits BEFORE masking
+            scores = softcap * torch.tanh(scores / softcap)
+        mask = future
+        if profile and ell < len(profile) and profile[ell].startswith("sliding:"):
+            window = int(profile[ell].split(":", 1)[1])
+            too_old = keypos[None, None, :] < (q_idx[None, :, None] - window + 1)
+            mask = future | too_old  # causal AND within the sliding window
+        scores = scores.masked_fill(mask, float("-inf"))
         out[ell] = torch.softmax(scores, dim=-1)
 
     return {int(t): out[:, :, qi, :].contiguous() for qi, t in enumerate(q_idx.tolist())}

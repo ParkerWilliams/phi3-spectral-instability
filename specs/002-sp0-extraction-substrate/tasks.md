@@ -336,10 +336,13 @@ reduced-N RULER probe → completeness check → hand off the frozen cache to SP
   (`extraction/selective_attention.py`: post-RoPE Q/K via the model's `rotary_emb`,
   GQA expansion, causal mask) — never materializing the full `T×T` (the long-context
   win). **eager stays the default/reference.** `benchmark_gate.py`/`run_pilot_v2.py`
-  take `--attn-mode`. **KNOWN GAPS** (the equivalence test flags them per-arch): Gemma-2
-  attn-logit softcap + sliding-window mask + 27B query-scalar are NOT applied yet (exact
-  for non-Gemma-2). Validated by `tests/integration/test_selective_attention_equivalence.py`
-  (recomputed rows ≈ eager `output_attentions`; pod, needs a model).
+  take `--attn-mode`. **Gemma-2 fully handled (2026-06-18):** the descriptor now carries
+  `attn_logit_softcap` + `query_pre_attn_scalar` (read from config, CPU-tested), and the
+  recompute applies the attn-logit softcap (pre-softmax, pre-mask), the
+  `query_pre_attn_scalar` scaling (9B + 27B), and the per-layer sliding-window mask — so
+  the path is now exact for all roster archs. Validated by
+  `tests/integration/test_selective_attention_equivalence.py` (recomputed rows ≈ eager
+  `output_attentions`; pod, needs a model).
 - **Multi-arch + corpora scaffold (2026-06-18):** the generic `HFAdapter` (GQA
   expansion + descriptor-from-config) + `registry.resolve_adapter` (T029, CPU-tested)
   + the Gemma-2 sliding-window profile (T025–T028) and the SQuAD2 / closed-book /
