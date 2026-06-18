@@ -80,6 +80,7 @@ The raw material; every field traces to a metric in `contracts/capture-manifest.
 | `attn_rows_answer_pos` | `(L, n_heads, T)` | fp16 | attention-to-evidence, routing entropy |
 | `attn_full_subset` | `(|S|, n_heads, T, T)` | fp16 | rollout, Ollivier-Ricci, Laplacian |
 | `token_cloud_spectra` | `(L, k_eig)` + MP-fit stats | fp64→fp32 | all RMT (in-pass; raw cloud not stored) |
+| `interhead_drift_surface` | `(n_t, L, K_summary)` `S(t,ℓ)` | fp64→fp32 | §5.6 inter-head attention-drift (in-pass; raw H×T not stored) |
 | `samples` | K+1 × GenerationSample | — | semantic entropy, baselines |
 | `answer_logits` | `(vocab,)` or top-k | fp16 | confidence baselines |
 | `evidence_spans` | from DocQAEventRecord | — | attention-to-evidence |

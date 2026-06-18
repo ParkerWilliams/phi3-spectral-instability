@@ -43,6 +43,23 @@ on-GPU because the raw form is too large.
 - **Full `T×T` attention** (`attn_full_subset`): stored only for layer subset `S` (from the
   benchmark gate); captured **layer-by-layer with CPU offload** to bound peak memory
   (R1.1). If even S exceeds the budget, compute the rollout-to-evidence scalar in-pass.
+- **Inter-head drift surface** (`interhead_drift_surface`, `[in-pass]`): the raw `H×T`
+  attention blocks across many query positions × all layers are ~3+ GB/event — too large.
+  Compute the per-cell head-configuration summary `S(t, ℓ)` **in float64 on-GPU**, off the
+  attention tensor eager already materializes, over the log-spaced query set
+  `{answer − offset: 0,1,2,4,…,256} ∪ {gold-evidence positions}` × all layers, and store
+  **only** the surface (≈ `n_t × L × K_summary`). Each cell carries the corpus-agnostic
+  inter-head **JS/Hellinger dispersion** and the overlap-matrix **effective rank / Fiedler
+  gap / top eigenvalue**, plus an evidence-coverage scalar where a gold span exists. Feeds
+  the §5.6 inter-head attention-drift family. Property-tested on CPU (Constitution II/IV).
+
+### Added §5.6 mapping rows
+
+| Program metric (§) | Source | Bundle field | Mode |
+|---|---|---|---|
+| Inter-head dispersion drift (5.6) | per-cell JS/Hellinger over `{A_h}` | `interhead_drift_surface` | `[in-pass]` |
+| Overlap-matrix spectrum drift (5.6) | per-cell head-head similarity eigen-stats | `interhead_drift_surface` | `[in-pass]` |
+| Evidence-coverage drift (5.6, with-context) | head-set mass on the gold span | `interhead_drift_surface` | `[in-pass]` |
 
 ## Capture configuration (R1)
 

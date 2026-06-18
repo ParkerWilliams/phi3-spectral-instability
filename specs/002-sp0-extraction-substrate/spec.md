@@ -252,6 +252,21 @@ without out-of-memory; a simulated mid-run interruption followed by resume resto
 - **FR-006**: The substrate MUST capture the prefill (square) attention pass and MUST
   NOT mis-store decode-step attention.
 
+**Inter-head attention-drift surface** *(amendment 2026-06-18; design:
+`docs/superpowers/specs/2026-06-18-interhead-attention-drift-family-design.md`)*
+
+- **FR-027**: The substrate MUST compute, **in-pass**, an inter-head
+  attention-drift surface `S(t, ℓ)` over a log-spaced query-position set
+  (`{answer − offset : 0,1,2,4,…,256} ∪ gold-evidence positions`) across all
+  layers, and store **only** the reduced surface (new bundle field
+  `interhead_drift_surface`) — never the raw `H×T` attention blocks (too large,
+  same rule as the token-cloud spectra).
+- **FR-028**: Each `S(t, ℓ)` cell MUST include the corpus-agnostic measures —
+  inter-head Jensen–Shannon (and Hellinger) **dispersion** and the head-head
+  overlap-matrix **effective rank / Fiedler gap / top eigenvalue** — computed in
+  double precision at the spectral seam; the evidence-coverage scalar is recorded
+  only for corpora that provide a gold span (a with-context diagnostic).
+
 **Model-agnostic generality**
 
 - **FR-007**: The substrate MUST resolve Q/K/V, attention weights, the output
@@ -339,6 +354,9 @@ without out-of-memory; a simulated mid-run interruption followed by resume resto
   aliases, answerable flag, evidence spans, corpus id, provenance).
 - **Label**: four-way class + hallucination-vs-safe binary + the evidence used
   (alias match, abstention decision, token-overlap cross-check).
+- **Inter-head drift surface**: the per-event in-pass reduction
+  `interhead_drift_surface = S(t, ℓ)` over the sampled query positions × layers —
+  the captured material for the §5.6 inter-head attention-drift family (FR-027/028).
 - **Capture manifest**: the authoritative metric→raw-tensor mapping that the
   completeness check enforces.
 - **Cache (versioned, keyed)**: the durable store keyed by `(model, corpus, event)`
@@ -379,6 +397,11 @@ without out-of-memory; a simulated mid-run interruption followed by resume resto
   labels for 6 checkpoints (5 diverse @ 7–14B + Llama-3-8B base) × 3 short corpora at
   full N + a reduced-N long-context probe, consumable by SP-1/SP-2 as pure offline
   sweeps.
+- **SC-011**: Every captured event carries an `interhead_drift_surface` `S(t, ℓ)`
+  (corpus-agnostic dispersion + overlap-matrix spectrum at every cell; evidence-
+  coverage where a gold span exists), and the manifest completeness check covers the
+  §5.6 family — so the inter-head attention-drift detector runs as a pure offline
+  sweep with zero re-extraction.
 
 ## Assumptions
 
@@ -406,4 +429,11 @@ without out-of-memory; a simulated mid-run interruption followed by resume resto
   behavior on H200 (the fix is reasoned, not yet GPU-validated).
 - **Downstream boundary**: SP-1 baseline metrics, SP-2 geometry metrics, and SP-3
   interventions are out of scope; SP-0 delivers the substrate, storage, labels, harness
-  interfaces, and the SP-3 hook surface only.
+  interfaces, and the SP-3 hook surface only. (The §5.6 in-pass surface is a capture
+  responsibility; the §5.6 *detector* is an SP-2 family.)
+- **Constitution gate (FR-027/028)**: adding `interhead_drift_surface` changes the
+  captured feature set, so per Principle V the **pod capture-wiring commit is gated on
+  a constitution v3.1.0 touch** (extend Principle II TDD scope to the new inter-head
+  dispersion / overlap-matrix primitives; record the §5.6 family). The CPU-only summary
+  primitives (library code, not yet "the extracted set") and the spec amendment may land
+  before that touch — exactly as SP-0 implement was gated on v3.0.0.
