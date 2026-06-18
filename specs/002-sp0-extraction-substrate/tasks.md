@@ -321,8 +321,15 @@ reduced-N RULER probe → completeness check → hand off the frozen cache to SP
   `hooks.py` for the Phi-3 path T015), `dataset/adapters/hotpotqa.py` (T019),
   `scripts/benchmark_gate.py` (T051), `scripts/run_pilot_v2.py` (T054/T021), and the
   skip-guarded `tests/integration/test_capture_pipeline_v2.py` (T014). All torch-lazy
-  so the 389 CPU tests stay green. **Validate on the pod**: `pip install -e .`, set
+  so the 393 CPU tests stay green. **Validate on the pod**: `pip install -e .`, set
   `PHI3_RUN_GPU_TESTS=1`, flip the integration test, debug.
+- **GPU in-pass reductions (2026-06-18):** `extraction/gpu_reductions.py` moves the
+  per-layer token-cloud SVD + the inter-head `S(t,ℓ)` (pairwise JS/Hellinger + overlap
+  eigen) ON DEVICE, and `capture.py` keeps hidden/attention on the GPU — reducing there
+  and moving only small slices/surfaces to host (avoids the CPU SVD bottleneck AND the
+  multi-GB full-attention transfer). Validated by
+  `tests/integration/test_gpu_reductions_equivalence.py` (GPU path ≈ tested CPU
+  primitives; runs under torch alone, no GPU/model needed — the cheapest pod check).
 - **Multi-arch + corpora scaffold (2026-06-18):** the generic `HFAdapter` (GQA
   expansion + descriptor-from-config) + `registry.resolve_adapter` (T029, CPU-tested)
   + the Gemma-2 sliding-window profile (T025–T028) and the SQuAD2 / closed-book /
