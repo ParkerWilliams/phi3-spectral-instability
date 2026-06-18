@@ -26,6 +26,7 @@ BUNDLE_FIELDS: frozenset[str] = frozenset(
         "attn_rows_answer_pos",
         "attn_full_subset",
         "token_cloud_spectra",
+        "interhead_drift_surface",
         "qkv_per_head",
         "samples",
         "answer_logits",
@@ -62,6 +63,10 @@ METRIC_TO_FIELD: dict[str, str] = {
     # 5.5 v1 object, repaired
     "v1_magnitude_norms": "qkv_per_head",
     "v1_dynamics": "qkv_per_head",
+    # 5.6 inter-head attention-drift (in-pass S(t,ℓ) surface)
+    "interhead_dispersion_drift": "interhead_drift_surface",
+    "interhead_overlap_spectrum_drift": "interhead_drift_surface",
+    "interhead_evidence_coverage_drift": "interhead_drift_surface",
 }
 
 # The full §5 catalog (everything the first big run must be able to feed).

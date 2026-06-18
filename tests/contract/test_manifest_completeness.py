@@ -27,6 +27,18 @@ def test_every_mapping_targets_a_known_bundle_field():
         assert field in BUNDLE_FIELDS, f"{metric} -> unknown field {field}"
 
 
+def test_interhead_drift_family_is_mapped():
+    # §5.6 amendment: the inter-head drift metrics map to interhead_drift_surface.
+    assert "interhead_drift_surface" in BUNDLE_FIELDS
+    for m in (
+        "interhead_dispersion_drift",
+        "interhead_overlap_spectrum_drift",
+        "interhead_evidence_coverage_drift",
+    ):
+        assert METRIC_TO_FIELD[m] == "interhead_drift_surface"
+    assert check_completeness(PROGRAM_CATALOG_METRICS).complete
+
+
 def test_missing_metric_is_flagged():
     res = check_completeness(PROGRAM_CATALOG_METRICS | {"a_new_unmapped_metric"})
     assert not res.complete
