@@ -330,6 +330,16 @@ reduced-N RULER probe → completeness check → hand off the frozen cache to SP
   multi-GB full-attention transfer). Validated by
   `tests/integration/test_gpu_reductions_equivalence.py` (GPU path ≈ tested CPU
   primitives; runs under torch alone, no GPU/model needed — the cheapest pod check).
+- **sdpa + selective-attention recompute (2026-06-18, OPT-IN):** `run_capture(...,
+  attn_mode="sdpa_selective")` runs a fast/low-memory **sdpa** forward (no
+  `output_attentions`) and recomputes `softmax(QKᵀ)` for ONLY the stored query rows
+  (`extraction/selective_attention.py`: post-RoPE Q/K via the model's `rotary_emb`,
+  GQA expansion, causal mask) — never materializing the full `T×T` (the long-context
+  win). **eager stays the default/reference.** `benchmark_gate.py`/`run_pilot_v2.py`
+  take `--attn-mode`. **KNOWN GAPS** (the equivalence test flags them per-arch): Gemma-2
+  attn-logit softcap + sliding-window mask + 27B query-scalar are NOT applied yet (exact
+  for non-Gemma-2). Validated by `tests/integration/test_selective_attention_equivalence.py`
+  (recomputed rows ≈ eager `output_attentions`; pod, needs a model).
 - **Multi-arch + corpora scaffold (2026-06-18):** the generic `HFAdapter` (GQA
   expansion + descriptor-from-config) + `registry.resolve_adapter` (T029, CPU-tested)
   + the Gemma-2 sliding-window profile (T025–T028) and the SQuAD2 / closed-book /

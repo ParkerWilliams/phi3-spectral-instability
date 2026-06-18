@@ -24,7 +24,8 @@ def _dir_size_mb(path: Path) -> float:
 
 
 def benchmark_model(
-    model: Any, tokenizer: Any, records: list, *, model_id: str, cache_root: Path
+    model: Any, tokenizer: Any, records: list, *, model_id: str, cache_root: Path,
+    attn_mode: str = "eager",
 ) -> dict:
     """Time ``run_capture`` over a handful of events; report time/mem/disk."""
     import torch
@@ -39,7 +40,7 @@ def benchmark_model(
         run_capture(
             model, tokenizer, rec, cache_root=cache_root, capture_version="2.0.0",
             model_id=model_id, revision_sha="bench", manifest_sha256="bench",
-            code_commit_sha="bench", k_samples=2,
+            code_commit_sha="bench", k_samples=2, attn_mode=attn_mode,
         )
         dt = time.perf_counter() - t0
         peak = (torch.cuda.max_memory_allocated() / 1e9) if torch.cuda.is_available() else 0.0
@@ -58,6 +59,7 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="SP-0 benchmark gate")
     ap.add_argument("--model", required=True)
     ap.add_argument("--n", type=int, default=5)
+    ap.add_argument("--attn-mode", choices=("eager", "sdpa_selective"), default="eager")
     ap.add_argument("--cache-root", default="cache/benchmark")
     ap.add_argument("--out", default="reports/sp0/benchmark.json")
     args = ap.parse_args(argv)
@@ -67,12 +69,17 @@ def main(argv: list[str] | None = None) -> int:
 
     from phi3geom.dataset.adapters import hotpotqa
 
+    attn_impl = "sdpa" if args.attn_mode == "sdpa_selective" else "eager"
     tok = AutoTokenizer.from_pretrained(args.model)
     model = AutoModelForCausalLM.from_pretrained(
-        args.model, attn_implementation="eager", torch_dtype="bfloat16", device_map="auto"
+        args.model, attn_implementation=attn_impl, torch_dtype="bfloat16", device_map="auto"
     )
     records = list(hotpotqa.iter_events(limit=args.n, tokenizer=tok))
-    report = benchmark_model(model, tok, records, model_id=args.model, cache_root=Path(args.cache_root))
+    report = benchmark_model(
+        model, tok, records, model_id=args.model, cache_root=Path(args.cache_root),
+        attn_mode=args.attn_mode,
+    )
+    report["attn_mode"] = args.attn_mode
 
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)

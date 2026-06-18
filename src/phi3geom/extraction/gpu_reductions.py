@@ -95,20 +95,40 @@ def _cell_summary_gpu(A, span) -> list[float]:
     return [disp_js, disp_hel, eff, fied, top, cov]
 
 
-def interhead_surface_gpu(attentions, answer_pos: int, span, *, offsets=SAMPLED_QUERY_OFFSETS) -> np.ndarray:
-    """Inter-head drift surface S(t,ℓ) on-device → (n_t, L, len(CELL_FEATURES)+1) fp32.
-
-    ``attentions``: a sequence of ``(H, T, T)`` torch tensors (one per layer). Indexes
-    each cell on-device — never materializes/transfers the full attention to host.
-    """
-    L = len(attentions)
-    queries = sorted({max(0, answer_pos - off) for off in offsets})
+def sampled_queries(answer_pos: int, span, *, offsets=SAMPLED_QUERY_OFFSETS) -> list[int]:
+    """The query positions the inter-head surface is computed at (log-spaced ∪ span)."""
+    qs = {max(0, answer_pos - off) for off in offsets}
     if span is not None:
-        queries = sorted(set(queries) | {span[0], span[1]})
+        qs |= {span[0], span[1]}
+    return sorted(qs)
+
+
+def interhead_surface_from_rows(query_rows: dict, queries: list[int], span) -> np.ndarray:
+    """S(t,ℓ) from precomputed per-query attention rows.
+
+    ``query_rows``: ``{t: (L, H, T) torch}`` (eager: sliced from full attention; sdpa:
+    selectively recomputed). Returns ``(n_t, L, len(CELL_FEATURES)+1)`` fp32.
+    """
+    L = int(next(iter(query_rows.values())).shape[0])
     K = len(CELL_FEATURES) + 1
     surface = np.full((len(queries), L, K), np.nan, dtype=np.float64)
     for ti, t in enumerate(queries):
+        rows = query_rows[t]  # (L, H, T)
         for ell in range(L):
-            A = attentions[ell][:, t, :].double()   # (H, T) on device
-            surface[ti, ell, :] = _cell_summary_gpu(A, span)
+            surface[ti, ell, :] = _cell_summary_gpu(rows[ell].double(), span)
     return surface.astype(np.float32)
+
+
+def interhead_surface_gpu(attentions, answer_pos: int, span, *, offsets=SAMPLED_QUERY_OFFSETS) -> np.ndarray:
+    """Eager-path wrapper: build query rows from full attention, then reduce on-device.
+
+    ``attentions``: a sequence of ``(H, T, T)`` torch tensors (one per layer).
+    """
+    import torch
+
+    queries = sampled_queries(answer_pos, span, offsets=offsets)
+    query_rows = {
+        t: torch.stack([attentions[ell][:, t, :] for ell in range(len(attentions))])
+        for t in queries
+    }
+    return interhead_surface_from_rows(query_rows, queries, span)

@@ -32,9 +32,11 @@ from phi3geom.extraction.hooks import Phi3ExtractionHook
 from phi3geom.extraction.pipeline import build_prompt
 from phi3geom.extraction.gpu_reductions import (
     HIDDEN_WINDOW,
-    interhead_surface_gpu,
+    interhead_surface_from_rows,
+    sampled_queries,
     token_cloud_surface_gpu,
 )
+from phi3geom.extraction.selective_attention import recompute_query_rows
 from phi3geom.storage import bundle_cache
 
 
@@ -50,9 +52,17 @@ def run_capture(
     manifest_sha256: str,
     code_commit_sha: str,
     k_samples: int = 10,
+    attn_mode: str = "eager",
     intervention: Callable[[int, Any], Any] | None = None,
 ) -> dict:
     """Capture one event end-to-end and write its bundle. Returns the label dict.
+
+    ``attn_mode``: ``"eager"`` (default, validated reference) materializes the full
+    attention via ``output_attentions``; ``"sdpa_selective"`` runs a fast/low-memory
+    forward (no ``output_attentions``) and **recomputes only the stored attention rows**
+    from the hooked Q/K (``extraction.selective_attention``) — load the model with
+    ``attn_implementation="sdpa"`` for that mode. The two modes are equivalent on the
+    rows we keep (see ``tests/integration/test_selective_attention_equivalence.py``).
 
     ``intervention`` is the SP-3 reusable surface: if given, it is invoked per decoder
     layer as ``intervention(layer_idx, layer_output)`` via a forward hook (SP-0 ships
@@ -79,19 +89,29 @@ def run_capture(
                 )
             )
     span = record.evidence_spans[0] if record.evidence_spans else None
+    queries = sampled_queries(answer_pos, span)
+    if answer_pos not in queries:
+        queries = sorted(set(queries) | {answer_pos})
     try:
         with Phi3ExtractionHook(model) as hook, torch.no_grad():
+            # Keep hidden states ON DEVICE; reduce there and move only the small
+            # slices + reduced surfaces to host. Attention is either materialized
+            # (eager) or selectively recomputed for the stored rows only (sdpa).
+            want_attn = attn_mode == "eager"
             outputs = model(
                 input_ids,
                 output_hidden_states=True,
-                output_attentions=True,
+                output_attentions=want_attn,
                 use_cache=False,
             )
-            # Keep hidden states / attention ON DEVICE; reduce on the GPU and move
-            # only the small slices + reduced surfaces to host (avoids the multi-GB
-            # full-attention transfer and the CPU SVD/eigen bottleneck).
             hs = [h[0] for h in outputs.hidden_states]   # (L+1) × (T, d) on device
-            at = [a[0] for a in outputs.attentions]       # (L)   × (H, T, T) on device
+            if attn_mode == "sdpa_selective":
+                query_rows = recompute_query_rows(hook.captures, descriptor, model, queries)
+            else:  # eager — slice the stored rows from the full attention
+                at = [a[0] for a in outputs.attentions]
+                query_rows = {
+                    t: torch.stack([a[:, t, :] for a in at]) for t in queries
+                }
             win_lo = max(0, answer_pos - HIDDEN_WINDOW)
             hidden_answer_pos = (
                 torch.stack([h[answer_pos] for h in hs]).float().cpu().numpy().astype(np.float16)
@@ -100,13 +120,11 @@ def run_capture(
                 torch.stack([h[win_lo : answer_pos + 1] for h in hs], dim=1)
                 .float().cpu().numpy().astype(np.float16)
             )
-            attn_rows = (
-                torch.stack([a[:, answer_pos, :] for a in at]).float().cpu().numpy().astype(np.float16)
-            )
+            attn_rows = query_rows[answer_pos].float().cpu().numpy().astype(np.float16)  # (L,H,T)
             answer_logits = outputs.logits[0, answer_pos].float().cpu().numpy().astype(np.float16)
             qkv_per_head = adapter.capture_qkv(hook.captures, answer_pos)  # (3, L, H, d_head)
             token_cloud = token_cloud_surface_gpu(hs)          # on-device SVD → (L+1, k+6) fp32
-            interhead = interhead_surface_gpu(at, answer_pos, span)  # on-device → (n_t, L, K) fp32
+            interhead = interhead_surface_from_rows(query_rows, queries, span)  # (n_t, L, K) fp32
         del outputs
         if torch.cuda.is_available():
             torch.cuda.empty_cache()

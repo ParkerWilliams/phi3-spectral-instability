@@ -33,7 +33,7 @@ def _corpus_iter(corpus_id: str, *, limit: int, tokenizer: Any) -> Iterator:
 
 def run_pilot(
     model: Any, tokenizer: Any, *, model_id: str, corpora: list[str],
-    n_per_corpus: int, cache_root: Path,
+    n_per_corpus: int, cache_root: Path, attn_mode: str = "eager",
 ) -> dict:
     from phi3geom.extraction.capture import run_capture
 
@@ -45,7 +45,7 @@ def run_pilot(
                 label = run_capture(
                     model, tokenizer, rec, cache_root=cache_root, capture_version="2.0.0",
                     model_id=model_id, revision_sha="pilot", manifest_sha256="pilot",
-                    code_commit_sha="pilot",
+                    code_commit_sha="pilot", attn_mode=attn_mode,
                 )
                 classes[label["class_4way"]] += 1
             except Exception as exc:  # noqa: BLE001 — surface OOM/skip in the report
@@ -66,6 +66,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--model", required=True)
     ap.add_argument("--corpora", nargs="+", default=["hotpotqa"])
     ap.add_argument("--n-per-corpus", type=int, default=40)
+    ap.add_argument("--attn-mode", choices=("eager", "sdpa_selective"), default="eager")
     ap.add_argument("--cache-root", default="cache")
     ap.add_argument("--out", default="reports/sp0/pilot.json")
     args = ap.parse_args(argv)
@@ -73,13 +74,15 @@ def main(argv: list[str] | None = None) -> int:
     import torch  # noqa: F401
     from transformers import AutoModelForCausalLM, AutoTokenizer
 
+    attn_impl = "sdpa" if args.attn_mode == "sdpa_selective" else "eager"
     tok = AutoTokenizer.from_pretrained(args.model)
     model = AutoModelForCausalLM.from_pretrained(
-        args.model, attn_implementation="eager", torch_dtype="bfloat16", device_map="auto"
+        args.model, attn_implementation=attn_impl, torch_dtype="bfloat16", device_map="auto"
     )
     report = run_pilot(
         model, tok, model_id=args.model, corpora=args.corpora,
         n_per_corpus=args.n_per_corpus, cache_root=Path(args.cache_root),
+        attn_mode=args.attn_mode,
     )
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
