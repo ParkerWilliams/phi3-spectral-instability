@@ -65,7 +65,7 @@ residual-trajectory length and answer-token entropy per event with no model load
 
 ### Tests (write first, must fail)
 
-- [ ] T011 [P] [US1] Test: Phi-3 capture round-trip — recovered per-head Q/K/V + attention shapes match the model's own forward, in `tests/unit/test_capture_roundtrip_phi3.py` (research.md R1.4)
+- [~] T011 [P] [US1] Test: Phi-3 capture round-trip — recovered per-head Q/K/V + attention shapes match the model's own forward, in `tests/unit/test_capture_roundtrip_phi3.py` (research.md R1.4)
 - [X] T012 [P] [US1] Test: in-pass MP fit vs closed-form bulk edge on a known-aspect-ratio Gaussian (float64), in `tests/unit/test_mp_fit_analytic.py` (Constitution II/IV)
 - [X] T013 [P] [US1] Test: manifest completeness for the US1-implemented fields, in `tests/contract/test_manifest_completeness.py` (SC-001)
 - [~] T014 [P] [US1] Integration: capture one HotpotQA event on Phi-3 → bundle → offline consumer returns 1 geometry + 1 baseline scalar, zero model reload, in `tests/integration/test_capture_offline_consumer.py` (SC-002)
@@ -96,8 +96,8 @@ grouped-KV expansion yields one K/V per query head; effective attention support 
 
 ### Tests (write first, must fail)
 
-- [ ] T023 [P] [US2] Test: round-trip **parametrized over ALL GQA adapters** (Llama-3, Qwen2.5, Mistral — distinct `head_dim`/tied-embedding configs) — each query head paired with KV head `q // n_rep`, in `tests/unit/test_capture_roundtrip_gqa.py` (research.md R1.2; SC-003 "≥5 architectures round-trip verified" — remediation C2)
-- [ ] T024 [P] [US2] Test: Gemma-2 capture records per-layer effective support (sliding vs full) + softcap params, in `tests/unit/test_gemma2_capture.py` (research.md R1.3)
+- [~] T023 [P] [US2] Test: round-trip **parametrized over ALL GQA adapters** (Llama-3, Qwen2.5, Mistral — distinct `head_dim`/tied-embedding configs) — each query head paired with KV head `q // n_rep`, in `tests/unit/test_capture_roundtrip_gqa.py` (research.md R1.2; SC-003 "≥5 architectures round-trip verified" — remediation C2)
+- [~] T024 [P] [US2] Test: Gemma-2 capture records per-layer effective support (sliding vs full) + softcap params, in `tests/unit/test_gemma2_capture.py` (research.md R1.3)
 
 ### Implementation
 
@@ -146,7 +146,7 @@ document for closed-book; spans where available); a sampled batch lands in 25–
 
 ### Tests (write first, must fail)
 
-- [ ] T037 [P] [US4] Test: each adapter emits a valid common record incl. closed-book no-document + span-within-prompt validation, in `tests/contract/test_corpus_adapters.py` (contracts/corpus-adapter.md)
+- [X] T037 [P] [US4] Test: each adapter emits a valid common record incl. closed-book no-document + span-within-prompt validation, in `tests/contract/test_corpus_adapters.py` (contracts/corpus-adapter.md)
 
 ### Implementation
 
