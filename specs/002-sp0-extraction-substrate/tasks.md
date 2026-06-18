@@ -68,18 +68,18 @@ residual-trajectory length and answer-token entropy per event with no model load
 - [ ] T011 [P] [US1] Test: Phi-3 capture round-trip — recovered per-head Q/K/V + attention shapes match the model's own forward, in `tests/unit/test_capture_roundtrip_phi3.py` (research.md R1.4)
 - [X] T012 [P] [US1] Test: in-pass MP fit vs closed-form bulk edge on a known-aspect-ratio Gaussian (float64), in `tests/unit/test_mp_fit_analytic.py` (Constitution II/IV)
 - [X] T013 [P] [US1] Test: manifest completeness for the US1-implemented fields, in `tests/contract/test_manifest_completeness.py` (SC-001)
-- [ ] T014 [P] [US1] Integration: capture one HotpotQA event on Phi-3 → bundle → offline consumer returns 1 geometry + 1 baseline scalar, zero model reload, in `tests/integration/test_capture_offline_consumer.py` (SC-002)
+- [~] T014 [P] [US1] Integration: capture one HotpotQA event on Phi-3 → bundle → offline consumer returns 1 geometry + 1 baseline scalar, zero model reload, in `tests/integration/test_capture_offline_consumer.py` (SC-002)
 - [ ] T014a [P] [US1] Contract test: the rich-capture pass exposes a reusable **intervention-callback surface** (accepts an optional per-layer hook) so SP-3 can re-invoke it with interventions — SP-0 ships the surface, not the interventions — in `tests/contract/test_intervention_surface.py` (FR-026; remediation C3)
 
 ### Implementation
 
-- [ ] T015 [US1] Implement the Phi-3 `ModelAdapter` (fused `qkv_proj` contiguous slicing, MHA `n_rep=1`, `o_proj` slice, hidden-state + unembed capture) in `src/phi3geom/extraction/adapters/phi3.py` (research.md R1.4/R1.5)
+- [~] T015 [US1] Implement the Phi-3 `ModelAdapter` (fused `qkv_proj` contiguous slicing, MHA `n_rep=1`, `o_proj` slice, hidden-state + unembed capture) in `src/phi3geom/extraction/adapters/phi3.py` (research.md R1.4/R1.5)
 - [~] T016 [US1] Implement the in-pass per-layer token-cloud eigen-spectrum + MP fit (**float64**, store only the reduction) in `src/phi3geom/extraction/capture.py` (depends T012; contracts/capture-manifest.md in-pass rule) — **PARTIAL**: the MP reduction primitive (`marchenko_pastur_edges`/`covariance_eigenvalues`/`token_cloud_spectrum`) is done & analytically tested in `src/phi3geom/geometry/spectral.py` (T012 green); wiring it into the live capture pass pends the GPU pod
-- [ ] T017 [US1] Implement the rich-capture pass in `src/phi3geom/extraction/capture.py`: eager forward, **layer-by-layer attention CPU offload**, assemble `CaptureBundle` (hidden@answer-pos + window, attn rows, `T×T` subset S, spectra, answer logits) and write via the cache; expose an **optional per-layer intervention callback** as the reusable SP-3 surface (depends T007, T009, T015, T016; research.md R1.1; FR-026/C3)
-- [ ] T018 [US1] Implement K+1 generation (greedy T=0 scored + K=10 samples T=1.0/top-p 0.9, per-sample seeds) and `GenerationSample` storage (text/token_ids/chosen-token logprobs/seq logprob/length/greedy-flag) in `src/phi3geom/extraction/capture.py` (research.md R3.1)
-- [ ] T019 [US1] Implement the HotpotQA adapter → common record + evidence spans from gold supporting sentences in `src/phi3geom/dataset/adapters/hotpotqa.py` (contracts/corpus-adapter.md)
+- [~] T017 [US1] Implement the rich-capture pass in `src/phi3geom/extraction/capture.py`: eager forward, **layer-by-layer attention CPU offload**, assemble `CaptureBundle` (hidden@answer-pos + window, attn rows, `T×T` subset S, spectra, answer logits) and write via the cache; expose an **optional per-layer intervention callback** as the reusable SP-3 surface (depends T007, T009, T015, T016; research.md R1.1; FR-026/C3)
+- [~] T018 [US1] Implement K+1 generation (greedy T=0 scored + K=10 samples T=1.0/top-p 0.9, per-sample seeds) and `GenerationSample` storage (text/token_ids/chosen-token logprobs/seq logprob/length/greedy-flag) in `src/phi3geom/extraction/capture.py` (research.md R3.1)
+- [~] T019 [US1] Implement the HotpotQA adapter → common record + evidence spans from gold supporting sentences in `src/phi3geom/dataset/adapters/hotpotqa.py` (contracts/corpus-adapter.md)
 - [X] T020 [US1] Implement minimal `normalize_answer` + alias-EM correctness → `Label` (greedy sample) in `src/phi3geom/dataset/labeling.py` (full 4-way deferred to US3; research.md R3.2)
-- [ ] T021 [US1] Wire a single-`(model, corpus, event)` capture entrypoint (re-point `src/phi3geom/extraction/pipeline.py` at `capture.py`; keep the v1 path for provenance)
+- [~] T021 [US1] Wire a single-`(model, corpus, event)` capture entrypoint (re-point `src/phi3geom/extraction/pipeline.py` at `capture.py`; keep the v1 path for provenance)
 - [ ] T022 [US1] Confirm `check_manifest_completeness` passes for the US1 metric subset and the offline consumer demo runs (depends T010, T017)
 
 **Checkpoint**: MVP — Phi-3 × HotpotQA capture-once works and is consumable offline.
@@ -202,10 +202,10 @@ restores 100% of committed events.
 
 ### Implementation
 
-- [ ] T051 [US6] Implement `benchmark_gate.py` — per-`(model, context_bucket)` time/peak-mem/disk under full rich capture → derive `chosen_N`, layer subset `S`, `longctx_N` — in `src/phi3geom/scripts/benchmark_gate.py` (SC-008; watch `nvidia-smi`)
+- [~] T051 [US6] Implement `benchmark_gate.py` — per-`(model, context_bucket)` time/peak-mem/disk under full rich capture → derive `chosen_N`, layer subset `S`, `longctx_N` — in `src/phi3geom/scripts/benchmark_gate.py` (SC-008; watch `nvidia-smi`)
 - [ ] T052 [US6] Implement resilient resume that reads what was actually persisted (fix the v1 `restore_from_branch` committed-vs-scheduled gap) in `src/phi3geom/storage/cache.py` / `src/phi3geom/checkpointing.py` (depends T049, T050)
 - [ ] T053 [US6] Maintain durable persistence (anchored ignores + force-add) so bundles are never silently dropped (keep the `fe190b7` regression green)
-- [ ] T054 [US6] Implement the multi-model pilot driver `run_pilot_v2.py` (≥2 architectures × all corpora × small N) in `src/phi3geom/scripts/run_pilot_v2.py` (SC-009)
+- [~] T054 [US6] Implement the multi-model pilot driver `run_pilot_v2.py` (≥2 architectures × all corpora × small N) in `src/phi3geom/scripts/run_pilot_v2.py` (SC-009)
 - [ ] T055 [US6] Emit the pilot report (per-corpus fail/hallucination balance, abstention P/R, `oom_skips=0`, archs validated) to `reports/sp0/pilot.json`
 
 **Checkpoint**: US1–US6 — gated, validated, durable substrate.
@@ -314,3 +314,14 @@ reduced-N RULER probe → completeness check → hand off the frozen cache to SP
 - **Post-`/speckit-analyze` remediation**: C1 → T050a (zero-re-extraction test),
   C2 → T023 broadened to all GQA adapters, C3 → T014a + T017 intervention surface.
   62 tasks total after remediation.
+- **Pipeline scaffold (2026-06-18, `[~]` = DRAFTED, POD-VALIDATION-PENDING):** the
+  GPU pipeline is written but UNRUNNABLE on the CPU dev box (no torch/datasets/GPU),
+  so it is NOT marked done. Drafted modules: `extraction/generation.py` (T018),
+  `extraction/capture.py` (T017 + the in-pass MP/§5.6 wiring T016/T063, reusing v1
+  `hooks.py` for the Phi-3 path T015), `dataset/adapters/hotpotqa.py` (T019),
+  `scripts/benchmark_gate.py` (T051), `scripts/run_pilot_v2.py` (T054/T021), and the
+  skip-guarded `tests/integration/test_capture_pipeline_v2.py` (T014). All torch-lazy
+  so the 384 CPU tests stay green. **Validate on the pod**: `pip install -e .`, set
+  `PHI3_RUN_GPU_TESTS=1`, flip the integration test, debug. **Fan-out still to write:**
+  the GQA/Gemma-2 adapters + registry (T025–T030; capture.py currently leans on the
+  Phi-3-shaped `hooks.py`) and the SQuAD2/closed-book/RULER corpus loaders (T037–T041).
